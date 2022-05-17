@@ -6,3 +6,4 @@ app/.externalNativeBuild/
 app/build/
 app/release/
 local.properties
+.metals
