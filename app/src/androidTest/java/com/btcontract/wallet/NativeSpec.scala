@@ -1,4 +1,4 @@
-package com.btcontract.wallet
+package com.fiatjaf.wallet
 
 import java.math.BigInteger
 

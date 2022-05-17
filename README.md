@@ -1,15 +1,15 @@
-Simple Bitcoin Wallet (aka SBW) is an [IMMORTAN](https://github.com/btcontract/IMMORTAN)-powered non-custodial Bitcoin wallet for Android with extensive Lightning Network support. It is fully autonomus and does not rely on any kind of centralized service (such as Google services, routing servers, special LSP nodes etc). It is the first mobile wallet which supports routing of 3rd-party Lightning payments and thus allows users to avoid private channel closings as well as earn routing fees in a non-custodial way.    
+Simple Bitcoin Wallet (aka SBW) is an [IMMORTAN](https://github.com/fiatjaf/IMMORTAN)-powered non-custodial Bitcoin wallet for Android with extensive Lightning Network support. It is fully autonomus and does not rely on any kind of centralized service (such as Google services, routing servers, special LSP nodes etc). It is the first mobile wallet which supports routing of 3rd-party Lightning payments and thus allows users to avoid private channel closings as well as earn routing fees in a non-custodial way.    
 
 <table>
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <a href="https://play.google.com/store/apps/details?id=com.btcontract.wallet">
+        <a href="https://play.google.com/store/apps/details?id=com.fiatjaf.wallet">
           <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" height="50pt"/>
         </a>
       </td>
       <td align="center" valign="middle">
-        <a href="https://f-droid.org/repository/browse/?fdid=com.btcontract.wallet">
+        <a href="https://f-droid.org/repository/browse/?fdid=com.fiatjaf.wallet">
           <img alt="Get it on F-Droid" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="80pt"/>
         </a>  
       </td>
@@ -37,7 +37,7 @@ Simple Bitcoin Wallet (aka SBW) is an [IMMORTAN](https://github.com/btcontract/I
 ## Building from source
 
 ```
-git clone https://github.com/btcontract/wallet.git
+git clone https://github.com/fiatjaf/wallet.git
 cd wallet
 git checkout 2.4.27
 podman build -t sbw .

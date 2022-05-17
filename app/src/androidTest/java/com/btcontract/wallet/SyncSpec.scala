@@ -1,4 +1,4 @@
-package com.btcontract.wallet
+package com.fiatjaf.wallet
 
 import org.junit.{Ignore, Test}
 import immortan.{ClearnetConnectionProvider, LNParams, PureRoutingData, SyncMaster, SyncMasterShortIdData, SyncParams}
