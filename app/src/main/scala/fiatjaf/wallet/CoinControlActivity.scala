@@ -45,7 +45,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
       excludedOutPoints = event.excludedOutPoints.toSet
       updateItems(event.unExcludedUtxos)
       chanAdapter.notifyDataSetChanged
-      updateWallet
+      updateWallet()
     }.run
   }
 
@@ -129,7 +129,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
       .toList
   }
 
-  override def onDestroy: Unit = {
+  override def onDestroy(): Unit = {
     val remove = WalletEventsCatcher.Remove(chainListener)
     try LNParams.chainWallets.catcher ! remove
     catch none
@@ -141,7 +141,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
     checkExternalData(noneRunnable)
   }
 
-  def updateWallet: Unit = {
+  def updateWallet(): Unit = {
     TransitionManager.beginDelayedTransition(chooser.holder)
     chooser.update(LNParams.chainWallets.findByPubKey(walletPubKey).toList)
     chooser.unPad(LNParams.chainWallets.findByPubKey(walletPubKey).toList)
@@ -166,7 +166,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
     txLabels = WalletApp.txDataBag.listAllDescriptions
     walletPubKey = wallet.ewt.xPub.publicKey
     chooser.init(wallet :: Nil)
-    updateWallet
+    updateWallet()
 
     utxoList.setAdapter(chanAdapter)
     utxoList.setDividerHeight(0)

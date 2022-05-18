@@ -182,7 +182,10 @@ class SetupActivity extends BaseActivity { me =>
     }
 
     def proceed(alert: AlertDialog): Unit = try {
-      MnemonicCode.validate(getMnemonicList, englishWordList)
+      MnemonicCode.validate(
+        getMnemonicList.toIndexedSeq,
+        englishWordList.toIndexedSeq
+      )
       onMnemonic(getMnemonicList)
       alert.dismiss
     } catch {

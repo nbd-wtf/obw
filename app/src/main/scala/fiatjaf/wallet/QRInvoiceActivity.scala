@@ -28,12 +28,12 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
   private var fulfillSubscription: Subscription = _
   private var holdSubscription: Subscription = _
 
-  def markFulfilled: Unit = UITask {
+  def markFulfilled(): Unit = UITask {
     TransitionManager.beginDelayedTransition(activityQRInvoiceMain)
     setVisMany(true -> invoiceSuccess, false -> invoiceHolding)
   }.run
 
-  def markHolding: Unit = UITask {
+  def markHolding(): Unit = UITask {
     TransitionManager.beginDelayedTransition(activityQRInvoiceMain)
     setVisMany(false -> invoiceSuccess, true -> invoiceHolding)
   }.run
@@ -50,7 +50,7 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
       QRActivity.get(info.prExt.raw.toUpperCase, qrSize),
       onFail
     ) { qrBitmap =>
-      def share: Unit = runInFutureProcessOnUI(
+      def share(): Unit = runInFutureProcessOnUI(
         shareData(qrBitmap, info.prExt.raw),
         onFail
       )(none)
@@ -65,20 +65,20 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
       qrViewHolder.qrCode setOnClickListener onButtonTap(
         WalletApp.app copy info.prExt.raw
       )
-      qrViewHolder.qrShare setOnClickListener onButtonTap(share)
+      qrViewHolder.qrShare setOnClickListener onButtonTap(share())
       qrViewHolder.qrCode setImageBitmap qrBitmap
 
       fulfillSubscription = ChannelMaster.inFinalized
         .collect { case revealed: IncomingRevealed => revealed }
         .filter(revealed => info.fullTag == revealed.fullTag)
-        .subscribe(_ => markFulfilled)
+        .subscribe(_ => markFulfilled())
 
       holdSubscription = ChannelMaster.stateUpdateStream
         .filter { _ =>
           val incomingFsmOpt = LNParams.cm.inProcessors.get(info.fullTag)
           incomingFsmOpt.exists(info.isActivelyHolding)
         }
-        .subscribe(_ => markHolding)
+        .subscribe(_ => markHolding())
     }
 
   override def checkExternalData(whenNone: Runnable): Unit =
@@ -90,7 +90,7 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
       case _ => finish
     }
 
-  override def onDestroy: Unit = {
+  override def onDestroy(): Unit = {
     try fulfillSubscription.unsubscribe()
     catch none
     try holdSubscription.unsubscribe()

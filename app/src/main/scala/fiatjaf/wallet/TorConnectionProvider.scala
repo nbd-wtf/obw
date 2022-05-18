@@ -51,7 +51,7 @@ class TorConnectionProvider(context: Context) extends ConnectionProvider {
 
   override def getSocket: Socket = new Socket(proxy)
 
-  def notifyAppAvailable: Unit = {
+  def notifyAppAvailable(): Unit = {
     val services = context
       .getSystemService(Context.ACTIVITY_SERVICE)
       .asInstanceOf[ActivityManager]

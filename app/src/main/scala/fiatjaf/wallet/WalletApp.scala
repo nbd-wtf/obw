@@ -54,7 +54,7 @@ import immortan.utils._
 import rx.lang.scala.Observable
 import scodec.bits.BitVector
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.Try
@@ -129,13 +129,13 @@ object WalletApp {
     // Drop whatever network connections we still have
     CommsTower.workers.values.map(_.pair).foreach(CommsTower.forget)
     // Clear listeners, destroy actors, finalize state machines
-    try LNParams.chainWallets.becomeShutDown
+    try LNParams.chainWallets.becomeShutDown()
     catch none
-    try LNParams.fiatRates.becomeShutDown
+    try LNParams.fiatRates.becomeShutDown()
     catch none
-    try LNParams.feeRates.becomeShutDown
+    try LNParams.feeRates.becomeShutDown()
     catch none
-    try LNParams.cm.becomeShutDown
+    try LNParams.cm.becomeShutDown()
     catch none
     // Make non-alive and non-operational
     LNParams.secret = null
@@ -289,14 +289,16 @@ object WalletApp {
       LNParams.loggedActor(Props(new WalletEventsCatcher), "events-catcher")
 
     val walletExt: WalletExt =
-      (WalletExt(
-        wallets = Nil,
-        catcher,
-        sync,
-        electrumPool,
-        watcher,
-        params
-      ) /: chainWalletBag.listWallets) {
+      chainWalletBag.listWallets.foldLeft(
+        WalletExt(
+          wallets = Nil,
+          catcher,
+          sync,
+          electrumPool,
+          watcher,
+          params
+        )
+      ) {
         case ext ~ CompleteChainWalletInfo(
               core: SigningWallet,
               persistentSigningWalletData,
@@ -320,6 +322,8 @@ object WalletApp {
             ext.makeWatchingWallet84Parts(core, lastBalance, label)
           watchingWallet.walletRef ! persistentWatchingWalletData
           ext.copy(wallets = watchingWallet :: ext.wallets)
+
+        case ext ~ _ => ext
       }
 
     LNParams.chainWallets = if (walletExt.wallets.isEmpty) {
@@ -347,7 +351,7 @@ object WalletApp {
     // Guaranteed to fire (and update chainWallets) first
     LNParams.chainWallets.catcher ! new WalletEventsListener {
       override def onChainTipKnown(event: CurrentBlockCount): Unit =
-        LNParams.cm.initConnect
+        LNParams.cm.initConnect()
 
       override def onWalletReady(event: WalletReady): Unit =
         LNParams.synchronized {
@@ -455,7 +459,7 @@ object WalletApp {
     // Get channels and still active FSMs up and running
     LNParams.cm.all = Channel.load(Set(LNParams.cm), chanBag)
     // This inital notification will create all in/routed/out FSMs
-    LNParams.cm.notifyResolvers
+    LNParams.cm.notifyResolvers()
 
     Rx.repeat(Rx.ioQueue.delay(1.second), Rx.incHour, 1 to Int.MaxValue)
       .foreach { _ =>
@@ -577,7 +581,7 @@ object Vibrator {
     .getSystemService(Context.VIBRATOR_SERVICE)
     .asInstanceOf[android.os.Vibrator]
   def vibrate(): Unit = if (null != vibrator && vibrator.hasVibrator)
-    vibrator.vibrate(Array(0L, 85, 200), -1)
+    vibrator.vibrate(android.os.VibrationEffect.createOneShot(85, -1))
 }
 
 class WalletApp extends Application { me =>

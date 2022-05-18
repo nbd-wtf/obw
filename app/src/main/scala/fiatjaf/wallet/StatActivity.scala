@@ -14,10 +14,10 @@ class StatActivity extends BaseCheckActivity { me =>
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_settings)
-    updateView
+    updateView()
   }
 
-  def updateView: Unit = {
+  def updateView(): Unit = {
     val title = new TitleView(me getString settings_stats)
     title.view.setOnClickListener(me onButtonTap finish)
     title.backArrow.setVisibility(View.VISIBLE)

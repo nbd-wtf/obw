@@ -8,7 +8,7 @@ trait DBInterfaceSQLiteAndroid extends DBInterface {
     base.execSQL(sql, params.toArray)
 
   def change(prepared: PreparedQuery, params: Object*): Unit =
-    prepared.bound(params: _*).executeUpdate
+    prepared.bound(params: _*).executeUpdate()
 
   def select(prepared: PreparedQuery, params: String*): RichCursor =
     throw new RuntimeException("Not supported")

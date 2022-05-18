@@ -24,7 +24,7 @@ import immortan.utils.InputParser
 import scodec.bits.ByteVector
 import spray.json._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 trait HasBarcodeReader extends BarcodeCallback {
@@ -59,15 +59,15 @@ trait HasUrDecoder extends HasBarcodeReader {
 abstract class ScannerBottomSheet(host: BaseActivity)
     extends BottomSheetDialogFragment
     with HasBarcodeReader {
-  def resumeBarcodeReader: Unit =
+  def resumeBarcodeReader(): Unit =
     runAnd(barcodeReader decodeContinuous this)(barcodeReader.resume)
-  def pauseBarcodeReader: Unit =
+  def pauseBarcodeReader(): Unit =
     runAnd(barcodeReader setTorch false)(barcodeReader.pause)
 
-  override def onDestroy: Unit =
+  override def onDestroy(): Unit =
     runAnd(barcodeReader.stopDecoding)(super.onStop)
-  override def onResume: Unit = runAnd(resumeBarcodeReader)(super.onResume)
-  override def onStop: Unit = runAnd(pauseBarcodeReader)(super.onStop)
+  override def onResume(): Unit = runAnd(resumeBarcodeReader())(super.onResume)
+  override def onStop(): Unit = runAnd(pauseBarcodeReader())(super.onStop)
   var flashlight: ImageButton = _
 
   override def onCreateView(
@@ -84,10 +84,10 @@ abstract class ScannerBottomSheet(host: BaseActivity)
     instruction = view.findViewById(R.id.instruction).asInstanceOf[TextView]
     barcodeReader = view.findViewById(R.id.reader).asInstanceOf[BarcodeView]
     flashlight = view.findViewById(R.id.flashlight).asInstanceOf[ImageButton]
-    flashlight setOnClickListener host.onButtonTap(toggleTorch)
+    flashlight setOnClickListener host.onButtonTap(toggleTorch())
   }
 
-  def toggleTorch: Unit = {
+  def toggleTorch(): Unit = {
     val currentTag = flashlight.getTag.asInstanceOf[Int]
 
     if (currentTag != R.drawable.flashlight_on) {

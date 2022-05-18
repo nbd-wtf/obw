@@ -540,6 +540,7 @@ class ChanActivity
           sentAmount = prExt.pr.amountOpt.get
         )
         LNParams.cm.localSend(cmd)
+      case None => {}
     }
   }
 

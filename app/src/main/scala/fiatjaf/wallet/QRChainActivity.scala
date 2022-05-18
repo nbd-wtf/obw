@@ -75,10 +75,6 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
             QRActivity.get(contentToShare, qrSize),
             onFail
           ) { qrBitmap =>
-            def share: Unit = runInFutureProcessOnUI(
-              shareData(qrBitmap, contentToShare),
-              onFail
-            )(none)
             holder.qrCopy setOnClickListener onButtonTap(
               WalletApp.app copy contentToShare
             )
@@ -86,7 +82,12 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
               WalletApp.app copy contentToShare
             )
             holder.qrEdit setOnClickListener onButtonTap(me editAddress bu)
-            holder.qrShare setOnClickListener onButtonTap(share)
+            holder.qrShare setOnClickListener onButtonTap({
+              runInFutureProcessOnUI(
+                shareData(qrBitmap, contentToShare),
+                onFail
+              )(none)
+            })
             holder.qrCode setImageBitmap qrBitmap
           }
         }
@@ -163,7 +164,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
     checkExternalData(noneRunnable)
   }
 
-  def showCode: Unit = {
+  def showCode(): Unit = {
     runFutureProcessOnUI(wallet.getReceiveAddresses, onFail) { response =>
       val layoutManager =
         new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false)

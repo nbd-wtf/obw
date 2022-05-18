@@ -1235,7 +1235,7 @@ class HubActivity
                 expiresInBlocks.head,
                 R.drawable.border_red
               )
-            case None => // Either incoming or not in channels
+            case _ => () // Either incoming or not in channels
           }
 
         case info: TxInfo =>
@@ -2009,7 +2009,7 @@ class HubActivity
     // Tor service could have been stopped in background
     LNParams.connectionProvider match {
       case t: TorConnectionProvider => {
-        try t.notifyAppAvailable
+        try t.notifyAppAvailable()
         catch none
       }
       case _ => {}

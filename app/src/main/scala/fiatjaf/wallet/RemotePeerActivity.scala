@@ -42,7 +42,7 @@ object RemotePeerActivity {
     LNParams.cm.all += Tuple2(cs.channelId, freshChannel)
     // This removes all previous channel listeners
     freshChannel.listeners = Set(LNParams.cm)
-    LNParams.cm.initConnect
+    LNParams.cm.initConnect()
 
     // Update view on hub activity and finalize local stuff
     ChannelMaster.next(ChannelMaster.statusUpdateStream)
@@ -90,7 +90,7 @@ class RemotePeerActivity
   class DisconnectListener extends ConnectionListener {
     override def onDisconnect(worker: CommsTower.Worker): Unit = {
       UITask(WalletApp.app quickToast R.string.rpa_disconnected).run
-      disconnectListenersAndFinish
+      disconnectListenersAndFinish()
     }
   }
 
@@ -164,7 +164,7 @@ class RemotePeerActivity
     whenBackPressed = UITask {
       // Disconnect and clear up if anything goes wrong
       CommsTower.disconnectNative(info.remoteInfo)
-      info.cancel
+      info.cancel()
     }
 
     // Try to connect after assigning vars since listener may fire immediately
@@ -172,7 +172,7 @@ class RemotePeerActivity
     CommsTower.listenNative(listeners, info.remoteInfo)
   }
 
-  override def onBackPressed: Unit = whenBackPressed.run
+  override def onBackPressed(): Unit = whenBackPressed.run
   override def checkExternalData(whenNone: Runnable): Unit =
     InputParser.checkAndMaybeErase {
       case remoteInfo: RemoteNodeInfo =>
@@ -193,7 +193,7 @@ class RemotePeerActivity
       override def onEstablished(cs: Commitments, chan: ChannelNormal): Unit =
         implant(cs, chan)
       override def onFailure(reason: Throwable): Unit = revertAndInform(reason)
-      stopAcceptingIncomingOffers
+      stopAcceptingIncomingOffers()
     }
   }
 
@@ -262,9 +262,9 @@ class RemotePeerActivity
           sendView.chainConfirmView.chainButtonsView.chainNextButton
 
         sendView.switchToSpinner(alert)
-        stopAcceptingIncomingOffers
+        stopAcceptingIncomingOffers()
 
-        def processLocalFunding: Unit =
+        def processLocalFunding(): Unit =
           new NCFunderOpenHandler(
             hasInfo.remoteInfo,
             fundingAmount = totalFundAmount.truncateToSatoshi,
@@ -323,7 +323,7 @@ class RemotePeerActivity
                       fakeSigResponse.withReplacedTx(signedTx)
                     if (
                       realSigReponse.tx.txOut.toSet != fakeSigResponse.tx.txOut.toSet
-                    ) disconnectListenersAndFinish
+                    ) disconnectListenersAndFinish()
                     finalSendButton setOnClickListener onButtonTap(
                       doFundRunnable(freshChannel, realSigReponse).run
                     )
@@ -337,7 +337,7 @@ class RemotePeerActivity
           }
 
         if (fromWallet.isSigning) {
-          finalSendButton setOnClickListener onButtonTap(processLocalFunding)
+          finalSendButton setOnClickListener onButtonTap(processLocalFunding())
           sendView.switchToConfirm(
             alert,
             totalFundAmount,
@@ -345,7 +345,7 @@ class RemotePeerActivity
           )
         } else if (fromWallet.hasFingerprint)
           processHardwareFunding(fromWallet.info.core.masterFingerprint.get)
-        else disconnectListenersAndFinish
+        else disconnectListenersAndFinish()
       }
     }
 
@@ -441,7 +441,7 @@ class RemotePeerActivity
     def doAskHostedChannel(alert: AlertDialog): Unit = {
       // Switch view first since HC may throw immediately
       setVis(isVisible = false, viewYesFeatureSupport)
-      stopAcceptingIncomingOffers
+      stopAcceptingIncomingOffers()
       alert.dismiss
 
       // We only need local params to extract defaultFinalScriptPubKey
@@ -460,7 +460,7 @@ class RemotePeerActivity
           // We need to disconnect instead of just showing an error because of HC specifics
           // remote peer awaits for our response and won't react to another HC open request
           WalletApp.app.quickToast(reason.getMessage)
-          disconnectListenersAndFinish
+          disconnectListenersAndFinish()
           whenBackPressed.run
         }.run
       }
@@ -474,7 +474,7 @@ class RemotePeerActivity
     WalletApp.app.quickToast(details)
   }.run
 
-  def stopAcceptingIncomingOffers: Unit = {
+  def stopAcceptingIncomingOffers(): Unit = {
     CommsTower.listenNative(Set(incomingIgnoringListener), hasInfo.remoteInfo)
     CommsTower.rmListenerNative(hasInfo.remoteInfo, incomingAcceptingListener)
   }
@@ -491,10 +491,10 @@ class RemotePeerActivity
 
   def implant(cs: Commitments, freshChannel: Channel): Unit = {
     RemotePeerActivity.implantNewChannel(cs, freshChannel)
-    disconnectListenersAndFinish
+    disconnectListenersAndFinish()
   }
 
-  def disconnectListenersAndFinish: Unit = {
+  def disconnectListenersAndFinish(): Unit = {
     CommsTower.rmListenerNative(hasInfo.remoteInfo, incomingAcceptingListener)
     CommsTower.rmListenerNative(hasInfo.remoteInfo, incomingIgnoringListener)
     CommsTower.rmListenerNative(hasInfo.remoteInfo, viewUpdatingListener)

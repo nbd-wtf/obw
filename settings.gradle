@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = 'Bitcoin'
+rootProject.name = 'Simple Bitcoin Wallet'

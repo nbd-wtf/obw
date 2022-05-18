@@ -35,7 +35,7 @@ case class PreparedQuerySQLiteAndroid(prepared: SQLiteStatement)
 
   def executeQuery: RichCursor = throw new RuntimeException("Not supported")
 
-  def executeUpdate: Unit = prepared.executeUpdateDelete
+  def executeUpdate(): Unit = prepared.executeUpdateDelete
 
-  def close: Unit = prepared.close
+  def close(): Unit = prepared.close
 }
