@@ -7,7 +7,7 @@ import android.app.ActivityManager
 import android.content.{BroadcastReceiver, Context, Intent, IntentFilter}
 import immortan.ConnectionProvider
 import immortan.crypto.Tools._
-import okhttp3.OkHttpClient
+import okhttp3.{OkHttpClient, Request}
 import org.torproject.jni.TorService
 
 import scala.collection.JavaConverters._
@@ -19,10 +19,15 @@ class TorConnectionProvider(context: Context) extends ConnectionProvider {
   private val proxy =
     new java.net.Proxy(java.net.Proxy.Type.SOCKS, proxyAddress.get)
 
-  override val okHttpClient: OkHttpClient = (new OkHttpClient.Builder)
+  val okHttpClient: OkHttpClient = (new OkHttpClient.Builder)
     .proxy(proxy)
     .connectTimeout(30, TimeUnit.SECONDS)
     .build
+
+  override def get(url: String): String = {
+    val request = (new Request.Builder).url(url).get
+    okHttpClient.newCall(request.build).execute.body().string()
+  }
 
   private val torServiceClassReference = classOf[TorService]
 
@@ -46,7 +51,7 @@ class TorConnectionProvider(context: Context) extends ConnectionProvider {
 
   override def getSocket: Socket = new Socket(proxy)
 
-  override def notifyAppAvailable: Unit = {
+  def notifyAppAvailable: Unit = {
     val services = context
       .getSystemService(Context.ACTIVITY_SERVICE)
       .asInstanceOf[ActivityManager]

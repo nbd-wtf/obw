@@ -58,11 +58,11 @@ class SetupActivity extends BaseActivity { me =>
   private[this] final val FILE_REQUEST_CODE = 112
 
   lazy private[this] val enforceTor = new SettingsHolder(me) {
-    override def updateView: Unit =
+    override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
     settingsTitle.setText(settings_ensure_tor)
     setVis(isVisible = false, settingsInfo)
-    disableIfOldAndroid
+    disableIfOldAndroid()
 
     view setOnClickListener onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)
@@ -72,7 +72,7 @@ class SetupActivity extends BaseActivity { me =>
   override def START(s: Bundle): Unit = {
     setContentView(R.layout.activity_setup)
     activitySetupMain.addView(enforceTor.view, 0)
-    enforceTor.updateView
+    enforceTor.updateView()
   }
 
   private[this] lazy val englishWordList = {

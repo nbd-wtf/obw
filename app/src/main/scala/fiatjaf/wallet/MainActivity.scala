@@ -32,7 +32,7 @@ object ClassNames {
 }
 
 class MainActivity extends BaseActivity { me =>
-  override def onResume: Unit = runAnd(super.onResume) {
+  override def onResume(): Unit = runAnd(super.onResume) {
     val processIntent =
       (getIntent.getFlags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
     val dataOpt =
@@ -51,7 +51,7 @@ class MainActivity extends BaseActivity { me =>
   }
 
   def proceed(empty: Any): Unit = WalletApp.isAlive match {
-    case false => runAnd(WalletApp.makeAlive)(me proceed null)
+    case false => runAnd(WalletApp.makeAlive())(me proceed null)
 
     case true if LNParams.isOperational =>
       me exitTo ClassNames.hubActivityClass

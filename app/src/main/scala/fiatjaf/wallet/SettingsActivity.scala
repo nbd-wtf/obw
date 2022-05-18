@@ -36,14 +36,14 @@ abstract class SettingsHolder(host: BaseActivity) {
   val settingsInfo: TextView =
     view.findViewById(R.id.settingsInfo).asInstanceOf[TextView]
   val REQUEST_CODE_CREATE_LOCK: Int = 103
-  def updateView: Unit
+  def updateView(): Unit
 
   def putBoolAndUpdateView(key: String, value: Boolean): Unit = {
     WalletApp.app.prefs.edit.putBoolean(key, value).commit
-    updateView
+    updateView()
   }
 
-  def disableIfOldAndroid: Unit =
+  def disableIfOldAndroid(): Unit =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
       val message =
         host.getString(error_old_api_level).format(Build.VERSION.SDK_INT)
@@ -67,16 +67,16 @@ class SettingsActivity
   private[this] val CHOICE_BTC_DENOMINATON_TAG = "choiceBtcDenominationTag"
   private[this] val units = List(SatDenomination, BtcDenomination)
 
-  override def onResume: Unit = {
-    storeLocalBackup.updateView
-    chainWallets.updateView
-    electrum.updateView
-    setFiat.updateView
-    setBtc.updateView
+  override def onResume(): Unit = {
+    storeLocalBackup.updateView()
+    chainWallets.updateView()
+    electrum.updateView()
+    setFiat.updateView()
+    setBtc.updateView()
 
-    useBiometric.updateView
-    enforceTor.updateView
-    super.onResume
+    useBiometric.updateView()
+    enforceTor.updateView()
+    super.onResume()
   }
 
   override def onChoiceMade(tag: AnyRef, pos: Int): Unit = tag match {
@@ -85,14 +85,14 @@ class SettingsActivity
       val fiatCode ~ _ = fiatSymbols(pos)
       WalletApp.app.prefs.edit.putString(WalletApp.FIAT_CODE, fiatCode).commit
       ChannelMaster.next(ChannelMaster.stateUpdateStream)
-      setFiat.updateView
+      setFiat.updateView()
 
     case CHOICE_BTC_DENOMINATON_TAG =>
       WalletApp.app.prefs.edit
         .putString(WalletApp.BTC_DENOM, units(pos).sign)
         .commit
       ChannelMaster.next(ChannelMaster.stateUpdateStream)
-      setBtc.updateView
+      setBtc.updateView()
 
     case _ =>
   }
@@ -100,7 +100,7 @@ class SettingsActivity
   lazy private[this] val storeLocalBackup = new SettingsHolder(me) {
     setVis(isVisible = false, settingsCheck)
 
-    def updateView: Unit = {
+    def updateView(): Unit = {
       val backupAllowed = LocalBackup.isAllowed(context = WalletApp.app)
       if (backupAllowed && LNParams.cm.all.nonEmpty)
         WalletApp.backupSaveWorker.replaceWork(false)
@@ -128,7 +128,7 @@ class SettingsActivity
   lazy private[this] val chainWallets: SettingsHolder = new SettingsHolder(me) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
     settingsTitle.setText(settings_chain_wallets)
-    override def updateView: Unit = none
+    override def updateView(): Unit = none
 
     private val wallets = Map(
       BIP32 -> ("BRD, legacy wallet", "m/0'/0/n"),
@@ -207,12 +207,12 @@ class SettingsActivity
 
   lazy private[this] val addHardware: SettingsHolder = new SettingsHolder(me) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
-    view setOnClickListener onButtonTap(callUrScanner)
+    view setOnClickListener onButtonTap(callUrScanner())
     settingsTitle.setText(settings_hardware_add)
-    override def updateView: Unit = none
-    disableIfOldAndroid
+    override def updateView(): Unit = none
+    disableIfOldAndroid()
 
-    def callUrScanner: Unit = {
+    def callUrScanner(): Unit = {
       def onKey(data: PairingData): Unit = {
         val (container, extraInputLayout, extraInput) = singleInputPopup
         val builder = titleBodyAsViewBuilder(
@@ -220,7 +220,7 @@ class SettingsActivity
           container
         )
         mkCheckForm(
-          alert => runAnd(alert.dismiss)(proceed),
+          alert => runAnd(alert.dismiss)(proceed()),
           none,
           builder,
           dialog_ok,
@@ -229,7 +229,7 @@ class SettingsActivity
         extraInputLayout.setHint(dialog_set_label)
         showKeys(extraInput)
 
-        def proceed: Unit = runAnd(finish) {
+        def proceed(): Unit = runAnd(finish) {
           if (
             LNParams.chainWallets.findByPubKey(data.bip84XPub.publicKey).isEmpty
           ) {
@@ -262,7 +262,7 @@ class SettingsActivity
   lazy private[this] val electrum: SettingsHolder = new SettingsHolder(me) {
     setVis(isVisible = false, settingsCheck)
 
-    override def updateView: Unit = WalletApp.customElectrumAddress match {
+    override def updateView(): Unit = WalletApp.customElectrumAddress match {
       case Success(nodeAddress) =>
         setTexts(settings_custom_electrum_enabled, nodeAddress.toString)
       case _ =>
@@ -279,7 +279,7 @@ class SettingsActivity
         container
       )
       mkCheckForm(
-        alert => runAnd(alert.dismiss)(proceed),
+        alert => runAnd(alert.dismiss)(proceed()),
         none,
         builder,
         dialog_ok,
@@ -288,29 +288,29 @@ class SettingsActivity
       extraInputLayout.setHint(settings_custom_electrum_host_port)
       showKeys(extraInput)
 
-      def proceed: Unit = {
+      def proceed(): Unit = {
         val input = extraInput.getText.toString.trim
         def saveAddress(address: String) = WalletApp.app.prefs.edit
           .putString(WalletApp.CUSTOM_ELECTRUM_ADDRESS, address)
         if (input.nonEmpty)
-          runInFutureProcessOnUI(saveUnsafeElectrumAddress, onFail)(_ =>
-            warnAndUpdateView
+          runInFutureProcessOnUI(saveUnsafeElectrumAddress(), onFail)(_ =>
+            warnAndUpdateView()
           )
-        else runAnd(saveAddress(new String).commit)(warnAndUpdateView)
+        else runAnd(saveAddress(new String).commit)(warnAndUpdateView())
 
-        def saveUnsafeElectrumAddress: Unit = {
+        def saveUnsafeElectrumAddress(): Unit = {
           val hostOrIP ~ port = input.splitAt(input lastIndexOf ':')
           val nodeAddress =
             NodeAddress.fromParts(hostOrIP, port.tail.toInt, Domain)
           saveAddress(nodeaddress.encode(nodeAddress).require.toHex).commit
         }
 
-        def warnAndUpdateView: Unit = {
+        def warnAndUpdateView(): Unit = {
           def onOk(snack: Snackbar): Unit =
-            runAnd(snack.dismiss)(WalletApp.restart)
+            runAnd(snack.dismiss)(WalletApp.restart())
           val message = getString(settings_custom_electrum_restart_notice).html
           snack(settingsContainer, message, R.string.dialog_ok, onOk)
-          updateView
+          updateView()
         }
       }
     }
@@ -325,7 +325,7 @@ class SettingsActivity
     settingsTitle.setText(settings_fiat_currency)
     setVis(isVisible = false, settingsCheck)
 
-    override def updateView: Unit =
+    override def updateView(): Unit =
       settingsInfo.setText(WalletApp.fiatCode.toUpperCase)
 
     view setOnClickListener onButtonTap {
@@ -361,7 +361,7 @@ class SettingsActivity
         .show(getSupportFragmentManager, "unused-tag")
     }
 
-    override def updateView: Unit = {
+    override def updateView(): Unit = {
       val short = WalletApp.denom.sign.toUpperCase
       val isSatDenom = WalletApp.denom == SatDenomination
       val text = if (isSatDenom) s"Satoshi ($short)" else s"Bitcoin ($short)"
@@ -370,11 +370,11 @@ class SettingsActivity
   }
 
   lazy private[this] val useBiometric: SettingsHolder = new SettingsHolder(me) {
-    def updateView: Unit = settingsCheck.setChecked(WalletApp.useAuth)
+    def updateView(): Unit = settingsCheck.setChecked(WalletApp.useAuth)
 
     view setOnClickListener onButtonTap {
       if (WalletApp.useAuth)
-        runAnd(AppLock.getInstance(me).invalidateEnrollments)(updateView)
+        runAnd(AppLock.getInstance(me).invalidateEnrollments)(updateView())
       else
         startActivityForResult(
           new Intent(me, ClassNames.lockCreationClass),
@@ -387,16 +387,17 @@ class SettingsActivity
   }
 
   lazy private[this] val enforceTor = new SettingsHolder(me) {
-    override def updateView: Unit =
+    override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 
     settingsTitle.setText(settings_ensure_tor)
     setVis(isVisible = false, settingsInfo)
-    disableIfOldAndroid
+    disableIfOldAndroid()
 
     view setOnClickListener onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)
-      def onOk(snack: Snackbar): Unit = runAnd(snack.dismiss)(WalletApp.restart)
+      def onOk(snack: Snackbar): Unit =
+        runAnd(snack.dismiss)(WalletApp.restart())
       snack(
         settingsContainer,
         getString(settings_custom_electrum_restart_notice).html,
@@ -408,16 +409,16 @@ class SettingsActivity
 
   lazy private[this] val viewCode = new SettingsHolder(me) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
-    view setOnClickListener onButtonTap(viewRecoveryCode)
+    view setOnClickListener onButtonTap(viewRecoveryCode())
     settingsTitle.setText(settings_view_revocery_phrase)
-    override def updateView: Unit = none
+    override def updateView(): Unit = none
   }
 
   lazy private[this] val viewStat = new SettingsHolder(me) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
     view setOnClickListener onButtonTap(me goTo ClassNames.statActivityClass)
     settingsTitle.setText(settings_stats)
-    override def updateView: Unit = none
+    override def updateView(): Unit = none
   }
 
   override def PROCEED(state: Bundle): Unit = {
@@ -454,7 +455,7 @@ class SettingsActivity
     )
 
     for (count <- LNParams.logBag.count if count > 0) {
-      def exportLog: Unit =
+      def exportLog(): Unit =
         me share LNParams.logBag.recent.map(_.asString).mkString("\n\n")
       val errorCount =
         s"${me getString error_log} <font color=$cardZero>$count</font>"
@@ -462,7 +463,7 @@ class SettingsActivity
         links.flow,
         errorCount,
         R.drawable.border_yellow,
-        _ => exportLog
+        _ => exportLog()
       )
     }
 

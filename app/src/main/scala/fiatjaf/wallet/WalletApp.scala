@@ -75,16 +75,17 @@ object WalletApp {
 
   val backupSaveWorker: ThrottledWork[Boolean, Any] =
     new ThrottledWork[Boolean, Any] {
-      private def doAttemptStore: Unit = LocalBackup.encryptAndWritePlainBackup(
-        app,
-        dbFileNameEssential,
-        LNParams.chainHash,
-        LNParams.secret.seed
-      )
+      private def doAttemptStore(): Unit =
+        LocalBackup.encryptAndWritePlainBackup(
+          app,
+          dbFileNameEssential,
+          LNParams.chainHash,
+          LNParams.secret.seed
+        )
       def process(useDelay: Boolean, unitAfterDelay: Any): Unit = if (
         LocalBackup isAllowed app
       )
-        try doAttemptStore
+        try doAttemptStore()
         catch none
       def work(useDelay: Boolean): Observable[Any] =
         if (useDelay) Rx.ioQueue.delay(4.seconds) else Observable.just(null)
@@ -124,7 +125,7 @@ object WalletApp {
   def isAlive: Boolean =
     null != txDataBag && null != lnUrlPayBag && null != chainWalletBag && null != extDataBag && null != app
 
-  def freePossiblyUsedRuntimeResouces: Unit = {
+  def freePossiblyUsedRuntimeResouces(): Unit = {
     // Drop whatever network connections we still have
     CommsTower.workers.values.map(_.pair).foreach(CommsTower.forget)
     // Clear listeners, destroy actors, finalize state machines
@@ -141,8 +142,8 @@ object WalletApp {
     txDataBag = null
   }
 
-  def restart: Unit = {
-    freePossiblyUsedRuntimeResouces
+  def restart(): Unit = {
+    freePossiblyUsedRuntimeResouces()
     require(!LNParams.isOperational, "Still operational")
     val intent = new Intent(app, ClassNames.mainActivityClass)
     val restart = Intent.makeRestartActivityTask(intent.getComponent)
@@ -150,7 +151,7 @@ object WalletApp {
     System.exit(0)
   }
 
-  def makeAlive: Unit = {
+  def makeAlive(): Unit = {
     // Make application minimally operational (so we can check for seed in db)
     val miscInterface = new DBInterfaceSQLiteAndroidMisc(app, dbFileNameMisc)
 
@@ -367,7 +368,7 @@ object WalletApp {
       override def onChainMasterSelected(event: InetSocketAddress): Unit =
         currentChainNode = event.asSome
 
-      override def onChainDisconnected: Unit = currentChainNode = None
+      override def onChainDisconnected(): Unit = currentChainNode = None
 
       override def onTransactionReceived(event: TransactionReceived): Unit = {
         def addChainTx(
@@ -460,13 +461,13 @@ object WalletApp {
       .foreach { _ =>
         // We need this in case if in/out HTLC is pending for a long time and app is still open
         DelayedNotification.cancel(app, DelayedNotification.IN_FLIGHT_HTLC_TAG)
-        if (LNParams.cm.channelsContainHtlc) reScheduleInFlight
+        if (LNParams.cm.channelsContainHtlc) reScheduleInFlight()
       }
 
     Rx.repeat(Rx.ioQueue.delay(2.seconds), Rx.incHour, 1 to Int.MaxValue)
       .foreach { _ =>
         DelayedNotification.cancel(app, DelayedNotification.WATCH_TOWER_TAG)
-        if (vulnerableChannelsExist) reScheduleWatchtower
+        if (vulnerableChannelsExist) reScheduleWatchtower()
       }
 
     LNParams.connectionProvider doWhenReady {
@@ -519,7 +520,7 @@ object WalletApp {
       case _ => false
     }
 
-  def reScheduleWatchtower: Unit =
+  def reScheduleWatchtower(): Unit =
     DelayedNotification.schedule(
       app,
       DelayedNotification.WATCH_TOWER_TAG,
@@ -528,7 +529,7 @@ object WalletApp {
       DelayedNotification.WATCH_TOWER_PERIOD_MSEC
     )
 
-  def reScheduleInFlight: Unit =
+  def reScheduleInFlight(): Unit =
     DelayedNotification.schedule(
       app,
       DelayedNotification.IN_FLIGHT_HTLC_TAG,
@@ -575,7 +576,7 @@ object Vibrator {
   private val vibrator = WalletApp.app
     .getSystemService(Context.VIBRATOR_SERVICE)
     .asInstanceOf[android.os.Vibrator]
-  def vibrate: Unit = if (null != vibrator && vibrator.hasVibrator)
+  def vibrate(): Unit = if (null != vibrator && vibrator.hasVibrator)
     vibrator.vibrate(Array(0L, 85, 200), -1)
 }
 
@@ -625,7 +626,7 @@ class WalletApp extends Application { me =>
     MultiDex.install(me)
   }
 
-  override def onCreate: Unit = runAnd(super.onCreate) {
+  override def onCreate(): Unit = runAnd(super.onCreate()) {
     // Currently night theme is the only option, should be set by default
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
@@ -656,7 +657,7 @@ class WalletApp extends Application { me =>
     ).foreach { _ =>
       // This might be the last channel state update which clears all in-flight HTLCs
       DelayedNotification.cancel(me, DelayedNotification.IN_FLIGHT_HTLC_TAG)
-      if (LNParams.cm.channelsContainHtlc) WalletApp.reScheduleInFlight
+      if (LNParams.cm.channelsContainHtlc) WalletApp.reScheduleInFlight()
     }
   }
 

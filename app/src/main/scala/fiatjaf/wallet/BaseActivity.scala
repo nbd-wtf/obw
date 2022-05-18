@@ -97,7 +97,7 @@ object Colors {
 
 trait ExternalDataChecker {
   def checkExternalData(onNothing: Runnable): Unit
-  val noneRunnable: Runnable = new Runnable { def run: Unit = none }
+  val noneRunnable: Runnable = new Runnable { def run(): Unit = none }
 }
 
 trait ChoiceReceiver {
@@ -135,7 +135,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     START(savedActivityState)
   }
 
-  override def onDestroy: Unit = {
+  override def onDestroy(): Unit = {
     super.onDestroy
     timer.cancel
   }
@@ -220,7 +220,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     shareAction.setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
   }
 
-  def viewRecoveryCode: Unit = {
+  def viewRecoveryCode(): Unit = {
     val content = new TitleView(me getString settings_view_revocery_phrase_ext)
     getWindow.setFlags(
       WindowManager.LayoutParams.FLAG_SECURE,
@@ -304,8 +304,8 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   def UITask(fun: => Any): java.util.TimerTask = {
-    val runnableExec = new Runnable { override def run: Unit = fun }
-    new java.util.TimerTask { def run: Unit = me runOnUiThread runnableExec }
+    val runnableExec = new Runnable { override def run(): Unit = fun }
+    new java.util.TimerTask { def run(): Unit = me runOnUiThread runnableExec }
   }
 
   def selectorList(listAdapter: ListAdapter): ListView = {
@@ -462,8 +462,9 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def showKeys(input: EditText): Unit = {
     // Popup forms can't show keyboard immediately due to animation, so delay it a bit
-    def process: Unit = runAnd(input.requestFocus)(WalletApp.app showKeys input)
-    timer.schedule(UITask(process), 225)
+    def process(): Unit =
+      runAnd(input.requestFocus)(WalletApp.app showKeys input)
+    timer.schedule(UITask(process()), 225)
   }
 
   def singleInputPopup: (View, TextInputLayout, EditText) = {
@@ -551,7 +552,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     def updateText(value: MilliSatoshi): Unit = {
       val amount = WalletApp.denom.fromMsat(value).toString
       runAnd(inputAmount.requestFocus)(inputAmount setText amount)
-      updateFiatInput
+      updateFiatInput()
     }
 
     def bigDecimalFrom(input: CurrencyEditText): BigDecimal = BigDecimal(
@@ -579,12 +580,12 @@ trait BaseActivity extends AppCompatActivity { me =>
         .map(_.toString)
         .getOrElse("0.00")
 
-    def updateFiatInput: Unit = {
+    def updateFiatInput(): Unit = {
       fiatInputAmount setText updatedFiatFromBtc
       fiatInputAmount setMaxNumberOfDecimalDigits 2
     }
 
-    def updateBtcInput: Unit = {
+    def updateBtcInput(): Unit = {
       inputAmount setText updatedBtcFromFiat
       inputAmount setMaxNumberOfDecimalDigits 8
     }
@@ -609,10 +610,10 @@ trait BaseActivity extends AppCompatActivity { me =>
     }
 
     fiatInputAmount addTextChangedListener onTextChange { _ =>
-      if (fiatInputAmount.hasFocus) updateBtcInput
+      if (fiatInputAmount.hasFocus) updateBtcInput()
     }
     inputAmount addTextChangedListener onTextChange { _ =>
-      if (inputAmount.hasFocus) updateFiatInput
+      if (inputAmount.hasFocus) updateFiatInput()
     }
     inputAmountHint setText WalletApp.denom.sign.toUpperCase
     fiatInputAmountHint setText fiatCode.toUpperCase
@@ -737,14 +738,14 @@ trait BaseActivity extends AppCompatActivity { me =>
     val chainButtonsView: ChainButtonsView = new ChainButtonsView(host)
     var onSignedTx: Transaction => Unit = none
 
-    def stop: Unit = runAnd(barcodeReader.pause)(barcodeReader.stopDecoding)
-    def start: Unit =
+    def stop(): Unit = runAnd(barcodeReader.pause)(barcodeReader.stopDecoding)
+    def start(): Unit =
       runAnd(barcodeReader decodeContinuous this)(barcodeReader.resume)
     override def barcodeResult(barcodeResult: BarcodeResult): Unit = handleUR(
       barcodeResult.getText
     )
     override def onError(qrParsingError: String): Unit =
-      runAnd(stop)(me onFail qrParsingError)
+      runAnd(stop())(me onFail qrParsingError)
     barcodeReader = host.findViewById(R.id.qrReader).asInstanceOf[BarcodeView]
     instruction = chainButtonsView.chainText
 
@@ -856,19 +857,19 @@ trait BaseActivity extends AppCompatActivity { me =>
     )
     val onDismissListener: DialogInterface.OnDismissListener =
       new DialogInterface.OnDismissListener {
-        override def onDismiss(dialog: DialogInterface): Unit = haltProcesses
+        override def onDismiss(dialog: DialogInterface): Unit = haltProcesses()
       }
 
-    def haltProcesses: Unit = {
+    def haltProcesses(): Unit = {
       // Destroy all running processes to not left them hanging
       for (sub <- chainSlideshowView.subscription) sub.unsubscribe()
-      chainReaderView.stop
+      chainReaderView.stop()
     }
 
     def switchToEdit(alert: AlertDialog): Unit = {
       switchButtons(alert, on = true)
       switchTo(chainEditView)
-      haltProcesses
+      haltProcesses()
     }
 
     def switchToConfirm(
@@ -893,7 +894,7 @@ trait BaseActivity extends AppCompatActivity { me =>
         .html
       switchButtons(alert, on = false)
       switchTo(chainConfirmView)
-      haltProcesses
+      haltProcesses()
     }
 
     def switchToHardwareOutgoing(alert: AlertDialog, psbt: Psbt): Unit = {
@@ -909,7 +910,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       chainSlideshowView.activate(psbt)
       switchButtons(alert, on = false)
       switchTo(chainSlideshowView)
-      chainReaderView.stop
+      chainReaderView.stop()
     }
 
     def switchToHardwareIncoming(alert: AlertDialog): Unit = {
@@ -926,13 +927,13 @@ trait BaseActivity extends AppCompatActivity { me =>
       for (sub <- chainSlideshowView.subscription) sub.unsubscribe()
       switchButtons(alert, on = false)
       switchTo(chainReaderView)
-      chainReaderView.start
+      chainReaderView.start()
     }
 
     def switchToSpinner(alert: AlertDialog): Unit = {
       switchButtons(alert, on = false)
       switchTo(circularSpinnerView)
-      haltProcesses
+      haltProcesses()
     }
   }
 
@@ -1228,7 +1229,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 trait BaseCheckActivity extends BaseActivity { me =>
   def PROCEED(state: Bundle): Unit
 
-  override def onResume: Unit = runAnd(super.onResume) {
+  override def onResume(): Unit = runAnd(super.onResume) {
     if (AppLock.isUnlockRequired(me) && WalletApp.useAuth) {
       val intent: Intent = new Intent(me, ClassNames.unlockActivityClass)
       startActivityForResult(intent, AppLock.REQUEST_CODE_UNLOCK)
@@ -1240,7 +1241,7 @@ trait BaseCheckActivity extends BaseActivity { me =>
     else {
       // The way Android works is we can get some objects nullified when restoring from background
       // when that happens we make sure to free all remaining resources and start from scratch
-      WalletApp.freePossiblyUsedRuntimeResouces
+      WalletApp.freePossiblyUsedRuntimeResouces()
       me exitTo ClassNames.mainActivityClass
     }
   }
@@ -1403,7 +1404,7 @@ abstract class ChainWalletCards(host: BaseActivity) { self =>
     }
 
   def unPad(wallets: List[ElectrumEclairWallet] = Nil): Unit =
-    cardViews.foreach(_.unPad)
+    cardViews.foreach(_.unPad())
 
   class ChainCard {
     val view: SwipeRevealLayout = host.getLayoutInflater
@@ -1442,7 +1443,7 @@ abstract class ChainWalletCards(host: BaseActivity) { self =>
     val showMenuTip: ImageView =
       view.findViewById(R.id.showMenuTip).asInstanceOf[ImageView]
 
-    def unPad: Unit = {
+    def unPad(): Unit = {
       val padding: Int = chainPaddingWrap.getPaddingTop
       chainPaddingWrap.setPadding(padding, padding, padding, 0)
       view.setLockDrag(true)

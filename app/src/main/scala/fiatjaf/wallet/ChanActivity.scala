@@ -254,13 +254,13 @@ class ChanActivity
       }
 
       removeItem setOnClickListener onButtonTap {
-        def proceed: Unit = chan process CMD_CLOSE(None, force = true)
+        def proceed(): Unit = chan process CMD_CLOSE(None, force = true)
         val builder = confirmationBuilder(
           cs,
           getString(confirm_ln_normal_chan_force_close).html
         )
         mkCheckForm(
-          alert => runAnd(alert.dismiss)(proceed),
+          alert => runAnd(alert.dismiss)(proceed()),
           none,
           builder,
           dialog_ok,
@@ -352,14 +352,14 @@ class ChanActivity
         val overridden =
           WalletApp.denom.parsedWithSign(newBalance, cardIn, cardZero)
 
-        def proceed: Unit =
+        def proceed(): Unit =
           chan process CMD_HOSTED_STATE_OVERRIDE(hc.overrideProposal.get)
         val builder = confirmationBuilder(
           hc,
           getString(ln_hc_override_warn).format(current, overridden).html
         )
         mkCheckForm(
-          alert => runAnd(alert.dismiss)(proceed),
+          alert => runAnd(alert.dismiss)(proceed()),
           none,
           builder,
           dialog_ok,
@@ -391,7 +391,7 @@ class ChanActivity
     }
   }
 
-  override def onDestroy: Unit = {
+  override def onDestroy(): Unit = {
     try LNParams.cm.all.values.foreach(_.listeners -= me)
     catch none
     updateSubscription.foreach(_.unsubscribe())
@@ -457,10 +457,10 @@ class ChanActivity
           .format(bitcoinUri.address.humanFour)
           .html
       )
-      def proceed: Unit = for (chan <- me getChanByCommits cs)
+      def proceed(): Unit = for (chan <- me getChanByCommits cs)
         chan process CMD_CLOSE(pubKeyScript.asSome, force = false)
       mkCheckForm(
-        alert => runAnd(alert.dismiss)(proceed),
+        alert => runAnd(alert.dismiss)(proceed()),
         none,
         builder,
         dialog_ok,
@@ -468,7 +468,7 @@ class ChanActivity
       )
     }
 
-    def resolveClosingAddress: Unit = InputParser.checkAndMaybeErase {
+    def resolveClosingAddress(): Unit = InputParser.checkAndMaybeErase {
       case ext: PaymentRequestExt if ext.pr.fallbackAddress().isDefined =>
         ext.pr.fallbackAddress().map(BitcoinUri.fromRaw).foreach(confirmResolve)
       case bitcoinUri: BitcoinUri
@@ -477,7 +477,7 @@ class ChanActivity
       case _ => nothingUsefulTask.run
     }
 
-    def onData: Runnable = UITask(resolveClosingAddress)
+    def onData: Runnable = UITask(resolveClosingAddress())
     val sheet =
       new sheets.OnceBottomSheet(me, getString(scan_btc_address).asSome, onData)
     callScanner(sheet)
@@ -580,13 +580,13 @@ class ChanActivity
     updateChanData.run
   }
 
-  def scanNodeQr: Unit = {
-    def resolveNodeQr: Unit = InputParser.checkAndMaybeErase {
+  def scanNodeQr(): Unit = {
+    def resolveNodeQr(): Unit = InputParser.checkAndMaybeErase {
       case _: RemoteNodeInfo => me exitTo ClassNames.remotePeerActivityClass
       case _                 => nothingUsefulTask.run
     }
 
-    def onData: Runnable = UITask(resolveNodeQr)
+    def onData: Runnable = UITask(resolveNodeQr())
     val sheet =
       new sheets.OnceBottomSheet(me, getString(chan_open_scan).asSome, onData)
     callScanner(sheet)
@@ -608,7 +608,7 @@ class ChanActivity
         footer.flow,
         getString(chan_open_scan),
         R.drawable.border_blue,
-        _ => scanNodeQr
+        _ => scanNodeQr()
       )
       if (LNParams.isMainnet)
         addFlowChip(
@@ -629,7 +629,7 @@ class ChanActivity
           footer.flow,
           getString(rpa_request_hc),
           R.drawable.border_yellow,
-          _ => requestHostedChannel
+          _ => requestHostedChannel()
         )
       chanList.addFooterView(footer.view)
       chanList.setAdapter(chanAdapter)
@@ -650,13 +650,13 @@ class ChanActivity
         .subscribe(_ => updateChanData.run)
         .asSome
     } else {
-      WalletApp.freePossiblyUsedRuntimeResouces
+      WalletApp.freePossiblyUsedRuntimeResouces()
       me exitTo ClassNames.mainActivityClass
     }
   }
 
-  private def requestHostedChannel: Unit = {
-    HubActivity.requestHostedChannel
+  private def requestHostedChannel(): Unit = {
+    HubActivity.requestHostedChannel()
     finish
   }
 

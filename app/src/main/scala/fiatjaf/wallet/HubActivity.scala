@@ -65,7 +65,7 @@ import org.ndeftools.util.activity.NfcReaderActivity
 import rx.lang.scala.{Observable, Subscription}
 import spray.json._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -87,7 +87,7 @@ object HubActivity {
   var allInfos: Seq[TransactionDetails] = Nil
   var instance: HubActivity = _
 
-  def requestHostedChannel: Unit = {
+  def requestHostedChannel(): Unit = {
     val localParams =
       LNParams.makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
     def implant(cs: Commitments, channel: ChannelHosted): Unit =
@@ -179,7 +179,7 @@ class HubActivity
   private[this] val CHOICE_RECEIVE_TAG: String = "choiceReceiveTag"
   var openListItems = Set.empty[String]
 
-  private def updateLnCaches: Unit = {
+  private def updateLnCaches(): Unit = {
     // Calling these functions on each payment card would be too much computation, hence they are cached
     lastHostedReveals = LNParams.cm.allHostedCommits
       .flatMap(_.revealedFulfills)
@@ -189,16 +189,16 @@ class HubActivity
 
   // PAYMENT LIST
 
-  def reloadTxInfos: Unit = txInfos =
+  def reloadTxInfos(): Unit = txInfos =
     WalletApp.txDataBag.listRecentTxs(20).map(WalletApp.txDataBag.toTxInfo)
-  def reloadPaymentInfos: Unit = paymentInfos = LNParams.cm.payBag
+  def reloadPaymentInfos(): Unit = paymentInfos = LNParams.cm.payBag
     .listRecentPayments(20)
     .map(LNParams.cm.payBag.toPaymentInfo)
-  def reloadRelayedPreimageInfos: Unit = relayedPreimageInfos =
+  def reloadRelayedPreimageInfos(): Unit = relayedPreimageInfos =
     LNParams.cm.payBag
       .listRecentRelays(20)
       .map(LNParams.cm.payBag.toRelayedPreimageInfo)
-  def reloadPayMarketInfos: Unit = lnUrlPayLinks = WalletApp.lnUrlPayBag
+  def reloadPayMarketInfos(): Unit = lnUrlPayLinks = WalletApp.lnUrlPayBag
     .listRecentLinks(20)
     .map(WalletApp.lnUrlPayBag.toLinkInfo)
 
@@ -209,7 +209,7 @@ class HubActivity
     case _                 => false
   }
 
-  def updAllInfos: Unit = UITask {
+  def updAllInfos(): Unit = UITask {
     val exceptRouted = List(txInfos, paymentInfos, lnUrlPayLinks)
     val dr = LNParams.cm.delayedRefunds.asSome.filter(_.totalAmount > 0L.msat)
     val itemsToDisplayMap = Map(
@@ -233,13 +233,13 @@ class HubActivity
     )
   }.run
 
-  def loadRecent: Unit = {
+  def loadRecent(): Unit = {
     WalletApp.txDataBag.db.txWrap {
-      reloadRelayedPreimageInfos
-      reloadPayMarketInfos
-      reloadPaymentInfos
-      reloadTxInfos
-      updAllInfos
+      reloadRelayedPreimageInfos()
+      reloadPayMarketInfos()
+      reloadPaymentInfos()
+      reloadTxInfos()
+      updAllInfos()
     }
   }
 
@@ -253,13 +253,13 @@ class HubActivity
     lnUrlPayLinks = WalletApp.lnUrlPayBag
       .searchLinks(query)
       .map(WalletApp.lnUrlPayBag.toLinkInfo)
-    updAllInfos
+    updAllInfos()
   }
 
   val searchWorker: ThrottledWork[String, Unit] =
     new ThrottledWork[String, Unit] {
       def work(query: String): Observable[Unit] = Rx.ioQueue.map(_ =>
-        if (query.nonEmpty) loadSearch(query) else loadRecent
+        if (query.nonEmpty) loadSearch(query) else loadRecent()
       )
       def process(userTypedQuery: String, searchLoadResultEffect: Unit): Unit =
         paymentAdapterDataChanged.run
@@ -295,7 +295,7 @@ class HubActivity
         )
         viewBinderHelper.bind(holder.swipeWrap, item.identity)
         holder.currentDetails = item
-        holder.updateDetails
+        holder.updateDetails()
         view
     }
   }
@@ -373,10 +373,10 @@ class HubActivity
     var currentDetails: TransactionDetails = _
     var lastVisibleIconId: Int = -1
 
-    paymentCardContainer setOnClickListener onButtonTap(ractOnTap)
-    setItemLabel setOnClickListener onButtonTap(doSetItemLabel)
-    removeItem setOnClickListener onButtonTap(doRemoveItem)
-    shareItem setOnClickListener onButtonTap(doShareItem)
+    paymentCardContainer setOnClickListener onButtonTap(ractOnTap())
+    setItemLabel setOnClickListener onButtonTap(doSetItemLabel())
+    removeItem setOnClickListener onButtonTap(doRemoveItem())
+    shareItem setOnClickListener onButtonTap(doShareItem())
 
     // MENU BUTTONS
 
@@ -386,7 +386,7 @@ class HubActivity
       info.payLink.get
     )(me checkExternalData noneRunnable)
 
-    def doSetItemLabel: Unit = {
+    def doSetItemLabel(): Unit = {
       val (container, extraInputLayout, extraInput) = singleInputPopup
       val builder = titleBodyAsViewBuilder(title = null, body = container)
       mkCheckForm(proceed, none, builder, dialog_ok, dialog_cancel)
@@ -419,8 +419,8 @@ class HubActivity
       }
     }
 
-    def doRemoveItem: Unit = {
-      def proceed: Unit = currentDetails match {
+    def doRemoveItem(): Unit = {
+      def proceed(): Unit = currentDetails match {
         case info: LNUrlPayLink => WalletApp.lnUrlPayBag.remove(info.payString)
         case info: PaymentInfo =>
           LNParams.cm.payBag.removePaymentInfo(info.paymentHash)
@@ -429,7 +429,7 @@ class HubActivity
 
       val builder = new AlertDialog.Builder(me).setMessage(confirm_remove_item)
       mkCheckForm(
-        alert => runAnd(alert.dismiss)(proceed),
+        alert => runAnd(alert.dismiss)(proceed()),
         none,
         builder,
         dialog_ok,
@@ -437,7 +437,7 @@ class HubActivity
       )
     }
 
-    def doShareItem: Unit = currentDetails match {
+    def doShareItem(): Unit = currentDetails match {
       case info: TxInfo =>
         me share getString(share_chain_tx).format(info.txString)
       case info: LNUrlPayLink => me share info.payString
@@ -461,7 +461,7 @@ class HubActivity
       case _ =>
     }
 
-    def ractOnTap: Unit = currentDetails match {
+    def ractOnTap(): Unit = currentDetails match {
       case info: DelayedRefunds => showPending(info)
       case info: LNUrlPayLink   => doCallPayLink(info)
       case info: TransactionDetails =>
@@ -893,7 +893,7 @@ class HubActivity
           if check.depth < 1 && !check.isDoubleSpent
           rbfBumpResponse <- fromWallet
             .makeRBFBump(info.tx, feeView.rate)
-            .map(_.result.right.get)
+            .map(_.result.toOption.get)
           bumpDescription = PlainTxDescription(
             addresses = Nil,
             None,
@@ -1027,7 +1027,7 @@ class HubActivity
           if check.depth < 1 && !check.isDoubleSpent
           rbfReroute <- fromWallet
             .makeRBFReroute(info.tx, feeView.rate, changePubKeyScript)
-            .map(_.result.right.get)
+            .map(_.result.toOption.get)
           bumpDescription = PlainTxDescription(
             addresses = Nil,
             None,
@@ -1172,7 +1172,10 @@ class HubActivity
             addFlowChip(
               extraInfo,
               getString(popup_ln_fee)
-                .format(offChainFeePaid, ratio(amount, liveFeePaid) + PERCENT),
+                .format(
+                  offChainFeePaid,
+                  s"${ratio(amount, liveFeePaid)}$PERCENT"
+                ),
               R.drawable.border_gray
             )
           if (shouldRetry)
@@ -1201,7 +1204,7 @@ class HubActivity
           for (
             action <- info.action if info.status == PaymentStatus.SUCCEEDED
           ) {
-            def run: Unit = resolveAction(
+            def run(): Unit = resolveAction(
               theirPreimage = info.preimage,
               paymentAction = action
             )
@@ -1209,7 +1212,7 @@ class HubActivity
               extraInfo,
               getString(popup_run_action),
               R.drawable.border_green,
-              _ => run
+              _ => run()
             )
           }
 
@@ -1357,7 +1360,7 @@ class HubActivity
       }
     }
 
-    def updateDetails: Unit = currentDetails match {
+    def updateDetails(): Unit = currentDetails match {
       // Reusing the same view to speed the list up
 
       case info: RelayedPreimageInfo =>
@@ -1731,12 +1734,12 @@ class HubActivity
       }
 
       override def onRemoveTap(wallet: ElectrumEclairWallet): Unit = {
-        def proceed: Unit = LNParams.chainWallets
+        def proceed(): Unit = LNParams.chainWallets
           .findByPubKey(wallet.ewt.xPub.publicKey)
           .map(LNParams.chainWallets.withoutWallet)
           .foreach(resetChainCards)
         mkCheckForm(
-          alert => runAnd(alert.dismiss)(proceed),
+          alert => runAnd(alert.dismiss)(proceed()),
           none,
           new AlertDialog.Builder(me).setMessage(confirm_remove_item),
           dialog_ok,
@@ -1758,10 +1761,10 @@ class HubActivity
       LNParams.synchronized(LNParams.chainWallets = ext1)
       chainCards.holder.removeAllViewsInLayout
       chainCards.init(ext1.wallets)
-      updateView
+      updateView()
     }
 
-    def updateView: Unit = {
+    def updateView(): Unit = {
       val allChannels = LNParams.cm.all.values.take(8)
       val lnBalance = Channel.totalBalance(LNParams.cm.all.values)
       val localInCount = LNParams.cm.inProcessors.count { case (fullTag, _) =>
@@ -1840,7 +1843,7 @@ class HubActivity
         setVis(isVisible = false, walletCards.offlineIndicator)
       }.run
 
-    override def onChainDisconnected: Unit = UITask {
+    override def onChainDisconnected(): Unit = UITask {
       setVis(isVisible = true, walletCards.offlineIndicator)
     }.run
 
@@ -1864,7 +1867,7 @@ class HubActivity
 
   private val fiatRatesListener = new FiatRatesListener {
     def onFiatRates(rates: FiatRatesInfo): Unit = UITask(
-      walletCards.updateView
+      walletCards.updateView()
     ).run
   }
 
@@ -1934,18 +1937,18 @@ class HubActivity
         .flatMap(_.action)
       for (paymentAction <- actionOpt)
         resolveAction(fulfill.theirPreimage, paymentAction)
-      Vibrator.vibrate
+      Vibrator.vibrate()
     }.run
   }
 
   // NFC
 
-  def readEmptyNdefMessage: Unit = nothingUsefulTask.run
-  def readNonNdefMessage: Unit = nothingUsefulTask.run
+  def readEmptyNdefMessage(): Unit = nothingUsefulTask.run
+  def readNonNdefMessage(): Unit = nothingUsefulTask.run
   def onNfcStateChange(ok: Boolean): Unit = none
-  def onNfcFeatureNotFound: Unit = none
-  def onNfcStateDisabled: Unit = none
-  def onNfcStateEnabled: Unit = none
+  def onNfcFeatureNotFound(): Unit = none
+  def onNfcStateDisabled(): Unit = none
+  def onNfcStateEnabled(): Unit = none
 
   def readNdefMessage(nfcMessage: Message): Unit = runInFutureProcessOnUI(
     InputParser recordValue ndefMessageString(nfcMessage),
@@ -2002,7 +2005,7 @@ class HubActivity
   }
 
   // Lifecycle methods
-  override def onResume: Unit = {
+  override def onResume(): Unit = {
     // Tor service could have been stopped in background
     LNParams.connectionProvider match {
       case t: TorConnectionProvider => {
@@ -2016,7 +2019,7 @@ class HubActivity
     super.onResume
   }
 
-  override def onDestroy: Unit = {
+  override def onDestroy(): Unit = {
     stateSubscription.foreach(_.unsubscribe())
     statusSubscription.foreach(_.unsubscribe())
     inFinalizedSubscription.foreach(_.unsubscribe())
@@ -2035,7 +2038,7 @@ class HubActivity
     super.onDestroy
   }
 
-  override def onBackPressed: Unit =
+  override def onBackPressed(): Unit =
     if (isSearchOn) rmSearch(null) else super.onBackPressed
 
   // Getting graph sync status and our peer announcements
@@ -2402,7 +2405,7 @@ class HubActivity
         ClassNames.qrChainActivityClass,
         LNParams.chainWallets.lnWallet
       )
-    case (CHOICE_RECEIVE_TAG, 1) => bringReceivePopup
+    case (CHOICE_RECEIVE_TAG, 1) => bringReceivePopup()
     case _                       =>
   }
 
@@ -2414,7 +2417,7 @@ class HubActivity
     LNParams.chainWallets.catcher ! chainListener
     LNParams.cm.pf.listeners += me
     instance = me
-    doMaxMinView
+    doMaxMinView()
 
     bottomActionBar post UITask {
       bottomBlurringArea.setHeightTo(bottomActionBar)
@@ -2431,7 +2434,9 @@ class HubActivity
       if checkedButtonTags.contains(buttonTag)
     } walletCards.toggleGroup.check(itemId)
 
-    walletCards.recoveryPhrase setOnClickListener onButtonTap(viewRecoveryCode)
+    walletCards.recoveryPhrase setOnClickListener onButtonTap(
+      viewRecoveryCode()
+    )
     walletCards.toggleGroup addOnButtonCheckedListener new OnButtonCheckedListener {
       def onButtonChecked(
           group: MaterialButtonToggleGroup,
@@ -2439,12 +2444,12 @@ class HubActivity
           isChecked: Boolean
       ): Unit = {
         WalletApp.putCheckedButtons(
-          itemsToTags
+          itemsToTags.view
             .filterKeys(group.getCheckedButtonIds.contains)
             .values
             .toSet
         )
-        runAnd(updAllInfos)(paymentAdapterDataChanged.run)
+        runAnd(updAllInfos())(paymentAdapterDataChanged.run)
       }
     }
 
@@ -2457,9 +2462,9 @@ class HubActivity
 
     // Fill wallet list with wallet card views here
     walletCards.chainCards.init(LNParams.chainWallets.wallets)
-    walletCards.updateView
+    walletCards.updateView()
 
-    runInFutureProcessOnUI(loadRecent, none) { _ =>
+    runInFutureProcessOnUI(loadRecent(), none) { _ =>
       // We suggest user to rate us if: no rate attempt has been made before, LN payments were successful, user has been using an app for certain period
       setVis(
         WalletApp.showRateUs && paymentInfos.forall(
@@ -2475,7 +2480,7 @@ class HubActivity
       walletCards.searchField addTextChangedListener onTextChange(
         searchWorker.addWork
       )
-      runAnd(updateLnCaches)(paymentAdapterDataChanged.run)
+      runAnd(updateLnCaches())(paymentAdapterDataChanged.run)
       markAsFailedOnce
     }
 
@@ -2487,7 +2492,7 @@ class HubActivity
       .doOnNext { _ =>
         // After each delayed update we check if pending txs got confirmed or double-spent
         // do this check specifically after updating txInfos with new items
-        reloadTxInfos
+        reloadTxInfos()
 
         for {
           txInfo <- txInfos if !txInfo.isDoubleSpent && !txInfo.isConfirmed
@@ -2505,33 +2510,33 @@ class HubActivity
 
     val relayEvents = Rx
       .uniqueFirstAndLastWithinWindow(ChannelMaster.relayDbStream, window)
-      .doOnNext(_ => reloadRelayedPreimageInfos)
+      .doOnNext(_ => reloadRelayedPreimageInfos())
     val marketEvents = Rx
       .uniqueFirstAndLastWithinWindow(ChannelMaster.payMarketDbStream, window)
-      .doOnNext(_ => reloadPayMarketInfos)
+      .doOnNext(_ => reloadPayMarketInfos())
     val paymentEvents = Rx
       .uniqueFirstAndLastWithinWindow(ChannelMaster.paymentDbStream, window)
-      .doOnNext(_ => reloadPaymentInfos)
+      .doOnNext(_ => reloadPaymentInfos())
     val stateEvents = Rx
       .uniqueFirstAndLastWithinWindow(ChannelMaster.stateUpdateStream, window)
-      .doOnNext(_ => updateLnCaches)
+      .doOnNext(_ => updateLnCaches())
 
     stateSubscription = txEvents
       .merge(paymentEvents)
       .merge(relayEvents)
       .merge(marketEvents)
       .merge(stateEvents)
-      .doOnNext(_ => updAllInfos)
+      .doOnNext(_ => updAllInfos())
       .subscribe(_ => paymentAdapterDataChanged.run)
       .asSome
     statusSubscription = Rx
       .uniqueFirstAndLastWithinWindow(ChannelMaster.statusUpdateStream, window)
       .merge(stateEvents)
-      .subscribe(_ => UITask(walletCards.updateView).run)
+      .subscribe(_ => UITask(walletCards.updateView()).run)
       .asSome
     inFinalizedSubscription = ChannelMaster.inFinalized
       .collect { case _: IncomingRevealed => true }
-      .subscribe(_ => Vibrator.vibrate)
+      .subscribe(_ => Vibrator.vibrate())
       .asSome
 
     timer.scheduleAtFixedRate(paymentAdapterDataChanged, 30000, 30000)
@@ -2569,17 +2574,17 @@ class HubActivity
     WalletApp.app.prefs.edit
       .putBoolean(WalletApp.MAXIMIZED_VIEW, !WalletApp.maximizedView)
       .commit
-    doMaxMinView
+    doMaxMinView()
   }
 
-  def doMaxMinView: Unit = {
+  def doMaxMinView(): Unit = {
     setVis(isVisible = WalletApp.maximizedView, walletCards.defaultHeader)
     setVis(isVisible = !WalletApp.maximizedView, walletCards.minimizeView)
     setVis(isVisible = WalletApp.maximizedView, walletCards.maximizeView)
   }
 
   def bringSendOptions(view: View): Unit = {
-    def doBringSendInputWithOptionalScan: Unit = {
+    def doBringSendInputWithOptionalScan(): Unit = {
       val (container, extraInputLayout, extraInput) = singleInputPopup
       val builder = titleBodyAsViewBuilder(title = null, body = container)
       def switchToScanner(alert: AlertDialog): Unit =
@@ -2601,14 +2606,14 @@ class HubActivity
           InputParser recordValue extraInput.getText.toString,
           onFail
         ) { _ =>
-          def attemptProcessInput: Unit =
-            runAnd(doBringSendInputWithOptionalScan)(nothingUsefulTask.run)
-          me checkExternalData UITask(attemptProcessInput)
+          def attemptProcessInput(): Unit =
+            runAnd(doBringSendInputWithOptionalScan())(nothingUsefulTask.run)
+          me checkExternalData UITask(attemptProcessInput())
         }
       }
     }
 
-    doBringSendInputWithOptionalScan
+    doBringSendInputWithOptionalScan()
   }
 
   def bringScanner(view: View): Unit = {
@@ -2619,15 +2624,16 @@ class HubActivity
   }
 
   def bringBitcoinSpecificScanner(fromWallet: ElectrumEclairWallet): Unit = {
-    def resolveLegacyWalletBtcAddressQr: Unit = InputParser.checkAndMaybeErase {
-      case uri: BitcoinUri
-          if Try(LNParams addressToPubKeyScript uri.address).isSuccess =>
-        bringSendBitcoinPopup(uri, fromWallet)
-      case _ => nothingUsefulTask.run
-    }
+    def resolveLegacyWalletBtcAddressQr(): Unit =
+      InputParser.checkAndMaybeErase {
+        case uri: BitcoinUri
+            if Try(LNParams addressToPubKeyScript uri.address).isSuccess =>
+          bringSendBitcoinPopup(uri, fromWallet)
+        case _ => nothingUsefulTask.run
+      }
 
     val instruction = getString(scan_btc_address).asSome
-    def onData: Runnable = UITask(resolveLegacyWalletBtcAddressQr)
+    def onData: Runnable = UITask(resolveLegacyWalletBtcAddressQr())
     val sheet = new sheets.OnceBottomSheet(me, instruction, onData)
     callScanner(sheet)
   }
@@ -2959,7 +2965,7 @@ class HubActivity
     feeView.worker addWork "MULTI-SEND-INIT-CALL"
   }
 
-  def bringReceivePopup: Unit =
+  def bringReceivePopup(): Unit =
     lnReceiveGuard(LNParams.cm.all.values, contentWindow) {
       val holdPeriodInMinutes: String =
         getString(popup_hold).format(LNParams.maxHoldSecs / 60)
@@ -3230,7 +3236,7 @@ class HubActivity
       } map { rawResponse =>
         val payRequestFinal = to[PayRequestFinal](rawResponse)
         val descriptionHashOpt =
-          payRequestFinal.prExt.pr.description.right.toOption
+          payRequestFinal.prExt.pr.description.toOption
         require(
           descriptionHashOpt.contains(data.metaDataHash),
           s"Metadata hash mismatch, original=${data.metaDataHash}, later provided=$descriptionHashOpt"
