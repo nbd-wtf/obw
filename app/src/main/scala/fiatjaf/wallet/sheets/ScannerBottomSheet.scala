@@ -25,7 +25,6 @@ import scodec.bits.ByteVector
 import spray.json._
 
 import scala.collection.JavaConverters._
-import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 trait HasBarcodeReader extends BarcodeCallback {
@@ -36,7 +35,7 @@ trait HasBarcodeReader extends BarcodeCallback {
 
 trait HasUrDecoder extends HasBarcodeReader {
   val decoder: URDecoder = new URDecoder
-  def onError(error: String)
+  def onError(error: String): Unit
   def onUR(ur: UR): Unit
 
   def handleUR(part: String): Unit = {

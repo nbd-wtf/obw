@@ -92,7 +92,7 @@ class ChanActivity
   val chanAdapter: BaseAdapter = new BaseAdapter {
     private[this] val viewBinderHelper = new ViewBinderHelper
     override def getItem(pos: Int): ChanAndCommits = csToDisplay(pos)
-    override def getItemId(position: Int): Long = position
+    override def getItemId(position: Int): Long = position.toLong
     override def getCount: Int = csToDisplay.size
 
     def getView(position: Int, savedView: View, parent: ViewGroup): View = {
@@ -394,7 +394,7 @@ class ChanActivity
   override def onDestroy: Unit = {
     try LNParams.cm.all.values.foreach(_.listeners -= me)
     catch none
-    updateSubscription.foreach(_.unsubscribe)
+    updateSubscription.foreach(_.unsubscribe())
     super.onDestroy
   }
 
@@ -469,8 +469,8 @@ class ChanActivity
     }
 
     def resolveClosingAddress: Unit = InputParser.checkAndMaybeErase {
-      case ext: PaymentRequestExt if ext.pr.fallbackAddress.isDefined =>
-        ext.pr.fallbackAddress.map(BitcoinUri.fromRaw).foreach(confirmResolve)
+      case ext: PaymentRequestExt if ext.pr.fallbackAddress().isDefined =>
+        ext.pr.fallbackAddress().map(BitcoinUri.fromRaw).foreach(confirmResolve)
       case bitcoinUri: BitcoinUri
           if Try(LNParams addressToPubKeyScript bitcoinUri.address).isSuccess =>
         confirmResolve(bitcoinUri)

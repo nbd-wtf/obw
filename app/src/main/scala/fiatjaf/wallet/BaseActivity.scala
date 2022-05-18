@@ -56,7 +56,6 @@ import rx.lang.scala.{Observable, Subscription}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 object BaseActivity {
@@ -671,9 +670,9 @@ trait BaseActivity extends AppCompatActivity { me =>
 
     private val revealSlider = onButtonTap {
       val currentFeerate = FeeratePerByte(rate).feerate.toLong
-      customFeerate.setValueFrom(from.feerate.toLong)
-      customFeerate.setValueTo(currentFeerate * 10)
-      customFeerate.setValue(currentFeerate)
+      customFeerate.setValueFrom(from.feerate.toLong.toFloat)
+      customFeerate.setValueTo((currentFeerate * 10).toFloat)
+      customFeerate.setValue(currentFeerate.toFloat)
 
       customFeerateOption setVisibility View.GONE
       customFeerate setVisibility View.VISIBLE
@@ -862,7 +861,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 
     def haltProcesses: Unit = {
       // Destroy all running processes to not left them hanging
-      for (sub <- chainSlideshowView.subscription) sub.unsubscribe
+      for (sub <- chainSlideshowView.subscription) sub.unsubscribe()
       chainReaderView.stop
     }
 
@@ -924,7 +923,7 @@ trait BaseActivity extends AppCompatActivity { me =>
         isVisible = false,
         chainReaderView.chainButtonsView.chainNextButton
       )
-      for (sub <- chainSlideshowView.subscription) sub.unsubscribe
+      for (sub <- chainSlideshowView.subscription) sub.unsubscribe()
       switchButtons(alert, on = false)
       switchTo(chainReaderView)
       chainReaderView.start
@@ -983,7 +982,7 @@ trait BaseActivity extends AppCompatActivity { me =>
         dialog_ok,
         _.dismiss
       )
-    case _ if prExt.pr.isExpired =>
+    case _ if prExt.pr.isExpired() =>
       snack(
         container,
         getString(error_ln_send_expired).html,

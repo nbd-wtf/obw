@@ -16,7 +16,12 @@ import androidx.multidex.MultiDex
 import com.fiatjaf.wallet.BaseActivity.StringOps
 import com.fiatjaf.wallet.R.string._
 import com.fiatjaf.wallet.sqlite._
-import com.fiatjaf.wallet.utils.{AwaitService, DelayedNotification, LocalBackup}
+import com.fiatjaf.wallet.utils.{
+  ClearnetConnectionProvider,
+  AwaitService,
+  DelayedNotification,
+  LocalBackup
+}
 import com.guardanis.applock.AppLock
 import com.softwaremill.quicklens._
 import fr.acinq.bitcoin.{Block, ByteVector32, Satoshi, SatoshiLong}

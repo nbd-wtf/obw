@@ -32,6 +32,6 @@ case class RichCursorSQLiteAndroid(c: Cursor) extends RichCursor { me =>
   def iterator: Iterator[RichCursor] =
     new Iterator[RichCursor] {
       def hasNext: Boolean = c.getPosition < resultCount - 1
-      def next: RichCursor = runAnd(me)(c.moveToNext)
+      def next(): RichCursor = runAnd(me)(c.moveToNext)
     }
 }

@@ -51,7 +51,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
 
   val chanAdapter: BaseAdapter = new BaseAdapter {
     override def getItem(pos: Int): UtxoListItem = items(pos)
-    override def getItemId(position: Int): Long = position
+    override def getItemId(position: Int): Long = position.toLong
     override def getCount: Int = items.size
 
     def getView(position: Int, savedView: View, parent: ViewGroup): View = {

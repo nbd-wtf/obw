@@ -286,7 +286,7 @@ class RemotePeerActivity
                 amount = totalFundAmount.truncateToSatoshi
               ) onComplete {
                 case Failure(reason) =>
-                  makeChanListener.onException(reason, freshChannel, data)
+                  makeChanListener.onException((reason, freshChannel, data))
                 case Success(signedTx) =>
                   doFundRunnable(freshChannel, signedTx).run
               }

@@ -91,9 +91,9 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
     }
 
   override def onDestroy: Unit = {
-    try fulfillSubscription.unsubscribe
+    try fulfillSubscription.unsubscribe()
     catch none
-    try holdSubscription.unsubscribe
+    try holdSubscription.unsubscribe()
     catch none
     super.onDestroy
   }

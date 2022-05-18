@@ -77,7 +77,7 @@ class SetupActivity extends BaseActivity { me =>
 
   private[this] lazy val englishWordList = {
     val rawData = getAssets.open("bip39_english_wordlist.txt")
-    scala.io.Source.fromInputStream(rawData, "UTF-8").getLines.toArray
+    scala.io.Source.fromInputStream(rawData, "UTF-8").getLines().toArray
   }
 
   var proceedWithMnemonics: List[String] => Unit = mnemonics => {

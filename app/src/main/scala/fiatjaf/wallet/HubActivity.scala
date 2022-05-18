@@ -66,6 +66,7 @@ import rx.lang.scala.{Observable, Subscription}
 import spray.json._
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -224,9 +225,11 @@ class HubActivity
           .map(_.toInt)
           .map(itemsToDisplayMap)
     allInfos = SemanticOrder.makeSemanticOrder(
-      allVisibleInfos.flatten ++ exceptRouted.flatMap(
-        _ filter isImportantItem
-      ) ++ dr
+      scala.collection.immutable.Seq.from(
+        allVisibleInfos.flatten ++ exceptRouted.flatMap(
+          _ filter isImportantItem
+        ) ++ dr
+      )
     )
   }.run
 
@@ -268,7 +271,7 @@ class HubActivity
 
   val paymentsAdapter: BaseAdapter = new BaseAdapter {
     override def getItem(pos: Int): TransactionDetails = allInfos(pos)
-    override def getItemId(position: Int): Long = position
+    override def getItemId(position: Int): Long = position.toLong
     override def getCount: Int = allInfos.size
 
     override def getView(
@@ -676,7 +679,7 @@ class HubActivity
     def doBoostCPFP(fromWallet: ElectrumEclairWallet, info: TxInfo): Unit = {
       val fromOutPoints =
         for (txOutputIndex <- info.tx.txOut.indices)
-          yield OutPoint(info.tx.hash, txOutputIndex)
+          yield OutPoint(info.tx.hash, txOutputIndex.toLong)
       val chainAddress = Await
         .result(
           LNParams.chainWallets.lnWallet.getReceiveAddresses,
@@ -1107,7 +1110,8 @@ class HubActivity
           val shouldDisplayFee =
             liveFeePaid > 0L.msat && (info.status == PaymentStatus.SUCCEEDED || info.status != PaymentStatus.ABORTED && outgoingFSMOpt.isDefined)
           val shouldRetry =
-            info.status == PaymentStatus.ABORTED && !info.prExt.pr.isExpired && info.description.split.isEmpty && info.description.toSelfPreimage.isEmpty
+            info.status == PaymentStatus.ABORTED && !info.prExt.pr
+              .isExpired() && info.description.split.isEmpty && info.description.toSelfPreimage.isEmpty
           val shouldShowPayee =
             !info.isIncoming && info.description.toSelfPreimage.isEmpty
 
@@ -1593,7 +1597,9 @@ class HubActivity
       val isPendingOrBeingSent =
         PaymentStatus.PENDING == info.status || activeParts > 0
       if (isPendingOrBeingSent)
-        meta setText WalletApp.app.plurOrZero(activeParts, partsInFlight).html
+        meta setText WalletApp.app
+          .plurOrZero(activeParts.toLong, partsInFlight)
+          .html
       else
         meta setText WalletApp.app
           .when(info.date, WalletApp.app.dateFormat)
@@ -1996,20 +2002,24 @@ class HubActivity
   }
 
   // Lifecycle methods
-
   override def onResume: Unit = {
     // Tor service could have been stopped in background
-    try LNParams.connectionProvider.notifyAppAvailable
-    catch none
+    LNParams.connectionProvider match {
+      case t: TorConnectionProvider => {
+        try t.notifyAppAvailable
+        catch none
+      }
+      case _ => {}
+    }
     try checkExternalData(noneRunnable)
     catch none
     super.onResume
   }
 
   override def onDestroy: Unit = {
-    stateSubscription.foreach(_.unsubscribe)
-    statusSubscription.foreach(_.unsubscribe)
-    inFinalizedSubscription.foreach(_.unsubscribe)
+    stateSubscription.foreach(_.unsubscribe())
+    statusSubscription.foreach(_.unsubscribe())
+    inFinalizedSubscription.foreach(_.unsubscribe())
 
     try
       LNParams.chainWallets.catcher ! WalletEventsCatcher.Remove(chainListener)
@@ -2314,7 +2324,7 @@ class HubActivity
         .doOnUnsubscribe(snack.dismiss)
         .doOnTerminate(snack.dismiss)
       val level2Sub = level1Sub.subscribe(resolve, onErrorFromVendor)
-      val listener = onButtonTap(level2Sub.unsubscribe)
+      val listener = onButtonTap(level2Sub.unsubscribe())
       snack.setAction(dialog_cancel, listener).show
     }
   }
@@ -2374,7 +2384,7 @@ class HubActivity
           _ => UITask(WalletApp.app quickToast successResource).run,
           onFail
         )
-        val listener = onButtonTap(level2Sub.unsubscribe)
+        val listener = onButtonTap(level2Sub.unsubscribe())
         snack.setAction(dialog_cancel, listener).show
       }
     }
@@ -3060,7 +3070,7 @@ class HubActivity
             .doOnTerminate(snack.dismiss)
           val level2Sub =
             level2Obs.subscribe(payReqFinal => proceed(payReqFinal).run, onFail)
-          val listener = onButtonTap(level2Sub.unsubscribe)
+          val listener = onButtonTap(level2Sub.unsubscribe())
           snack.setAction(dialog_cancel, listener).show
         }
 
@@ -3116,7 +3126,7 @@ class HubActivity
             .doOnTerminate(snack.dismiss)
           val level2Sub =
             level2Obs.subscribe(payReqFinal => proceed(payReqFinal).run, onFail)
-          val listener = onButtonTap(level2Sub.unsubscribe)
+          val listener = onButtonTap(level2Sub.unsubscribe())
           snack.setAction(dialog_cancel, listener).show
         }
 

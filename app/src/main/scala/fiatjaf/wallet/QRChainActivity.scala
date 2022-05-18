@@ -36,7 +36,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
     new RecyclerView.Adapter[QRViewHolder] {
       override def onBindViewHolder(holder: QRViewHolder, pos: Int): Unit =
         updateView(addresses(pos), holder)
-      override def getItemId(itemPosition: Int): Long = itemPosition
+      override def getItemId(itemPosition: Int): Long = itemPosition.toLong
       override def getItemCount: Int = addresses.size
 
       override def onCreateViewHolder(
@@ -201,7 +201,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
   override def checkExternalData(whenNone: Runnable): Unit =
     InputParser.checkAndMaybeErase {
       case chainWallet: ElectrumEclairWallet =>
-        runAnd(wallet = chainWallet)(showCode)
+        runAnd({ wallet = chainWallet })(showCode)
       case _ => finish
     }
 }
