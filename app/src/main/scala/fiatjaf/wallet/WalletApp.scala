@@ -356,8 +356,9 @@ object WalletApp {
       override def onWalletReady(event: WalletReady): Unit =
         LNParams.synchronized {
           // Wallet is already persisted so our only job at this point is to update runtime
-          def sameXPub(wallet: ElectrumEclairWallet): Boolean =
-            wallet.ewt.xPub == event.xPub
+          val sameXPub: ElectrumEclairWallet => Boolean =
+            _.ewt.xPub == event.xPub
+
           LNParams.chainWallets = LNParams.chainWallets.modify(
             _.wallets.eachWhere(sameXPub).info
           ) using { info =>
