@@ -51,7 +51,7 @@ import fr.acinq.eclair.wire.{
 }
 import immortan.ChannelListener.Malfunction
 import immortan.ChannelMaster.{OutgoingAdds, RevealedLocalFulfills}
-import immortan.PathFinder.{ExpectedFees, GetExpectedRouteFees}
+import immortan.PathFinder.{ExpectedRouteFees, GetExpectedRouteFees}
 import immortan._
 import immortan.crypto.CanBeRepliedTo
 import immortan.crypto.Tools._
@@ -1579,7 +1579,7 @@ class HubActivity
     def setIncomingPaymentMeta(info: PaymentInfo): Unit = {
       val fsmOpt = LNParams.cm.inProcessors.get(info.fullTag)
       val fsmReceiving =
-        fsmOpt.exists(_.state == IncomingPaymentProcessor.RECEIVING)
+        fsmOpt.exists(_.state == IncomingPaymentProcessor.Receiving)
       if (fsmOpt exists info.isActivelyHolding)
         meta setText s"<b>${fsmOpt.get.secondsLeft}</b> sec".html // Show how many seconds left until cancel
       else if (fsmOpt.isDefined && PaymentStatus.SUCCEEDED == info.status)
@@ -1831,7 +1831,6 @@ class HubActivity
   }
 
   // LISTENERS
-
   private var stateSubscription = Option.empty[Subscription]
   private var statusSubscription = Option.empty[Subscription]
   private var inFinalizedSubscription = Option.empty[Subscription]
@@ -1889,7 +1888,7 @@ class HubActivity
         val warnPayeeOffline = data.failures.exists {
           case rf: RemoteFailure
               if rf.packet.failureMessage == UnknownNextPeer =>
-            assistedShortIds.contains(rf.originShortChanId)
+            assistedShortIds.contains(rf.originShortChanId.getOrElse(0L))
           case _ => false
         }
 
@@ -1942,7 +1941,6 @@ class HubActivity
   }
 
   // NFC
-
   def readEmptyNdefMessage(): Unit = nothingUsefulTask.run
   def readNonNdefMessage(): Unit = nothingUsefulTask.run
   def onNfcStateChange(ok: Boolean): Unit = none
@@ -1956,17 +1954,11 @@ class HubActivity
   )(_ => me checkExternalData noneRunnable)
 
   // Chan exceptions
-
   override def onException: PartialFunction[Malfunction, Unit] = {
     case (
           CMDException(_, _: CMD_CLOSE),
           _,
           _: HasNormalCommitments
-        ) => // Swallow this specific error here, it will be displayed on StatActivity
-    case (
-          CMDException(_, _: CMD_HOSTED_STATE_OVERRIDE),
-          _,
-          _: HostedCommits
         ) => // Swallow this specific error here, it will be displayed on StatActivity
     case (error: ChannelTransitionFail, _, data: HasNormalCommitments) =>
       chanError(
@@ -2025,7 +2017,7 @@ class HubActivity
     inFinalizedSubscription.foreach(_.unsubscribe())
 
     try
-      LNParams.chainWallets.catcher ! WalletEventsCatcher.Remove(chainListener)
+      LNParams.chainWallets.catcher.remove(chainListener)
     catch none
     try for (channel <- LNParams.cm.all.values) channel.listeners -= me
     catch none
@@ -2237,9 +2229,8 @@ class HubActivity
 
                 val sender = new CanBeRepliedTo {
                   override def process(reply: Any): Unit = Try {
-                    val expectedFees = reply.asInstanceOf[ExpectedFees]
-                    val percent =
-                      expectedFees.percentOf(origAmount, interHops = 4)
+                    val expectedFees = reply.asInstanceOf[ExpectedRouteFees]
+                    val percent = expectedFees.%(origAmount)
                     fillFlow(
                       getString(dialog_up_to).format(percent) + PERCENT
                     ).run
@@ -2250,7 +2241,8 @@ class HubActivity
                   LNParams.cm.pf process extraEdge
                 LNParams.cm.pf process GetExpectedRouteFees(
                   sender,
-                  prExt.pr.nodeId
+                  prExt.pr.nodeId,
+                  4
                 )
                 fillFlow(pctCollected.head).run
                 popup
@@ -2414,7 +2406,7 @@ class HubActivity
     for (channel <- LNParams.cm.all.values) channel.listeners += me
     LNParams.cm.localPaymentListeners add extraOutgoingListener
     LNParams.fiatRates.listeners += fiatRatesListener
-    LNParams.chainWallets.catcher ! chainListener
+    LNParams.chainWallets.catcher.add(chainListener)
     LNParams.cm.pf.listeners += me
     instance = me
     doMaxMinView()

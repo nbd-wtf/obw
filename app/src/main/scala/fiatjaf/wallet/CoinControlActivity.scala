@@ -14,12 +14,7 @@ import fr.acinq.eclair._
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.WalletReady
 import fr.acinq.eclair.blockchain.electrum.{ElectrumEclairWallet, Utxo}
 import immortan.crypto.Tools._
-import immortan.utils.{
-  Haiku,
-  InputParser,
-  WalletEventsCatcher,
-  WalletEventsListener
-}
+import immortan.utils.{Haiku, InputParser, WalletEventsListener}
 import immortan.{LNParams, TxDescription}
 
 class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
@@ -130,8 +125,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
   }
 
   override def onDestroy(): Unit = {
-    val remove = WalletEventsCatcher.Remove(chainListener)
-    try LNParams.chainWallets.catcher ! remove
+    try LNParams.chainWallets.catcher.remove(chainListener)
     catch none
     super.onDestroy
   }
@@ -162,7 +156,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
         findViewById(R.id.chainCardContainer).asInstanceOf[LinearLayout]
     }
 
-    LNParams.chainWallets.catcher ! chainListener
+    LNParams.chainWallets.catcher.add(chainListener)
     txLabels = WalletApp.txDataBag.listAllDescriptions
     walletPubKey = wallet.ewt.xPub.publicKey
     chooser.init(wallet :: Nil)

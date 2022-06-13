@@ -352,8 +352,11 @@ class ChanActivity
         val overridden =
           WalletApp.denom.parsedWithSign(newBalance, cardIn, cardZero)
 
-        def proceed(): Unit =
-          chan process CMD_HOSTED_STATE_OVERRIDE(hc.overrideProposal.get)
+        def proceed(): Unit = chan.acceptOverride() match {
+          case Left(err) => chanError(hc.channelId, err, hc.remoteInfo)
+          case _         => {}
+        }
+
         val builder = confirmationBuilder(
           hc,
           getString(ln_hc_override_warn).format(current, overridden).html
@@ -428,12 +431,6 @@ class ChanActivity
   override def onException: PartialFunction[Malfunction, Unit] = {
     case (CMDException(reason, _: CMD_CLOSE), _, data: HasNormalCommitments) =>
       chanError(data.channelId, reason, data.commitments.remoteInfo)
-    case (
-          CMDException(reason, _: CMD_HOSTED_STATE_OVERRIDE),
-          _,
-          hc: HostedCommits
-        ) =>
-      chanError(hc.channelId, reason, hc.remoteInfo)
   }
 
   def closeNcToWallet(cs: NormalCommits): Unit = {

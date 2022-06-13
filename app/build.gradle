@@ -110,7 +110,7 @@ dependencies {
 
     // Immortan
     implementation 'org.scala-lang:scala-library:2.13.8'
-    implementation 'com.fiatjaf:immortan_2.13:0.1.2'
+    implementation 'com.fiatjaf:immortan_2.13:0.7.0'
     implementation 'com.lihaoyi:requests_2.13:0.7.0'
 
     // Built-in Tor

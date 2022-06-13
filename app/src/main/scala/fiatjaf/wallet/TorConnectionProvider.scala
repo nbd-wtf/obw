@@ -10,7 +10,7 @@ import immortan.crypto.Tools._
 import okhttp3.{OkHttpClient, Request}
 import org.torproject.jni.TorService
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class TorConnectionProvider(context: Context) extends ConnectionProvider {
   override val proxyAddress: Option[InetSocketAddress] =

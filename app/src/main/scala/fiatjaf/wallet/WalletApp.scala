@@ -4,7 +4,6 @@ import java.net.InetSocketAddress
 import java.text.{DecimalFormat, SimpleDateFormat}
 import java.util.Date
 
-import akka.actor.Props
 import android.app.{Application, NotificationChannel, NotificationManager}
 import android.content._
 import android.os.Build
@@ -53,6 +52,7 @@ import immortan.sqlite._
 import immortan.utils._
 import rx.lang.scala.Observable
 import scodec.bits.BitVector
+import castor.Context.Simple.global
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -129,8 +129,6 @@ object WalletApp {
     // Drop whatever network connections we still have
     CommsTower.workers.values.map(_.pair).foreach(CommsTower.forget)
     // Clear listeners, destroy actors, finalize state machines
-    try LNParams.chainWallets.becomeShutDown()
-    catch none
     try LNParams.fiatRates.becomeShutDown()
     catch none
     try LNParams.feeRates.becomeShutDown()
@@ -263,30 +261,17 @@ object WalletApp {
       txDataBag,
       dustLimit = 546L.sat
     )
-    val electrumPool = LNParams.loggedActor(
-      Props(
-        classOf[ElectrumClientPool],
-        LNParams.blockCount,
-        LNParams.chainHash,
-        LNParams.ec
-      ),
-      "connection-pool"
+    val pool = new ElectrumClientPool(
+      LNParams.blockCount,
+      LNParams.chainHash
     )
-    val sync = LNParams.loggedActor(
-      Props(
-        classOf[ElectrumChainSync],
-        electrumPool,
-        params.headerDb,
-        LNParams.chainHash
-      ),
-      "chain-sync"
+    val sync = new ElectrumChainSync(
+      pool,
+      params.headerDb,
+      LNParams.chainHash
     )
-    val watcher = LNParams.loggedActor(
-      Props(classOf[ElectrumWatcher], LNParams.blockCount, electrumPool),
-      "channel-watcher"
-    )
-    val catcher =
-      LNParams.loggedActor(Props(new WalletEventsCatcher), "events-catcher")
+    val watcher = new ElectrumWatcher(LNParams.blockCount, pool)
+    val catcher = new WalletEventsCatcher()
 
     val walletExt: WalletExt =
       chainWalletBag.listWallets.foldLeft(
@@ -294,7 +279,7 @@ object WalletApp {
           wallets = Nil,
           catcher,
           sync,
-          electrumPool,
+          pool,
           watcher,
           params
         )
@@ -308,7 +293,7 @@ object WalletApp {
             ) =>
           val signingWallet =
             ext.makeSigningWalletParts(core, lastBalance, label)
-          signingWallet.walletRef ! persistentSigningWalletData
+          signingWallet.wallet.send(persistentSigningWalletData)
           ext.copy(wallets = signingWallet :: ext.wallets)
 
         case ext ~ CompleteChainWalletInfo(
@@ -320,7 +305,7 @@ object WalletApp {
             ) =>
           val watchingWallet =
             ext.makeWatchingWallet84Parts(core, lastBalance, label)
-          watchingWallet.walletRef ! persistentWatchingWalletData
+          watchingWallet.wallet.send(persistentWatchingWalletData)
           ext.copy(wallets = watchingWallet :: ext.wallets)
 
         case ext ~ _ => ext
@@ -349,7 +334,7 @@ object WalletApp {
     }
 
     // Guaranteed to fire (and update chainWallets) first
-    LNParams.chainWallets.catcher ! new WalletEventsListener {
+    LNParams.chainWallets.catcher.add(new WalletEventsListener {
       override def onChainTipKnown(event: CurrentBlockCount): Unit =
         LNParams.cm.initConnect()
 
@@ -454,7 +439,7 @@ object WalletApp {
             isIncoming = 1L
           )
       }
-    }
+    })
 
     pf.listeners += LNParams.cm.opm
     // Get channels and still active FSMs up and running
@@ -476,7 +461,7 @@ object WalletApp {
       }
 
     LNParams.connectionProvider doWhenReady {
-      electrumPool ! ElectrumClientPool.InitConnect
+      pool.initConnect()
       // Only schedule periodic resync if Lightning channels are being present
       if (LNParams.cm.all.nonEmpty) pf process PathFinder.CMDStartPeriodicResync
 
