@@ -12,7 +12,7 @@ android {
         targetSdkVersion 29
         minSdkVersion 26
 
-        versionName '2.5.0'
+        versionName '0.1.0'
         versionCode 96
     }
 
@@ -102,17 +102,21 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.google.code.ndef-tools-for-android:ndeftools:1.2.4'
     implementation 'com.guardanis:applock:3.0.2'
-
     implementation('com.journeyapps:zxing-android-embedded:4.2.0') {
         // We use zxing sources with fixed List.sort which is not in API21
         exclude group: 'com.google.zxing', module: 'core'
     }
 
-    // Immortan
+    // Wallet Utils
+    implementation 'com.sparrowwallet:hummingbird:1.6.5'
+
+    // Scala
     implementation 'org.scala-lang:scala-library:2.13.8'
-    implementation 'com.fiatjaf:immortan_2.13:0.7.0'
+
+    // Related to Immortan
+    implementation 'com.fiatjaf:immortan_2.13:0.7.1-SNAPSHOT'
     implementation 'com.lihaoyi:requests_2.13:0.7.0'
-    implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.6.3'
+    implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.6.4'
 
     // Built-in Tor
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
