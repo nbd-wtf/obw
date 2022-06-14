@@ -49,10 +49,14 @@ trait HasUrDecoder extends HasBarcodeReader {
     val pctAsFractionOf100 = (pct * 100).floor.toLong
     if (pct > 0d) instruction.setText(s"$pctAsFractionOf100%")
 
-    for {
-      result <- Option(decoder.getResult)
-      isOK = result.resultType == ResultType.SUCCESS
-    } if (isOK) onUR(result.ur) else onError(result.error)
+    val result = decoder.getResult()
+    if (result != null) {
+      if (result.`type` == ResultType.SUCCESS) {
+        onUR(result.ur)
+      } else {
+        onError(result.error)
+      }
+    }
   }
 }
 

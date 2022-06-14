@@ -130,7 +130,10 @@ class SetupActivity extends BaseActivity { me =>
 
   def createNewWallet(view: View): Unit = {
     val twelveWordsEntropy: ByteVector = fr.acinq.eclair.randomBytes(16)
-    val mnemonic = MnemonicCode.toMnemonics(twelveWordsEntropy, englishWordList)
+    val mnemonic = MnemonicCode.toMnemonics(
+      twelveWordsEntropy,
+      englishWordList.toIndexedSeq
+    )
     proceedWithMnemonics(mnemonic)
   }
 

@@ -202,7 +202,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
   override def checkExternalData(whenNone: Runnable): Unit =
     InputParser.checkAndMaybeErase {
       case chainWallet: ElectrumEclairWallet =>
-        runAnd({ wallet = chainWallet })(showCode)
+        runAnd({ wallet = chainWallet })(showCode())
       case _ => finish
     }
 }

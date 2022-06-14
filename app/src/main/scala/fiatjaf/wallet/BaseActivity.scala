@@ -335,7 +335,10 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def onFail(error: Throwable): Unit = error match {
     case exc if exc.getCause.isInstanceOf[java.io.InterruptedIOException] =>
-    case _ => onFail(error.toString)
+    case _ => {
+      error.printStackTrace()
+      onFail(error.toString)
+    }
   }
 
   def getPositiveButton(alert: AlertDialog): Button =
