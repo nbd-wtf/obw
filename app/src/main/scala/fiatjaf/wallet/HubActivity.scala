@@ -603,7 +603,6 @@ class HubActivity
     }
 
     // PENDING CHANNEL REFUNDS
-
     def showPending(info: DelayedRefunds): Unit = {
       val adapter = new ArrayAdapter(
         me,
@@ -2417,12 +2416,11 @@ class HubActivity
     }
 
     // TOGGLE MENU
-
     val defaultButtons = Set("bitcoinPayments", "lightningPayments")
     val checkedButtonTags = WalletApp.getCheckedButtons(defaultButtons)
 
     for {
-      Tuple2(itemId, buttonTag) <- itemsToTags
+      (itemId, buttonTag) <- itemsToTags
       if checkedButtonTags.contains(buttonTag)
     } walletCards.toggleGroup.check(itemId)
 
@@ -2446,7 +2444,6 @@ class HubActivity
     }
 
     // LIST
-
     itemsList.addHeaderView(walletCards.view)
     itemsList.setAdapter(paymentsAdapter)
     itemsList.setDividerHeight(0)
@@ -2477,7 +2474,6 @@ class HubActivity
     }
 
     // STREAMS
-
     val window = 600.millis
     val txEvents = Rx
       .uniqueFirstAndLastWithinWindow(ChannelMaster.txDbStream, window)

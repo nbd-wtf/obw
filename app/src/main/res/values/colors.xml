@@ -15,8 +15,8 @@
     <color name="paymentPassiveBorder">#555555</color>
     <color name="paymentActiveBorder">#6EABFA</color>
 
-    <color name="cardLightning">#4F5B8F</color>
-    <color name="cardBitcoinModern">#876319</color>
+    <color name="cardLightning">#54c6c6</color>
+    <color name="cardBitcoinModern">#c332c3</color>
     <color name="cardBitcoinLegacy">#5A5A5A</color>
 
     <color name="buttonGreenRipple">#8BD670</color>
@@ -39,7 +39,6 @@
     <color name="lnCardZeroText">#7D7DB8</color>
 
     <!-- nachos -->
-
     <color name="chip_default_text_color">#DE000000</color>
     <color name="chip_default_icon_background_color">#517FA4</color>
     <color name="chip_material_background">#F0F0F0</color>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lang">nld</string>
-    <string name="app_name">SBW</string>
+    <string name="app_name">Obi-Wan</string>
     <string name="sources">Bekijk broncode</string>
     <string name="twitter">Volg ons op Twitter</string>
     <string name="manual">Lees de handleiding</string>

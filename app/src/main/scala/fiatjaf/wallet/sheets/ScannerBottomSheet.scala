@@ -15,7 +15,7 @@ import com.journeyapps.barcodescanner.{
   BarcodeView
 }
 import com.sparrowwallet.hummingbird.registry.{CryptoAccount, CryptoHDKey}
-import com.sparrowwallet.hummingbird.{ResultType, UR, URDecoder}
+import com.sparrowwallet.hummingbird.{UR, URDecoder}
 import fr.acinq.bitcoin.DeterministicWallet._
 import fr.acinq.bitcoin.{ByteVector32, Protocol}
 import immortan.crypto.Tools._
@@ -49,12 +49,11 @@ trait HasUrDecoder extends HasBarcodeReader {
     val pctAsFractionOf100 = (pct * 100).floor.toLong
     if (pct > 0d) instruction.setText(s"$pctAsFractionOf100%")
 
-    val result = decoder.getResult()
-    if (result != null) {
-      if (result.`type` == ResultType.SUCCESS) {
-        onUR(result.ur)
+    Option(decoder.getResult()).foreach { r =>
+      if (r.error == null) {
+        onUR(r.ur)
       } else {
-        onError(result.error)
+        onError(r.error)
       }
     }
   }

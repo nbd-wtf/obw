@@ -56,7 +56,7 @@ class QRSplitActivity
       QRActivity.get(nextSplitLink.toUpperCase, qrSize),
       onFail
     ) { qrBitmap =>
-      def share: Unit =
+      def share(): Unit =
         runInFutureProcessOnUI(shareData(qrBitmap, nextSplitLink), onFail)(none)
       setVis(isVisible = false, qrViewHolder.qrEdit)
 
@@ -69,7 +69,7 @@ class QRSplitActivity
       qrViewHolder.qrCode setOnClickListener onButtonTap(
         WalletApp.app copy nextSplitLink
       )
-      qrViewHolder.qrShare setOnClickListener onButtonTap(share)
+      qrViewHolder.qrShare setOnClickListener onButtonTap(share())
       qrViewHolder.qrCode setImageBitmap qrBitmap
     }
   }

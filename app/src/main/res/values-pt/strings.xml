@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lang">port</string>
-    <string name="app_name">SBW</string>
+    <string name="app_name">Obi-Wan</string>
     <string name="sources">Ver código fonte</string>
     <string name="twitter">Siga-nos no Twitter</string>
     <string name="manual">Ler manual</string>
@@ -38,7 +38,7 @@
 
     <string name="setup_backup_file_hint">
         Forneça um arquivo contendo o backup Lightning, depois forneça a
-        frase de recuperação para restaurar a carteira Bitcoin junto com os canais Lightning. 
+        frase de recuperação para restaurar a carteira Bitcoin junto com os canais Lightning.
         Desative outras cópias de sua carteira antes de proceder.
     </string>
 
@@ -355,7 +355,7 @@
 
     <string name="ln_info_no_update">Ainda não é possível receber</string>
     <string name="ln_info_fee_mismatch">Temporary feerate mismatch</string>
-    
+
     <string name="ln_info_close_coop">Fechamento cooperativo</string>
     <string name="ln_info_close_local">Fechado à força localmente</string>
     <string name="ln_info_close_remote">Fechado à força remotamente</string>
@@ -383,7 +383,7 @@
         <item><![CDATA[Drain channel balance]]></item>
         <item><![CDATA[Receive to channel]]></item>
     </array>
-    
+
     <string name="ln_hc_override">Substituir proposta</string>
 
     <string name="ln_hc_override_warn"><![CDATA[
@@ -391,7 +391,7 @@
         this can only happen with your signature provided.<br><br><strong>Make sure an updated balance looks correct before
         proceeding with this!</strong> Would you like to sign a proposed hosted channel override?
     ]]></string>
-    
+
     <!-- /Channel page -->
 
     <!-- action confirmations -->
@@ -403,7 +403,7 @@
     <string name="confirm_ln_hosted_chan_drain">&#9888; Você deseja drenar fundos deste canal para outros canais desta carteira?</string>
 
     <!-- /action confirmations -->
-    
+
     <!-- CPFP/RBF -->
 
     <string name="tx_cpfp_after">After boost</string>

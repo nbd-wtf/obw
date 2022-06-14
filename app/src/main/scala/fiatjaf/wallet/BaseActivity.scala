@@ -52,6 +52,7 @@ import immortan.crypto.Tools._
 import immortan.utils._
 import org.apmem.tools.layouts.FlowLayout
 import rx.lang.scala.{Observable, Subscription}
+import scodec.bits.ByteVector
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -753,7 +754,14 @@ trait BaseActivity extends AppCompatActivity { me =>
     instruction = chainButtonsView.chainText
 
     override def onUR(ur: UR): Unit = {
-      obtainPsbt(ur).flatMap(extractBip84Tx) match {
+      val tx = Try({
+        val rawPsbt = ur.decodeFromRegistry.asInstanceOf[CryptoPSBT]
+        ByteVector.view(rawPsbt.getPsbt)
+      })
+        .flatMap(Psbt.read)
+        .flatMap(extractBip84Tx)
+
+      tx match {
         case Success(signedTx) => onSignedTx(signedTx)
         case Failure(why)      => onError(why.stackTraceAsString)
       }

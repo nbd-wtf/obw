@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lang">rus</string>
-    <string name="app_name">SBW</string>
+    <string name="app_name">Obi-Wan</string>
     <string name="sources">Исходный код</string>
     <string name="twitter">Наш твиттер</string>
     <string name="manual">Читать инструкцию</string>
@@ -392,7 +392,7 @@
 
     <string name="ln_hc_override_warn"><![CDATA[
         <br>Удаленный хост хочет изменить ваш баланс в hosted-канале с текущего <b>%1$s</b> на  новый <b>%2$s</b>,
-        это может произойти только с вашего согласия.<br><br><strong>Убедитесь, что баланс правильный и вы согласны с ним!</strong> 
+        это может произойти только с вашего согласия.<br><br><strong>Убедитесь, что баланс правильный и вы согласны с ним!</strong>
         Согласны ли вы это подписать?
     ]]></string>
 

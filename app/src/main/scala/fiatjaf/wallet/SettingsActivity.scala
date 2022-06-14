@@ -428,7 +428,7 @@ class SettingsActivity
     settingsPageitle.view.setOnClickListener(me onButtonTap finish)
     settingsPageitle.backArrow.setVisibility(View.VISIBLE)
 
-    val links = new TitleView("&#9996;")
+    val links = new TitleView("Useful links")
     addFlowChip(
       links.flow,
       getString(manual),
@@ -449,8 +449,8 @@ class SettingsActivity
     )
     addFlowChip(
       links.flow,
-      "&#9825; RATE US",
-      R.drawable.border_green,
+      "&#9825; Rate us",
+      R.drawable.border_red,
       _ => me bringRateDialog null
     )
 

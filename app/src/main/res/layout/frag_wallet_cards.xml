@@ -11,7 +11,6 @@
         style="@style/StandardLinearLayout">
 
         <!-- Total balance, settings -->
-
         <RelativeLayout
             android:layout_marginTop="10dp"
             android:layout_marginStart="15dp"
@@ -33,7 +32,7 @@
                 android:layout_toStartOf="@id/offlineIndicator"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="6dp"
-                android:text="&#9825; RATE US"
+                android:text="&#9825; Rate us"
                 android:id="@+id/rateTeaser"
                 android:visibility="gone"/>
 
@@ -95,7 +94,6 @@
         </RelativeLayout>
 
         <!-- Wallet balance, fiat price -->
-
         <RelativeLayout
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
@@ -122,7 +120,6 @@
         </RelativeLayout>
 
         <!-- Bitcoin cards -->
-
         <LinearLayout
             style="@style/FillingView"
             android:layout_marginTop="15dp"
@@ -130,7 +127,6 @@
             android:orientation="vertical"/>
 
         <!-- Lightning card -->
-
         <androidx.cardview.widget.CardView
             card_view:cardCornerRadius="@dimen/corner_radius"
             android:layout_marginStart="15dp"
@@ -146,9 +142,7 @@
                 style="@style/FillingView">
 
                 <!-- Text and balance -->
-
                 <RelativeLayout style="@style/FillingView">
-
                     <TextView
                         android:layout_marginEnd="3dp"
                         android:textColor="@color/colorAccent"
@@ -172,7 +166,6 @@
                 </RelativeLayout>
 
                 <!-- Indicators and payment state -->
-
                 <RelativeLayout
                     style="@style/FillingView"
                     android:id="@+id/channelStateIndicators">
@@ -218,7 +211,6 @@
         </androidx.cardview.widget.CardView>
 
         <!-- Recovery phrase warning -->
-
         <TextView
             android:textSize="18sp"
             android:textStyle="bold"
@@ -238,7 +230,6 @@
     </LinearLayout>
 
     <!-- Button and search bar -->
-
     <RelativeLayout
         android:layout_marginTop="15dp"
         android:layout_marginBottom="-5dp"
@@ -320,7 +311,6 @@
     </RelativeLayout>
 
     <!-- Search field -->
-
     <EditText
         style="@style/FillingView"
         android:layout_marginTop="15dp"

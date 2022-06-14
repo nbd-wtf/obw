@@ -38,7 +38,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "SBW-${defaultConfig.versionName}.apk"
+            outputFileName = "obw-${defaultConfig.versionName}.apk"
         }
     }
 
