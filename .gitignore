@@ -7,3 +7,4 @@ app/build/
 app/release/
 local.properties
 .metals
+.bloop
