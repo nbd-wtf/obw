@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fiatjaf.wallet.R;
+import wtf.nbd.obw.R;
 
 import org.apmem.tools.layouts.logic.CommonLogic;
 import org.apmem.tools.layouts.logic.ConfigDefinition;

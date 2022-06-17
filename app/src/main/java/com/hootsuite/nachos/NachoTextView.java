@@ -44,7 +44,7 @@ import com.hootsuite.nachos.tokenizer.SpanChipTokenizer;
 import com.hootsuite.nachos.validator.ChipifyingNachoValidator;
 import com.hootsuite.nachos.validator.IllegalCharacterIdentifier;
 import com.hootsuite.nachos.validator.NachoValidator;
-import com.fiatjaf.wallet.R;
+import wtf.nbd.obw.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;

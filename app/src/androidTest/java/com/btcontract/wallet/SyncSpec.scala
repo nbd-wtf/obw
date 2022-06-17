@@ -1,4 +1,4 @@
-package com.fiatjaf.wallet
+package wtf.nbd.obw
 
 import org.junit.{Ignore, Test}
 import immortan.{ClearnetConnectionProvider, LNParams, PureRoutingData, SyncMaster, SyncMasterShortIdData, SyncParams}

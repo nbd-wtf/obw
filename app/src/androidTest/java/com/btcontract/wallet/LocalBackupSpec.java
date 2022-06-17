@@ -1,7 +1,7 @@
-package com.fiatjaf.wallet;
+package wtf.nbd.obw;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.fiatjaf.wallet.utils.LocalBackup;
+import wtf.nbd.obw.utils.LocalBackup;
 import com.google.common.io.Files;
 
 import org.junit.Assert;

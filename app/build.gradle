@@ -7,13 +7,13 @@ android {
 
     defaultConfig {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        applicationId 'com.fiatjaf.wallet'
+        applicationId 'wtf.nbd.obw'
         multiDexEnabled true
         targetSdkVersion 29
         minSdkVersion 26
 
         versionName '0.1.0'
-        versionCode 96
+        versionCode 1
     }
 
     dexOptions {

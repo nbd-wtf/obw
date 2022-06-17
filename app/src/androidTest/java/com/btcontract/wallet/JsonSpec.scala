@@ -1,4 +1,4 @@
-package com.fiatjaf.wallet
+package wtf.nbd.obw
 
 import org.json4s._
 import org.json4s.JsonDSL._

@@ -1,4 +1,4 @@
-package com.fiatjaf.wallet
+package wtf.nbd.obw
 
 import java.math.BigInteger
 

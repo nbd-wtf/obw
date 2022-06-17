@@ -13,7 +13,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import com.fiatjaf.wallet.R;
+import wtf.nbd.obw.R;
 
 /**
  * A realtime blurring overlay (like iOS UIVisualEffectView). Just put it above

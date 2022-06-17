@@ -1,8 +1,8 @@
-package com.fiatjaf.wallet
+package wtf.nbd.obw
 
 import fr.acinq.eclair._
 import immortan.sqlite._
-import com.fiatjaf.wallet.sqlite._
+import wtf.nbd.obw.sqlite._
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.acinq.bitcoin.BlockHeader
 import org.junit.runner.RunWith

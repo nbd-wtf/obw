@@ -4,12 +4,12 @@ Simple Bitcoin Wallet (aka SBW) is an [IMMORTAN](https://github.com/fiatjaf/IMMO
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <a href="https://play.google.com/store/apps/details?id=com.fiatjaf.wallet">
+        <a href="https://play.google.com/store/apps/details?id=wtf.nbd.obw">
           <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" height="50pt"/>
         </a>
       </td>
       <td align="center" valign="middle">
-        <a href="https://f-droid.org/repository/browse/?fdid=com.fiatjaf.wallet">
+        <a href="https://f-droid.org/repository/browse/?fdid=wtf.nbd.obw">
           <img alt="Get it on F-Droid" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="80pt"/>
         </a>  
       </td>
@@ -37,7 +37,7 @@ Simple Bitcoin Wallet (aka SBW) is an [IMMORTAN](https://github.com/fiatjaf/IMMO
 ## Building from source
 
 ```
-git clone https://github.com/fiatjaf/wallet.git
+git clone https://github.wtf.nbd.obw.git
 cd wallet
 git checkout 2.4.27
 podman build -t sbw .

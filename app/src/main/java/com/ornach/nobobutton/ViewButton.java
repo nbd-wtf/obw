@@ -10,7 +10,7 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.fiatjaf.wallet.R;
+import wtf.nbd.obw.R;
 
 
 public class ViewButton extends LinearLayout {

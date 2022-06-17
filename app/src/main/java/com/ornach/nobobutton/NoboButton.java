@@ -26,7 +26,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.RequiresApi;
 
-import com.fiatjaf.wallet.R;
+import wtf.nbd.obw.R;
 
 //import android.support.annotation.RequiresApi;
 
