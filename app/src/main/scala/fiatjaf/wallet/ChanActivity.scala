@@ -12,7 +12,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.fiatjaf.wallet.BaseActivity.StringOps
 import com.fiatjaf.wallet.Colors._
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.chauthai.swipereveallayout.{SwipeRevealLayout, ViewBinderHelper}
 import com.google.common.cache.LoadingCache
 import com.indicator.ChannelIndicatorLine
@@ -45,7 +45,7 @@ object ChanActivity {
       .require
       .toHex
     WalletApp.app
-      .getString(ln_hosted_chan_state)
+      .getString(R.string.ln_hosted_chan_state)
       .format(getDetails(hc, "n/a"), serializedHostedState, preimages)
   }
 
@@ -55,7 +55,7 @@ object ChanActivity {
     val stamp =
       WalletApp.app.when(new Date(cs.startedAt), WalletApp.app.dateFormat)
     WalletApp.app
-      .getString(ln_chan_details)
+      .getString(R.string.ln_chan_details)
       .format(
         cs.remoteInfo.nodeId.toString,
         cs.remoteInfo.nodeSpecificPubKey.toString,
@@ -206,7 +206,7 @@ class ChanActivity
 
       if (Channel isWaiting chan) {
         setVis(isVisible = true, extraInfoText)
-        extraInfoText.setText(getString(ln_info_opening).html)
+        extraInfoText.setText(getString(R.string.ln_info_opening).html)
         channelCard setOnClickListener bringChanOptions(
           normalChanActions.take(2),
           cs
@@ -223,25 +223,27 @@ class ChanActivity
           isVisible = cs.updateOpt.isEmpty || tempFeeMismatch,
           extraInfoText
         )
-        if (cs.updateOpt.isEmpty) extraInfoText.setText(ln_info_no_update)
-        if (tempFeeMismatch) extraInfoText.setText(ln_info_fee_mismatch)
+        if (cs.updateOpt.isEmpty)
+          extraInfoText.setText(R.string.ln_info_no_update)
+        if (tempFeeMismatch)
+          extraInfoText.setText(R.string.ln_info_fee_mismatch)
         visibleExcept(goneRes = -1)
       } else {
         val closeInfoRes = chan.data match {
           case _: DATA_WAIT_FOR_REMOTE_PUBLISH_FUTURE_COMMITMENT =>
-            ln_info_await_close
+            R.string.ln_info_await_close
           case close: DATA_CLOSING if close.remoteCommitPublished.nonEmpty =>
-            ln_info_close_remote
+            R.string.ln_info_close_remote
           case close: DATA_CLOSING
               if close.nextRemoteCommitPublished.nonEmpty =>
-            ln_info_close_remote
+            R.string.ln_info_close_remote
           case close: DATA_CLOSING
               if close.futureRemoteCommitPublished.nonEmpty =>
-            ln_info_close_remote
+            R.string.ln_info_close_remote
           case close: DATA_CLOSING if close.mutualClosePublished.nonEmpty =>
-            ln_info_close_coop
-          case _: DATA_CLOSING => ln_info_close_local
-          case _               => ln_info_shutdown
+            R.string.ln_info_close_coop
+          case _: DATA_CLOSING => R.string.ln_info_close_local
+          case _               => R.string.ln_info_shutdown
         }
 
         channelCard setOnClickListener bringChanOptions(
@@ -257,14 +259,14 @@ class ChanActivity
         def proceed(): Unit = chan process CMD_CLOSE(None, force = true)
         val builder = confirmationBuilder(
           cs,
-          getString(confirm_ln_normal_chan_force_close).html
+          getString(R.string.confirm_ln_normal_chan_force_close).html
         )
         mkCheckForm(
           alert => runAnd(alert.dismiss)(proceed()),
           none,
           builder,
-          dialog_ok,
-          dialog_cancel
+          R.string.dialog_ok,
+          R.string.dialog_cancel
         )
       }
 
@@ -327,7 +329,7 @@ class ChanActivity
         if (hc.localSpec.htlcs.nonEmpty)
           snack(
             chanContainer,
-            getString(ln_hosted_chan_remove_impossible).html,
+            getString(R.string.ln_hosted_chan_remove_impossible).html,
             R.string.dialog_ok,
             _.dismiss
           )
@@ -337,10 +339,10 @@ class ChanActivity
             none,
             confirmationBuilder(
               hc,
-              getString(confirm_ln_hosted_chan_remove).html
+              getString(R.string.confirm_ln_hosted_chan_remove).html
             ),
-            dialog_ok,
-            dialog_cancel
+            R.string.dialog_ok,
+            R.string.dialog_cancel
           )
       }
 
@@ -359,14 +361,16 @@ class ChanActivity
 
         val builder = confirmationBuilder(
           hc,
-          getString(ln_hc_override_warn).format(current, overridden).html
+          getString(R.string.ln_hc_override_warn)
+            .format(current, overridden)
+            .html
         )
         mkCheckForm(
           alert => runAnd(alert.dismiss)(proceed()),
           none,
           builder,
-          dialog_ok,
-          dialog_cancel
+          R.string.dialog_ok,
+          R.string.dialog_cancel
         )
       }
 
@@ -388,7 +392,7 @@ class ChanActivity
         isVisible = hc.error.isDefined || hc.updateOpt.isEmpty,
         extraInfoText
       )
-      extraInfoText.setText(ln_info_no_update)
+      extraInfoText.setText(R.string.ln_info_no_update)
       extraInfoText.setText(errorText)
       this
     }
@@ -414,13 +418,16 @@ class ChanActivity
 
     case (hc: HostedCommits, 2) =>
       val builder =
-        confirmationBuilder(hc, getString(confirm_ln_hosted_chan_drain).html)
+        confirmationBuilder(
+          hc,
+          getString(R.string.confirm_ln_hosted_chan_drain).html
+        )
       mkCheckForm(
         alert => runAnd(alert.dismiss)(me drainHc hc),
         none,
         builder,
-        dialog_ok,
-        dialog_cancel
+        R.string.dialog_ok,
+        R.string.dialog_cancel
       )
 
     case (cs: NormalCommits, 2) => closeNcToAddress(cs)
@@ -450,7 +457,7 @@ class ChanActivity
       val pubKeyScript = LNParams.addressToPubKeyScript(bitcoinUri.address)
       val builder = confirmationBuilder(
         cs,
-        getString(confirm_ln_normal_chan_close_address)
+        getString(R.string.confirm_ln_normal_chan_close_address)
           .format(bitcoinUri.address.humanFour)
           .html
       )
@@ -460,8 +467,8 @@ class ChanActivity
         alert => runAnd(alert.dismiss)(proceed()),
         none,
         builder,
-        dialog_ok,
-        dialog_cancel
+        R.string.dialog_ok,
+        R.string.dialog_cancel
       )
     }
 
@@ -476,7 +483,11 @@ class ChanActivity
 
     def onData: Runnable = UITask(resolveClosingAddress())
     val sheet =
-      new sheets.OnceBottomSheet(me, getString(scan_btc_address).asSome, onData)
+      new sheets.OnceBottomSheet(
+        me,
+        getString(R.string.scan_btc_address).asSome,
+        onData
+      )
     callScanner(sheet)
   }
 
@@ -489,14 +500,14 @@ class ChanActivity
       case _ if maxSendable < LNParams.minPayment =>
         snack(
           chanContainer,
-          getString(ln_hosted_chan_drain_impossible_few_funds).html,
+          getString(R.string.ln_hosted_chan_drain_impossible_few_funds).html,
           R.string.dialog_ok,
           _.dismiss
         )
       case ncOpt if ncOpt.forall(_.maxReceivable < LNParams.minPayment) =>
         snack(
           chanContainer,
-          getString(ln_hosted_chan_drain_impossible_no_chans).html,
+          getString(R.string.ln_hosted_chan_drain_impossible_no_chans).html,
           R.string.dialog_ok,
           _.dismiss
         )
@@ -504,7 +515,7 @@ class ChanActivity
         val toSend = maxSendable.min(csAndMax.maxReceivable)
         val pd = PaymentDescription(
           split = None,
-          label = getString(tx_ln_label_reflexive).asSome,
+          label = getString(R.string.tx_ln_label_reflexive).asSome,
           semanticOrder = None,
           invoiceText = new String,
           toSelfPreimage = preimage.asSome
@@ -526,8 +537,8 @@ class ChanActivity
           .modify(_.split.totalSum)
           .setTo(toSend)
         WalletApp.app.quickToast(
-          getString(dialog_lnurl_processing)
-            .format(me getString tx_ln_label_reflexive)
+          getString(R.string.dialog_lnurl_processing)
+            .format(me getString R.string.tx_ln_label_reflexive)
             .html
         )
         replaceOutgoingPayment(
@@ -550,8 +561,8 @@ class ChanActivity
       ) {
         override def getManager: RateManager = new RateManager(
           body,
-          getString(dialog_add_description).asSome,
-          dialog_visibility_sender,
+          getString(R.string.dialog_add_description).asSome,
+          R.string.dialog_visibility_sender,
           LNParams.fiatRates.info.rates,
           WalletApp.fiatCode
         )
@@ -563,7 +574,8 @@ class ChanActivity
         )
         override def processInvoice(prExt: PaymentRequestExt): Unit =
           goToWithValue(ClassNames.qrInvoiceActivityClass, prExt)
-        override def getTitleText: String = getString(dialog_receive_ln)
+        override def getTitleText: String =
+          getString(R.string.dialog_receive_ln)
       }
     }
   }
@@ -586,7 +598,11 @@ class ChanActivity
 
     def onData: Runnable = UITask(resolveNodeQr())
     val sheet =
-      new sheets.OnceBottomSheet(me, getString(chan_open_scan).asSome, onData)
+      new sheets.OnceBottomSheet(
+        me,
+        getString(R.string.chan_open_scan).asSome,
+        onData
+      )
     callScanner(sheet)
   }
 
@@ -596,36 +612,36 @@ class ChanActivity
       setContentView(R.layout.activity_chan)
       updateChanData.run
 
-      val title = new TitleView(me getString title_chans)
+      val title = new TitleView(me getString R.string.title_chans)
       title.view.setOnClickListener(me onButtonTap finish)
       title.backArrow.setVisibility(View.VISIBLE)
       chanList.addHeaderView(title.view)
 
-      val footer = new TitleView(me getString chan_open)
+      val footer = new TitleView(me getString R.string.chan_open)
       addFlowChip(
         footer.flow,
-        getString(chan_open_scan),
+        getString(R.string.chan_open_scan),
         R.drawable.border_blue,
         _ => scanNodeQr()
       )
       if (LNParams.isMainnet)
         addFlowChip(
           footer.flow,
-          getString(chan_open_lnbig),
+          getString(R.string.chan_open_lnbig),
           R.drawable.border_blue,
           _ => me browse "https://lnbig.com/#/open-channel"
         )
       if (LNParams.isMainnet)
         addFlowChip(
           footer.flow,
-          getString(chan_open_bitrefill),
+          getString(R.string.chan_open_bitrefill),
           R.drawable.border_blue,
           _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
         )
       if (LNParams.isMainnet && LNParams.cm.allHostedCommits.isEmpty)
         addFlowChip(
           footer.flow,
-          getString(rpa_request_hc),
+          getString(R.string.rpa_request_hc),
           R.drawable.border_yellow,
           _ => requestHostedChannel()
         )
@@ -667,7 +683,7 @@ class ChanActivity
 
   private def sumOrNothing(amt: MilliSatoshi, mainColor: String): String = {
     if (0L.msat != amt) WalletApp.denom.parsedWithSign(amt, mainColor, cardZero)
-    else getString(chan_nothing)
+    else getString(R.string.chan_nothing)
   }
 
   private def peerInfo(info: RemoteNodeInfo): String =

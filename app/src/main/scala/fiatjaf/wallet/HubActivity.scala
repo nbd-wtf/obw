@@ -15,7 +15,7 @@ import androidx.transition.TransitionManager
 import com.fiatjaf.wallet.BaseActivity.StringOps
 import com.fiatjaf.wallet.Colors._
 import com.fiatjaf.wallet.HubActivity._
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.fiatjaf.wallet.utils.LocalBackup
 import com.chauthai.swipereveallayout.{SwipeRevealLayout, ViewBinderHelper}
 import com.danilomendes.progressbar.InvertedTextProgressbar
@@ -146,8 +146,8 @@ class HubActivity
     getResources.getStringArray(R.array.pct_collected)
   private[this] lazy val inBlocks =
     getResources.getStringArray(R.array.in_blocks)
-  private[this] lazy val lnSplitNotice = getString(tx_ln_notice_split)
-  private[this] lazy val lnDefTitle = getString(tx_ln)
+  private[this] lazy val lnSplitNotice = getString(R.string.tx_ln_notice_split)
+  private[this] lazy val lnDefTitle = getString(R.string.tx_ln)
 
   private[this] lazy val paymentTypeIconIds =
     List(
@@ -389,8 +389,14 @@ class HubActivity
     def doSetItemLabel(): Unit = {
       val (container, extraInputLayout, extraInput) = singleInputPopup
       val builder = titleBodyAsViewBuilder(title = null, body = container)
-      mkCheckForm(proceed, none, builder, dialog_ok, dialog_cancel)
-      extraInputLayout.setHint(dialog_set_label)
+      mkCheckForm(
+        proceed,
+        none,
+        builder,
+        R.string.dialog_ok,
+        R.string.dialog_cancel
+      )
+      extraInputLayout.setHint(R.string.dialog_set_label)
       showKeys(extraInput)
 
       def proceed(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
@@ -427,19 +433,20 @@ class HubActivity
         case _ => // Other items are not removable currently
       }
 
-      val builder = new AlertDialog.Builder(me).setMessage(confirm_remove_item)
+      val builder =
+        new AlertDialog.Builder(me).setMessage(R.string.confirm_remove_item)
       mkCheckForm(
         alert => runAnd(alert.dismiss)(proceed()),
         none,
         builder,
-        dialog_ok,
-        dialog_cancel
+        R.string.dialog_ok,
+        R.string.dialog_cancel
       )
     }
 
     def doShareItem(): Unit = currentDetails match {
       case info: TxInfo =>
-        me share getString(share_chain_tx).format(info.txString)
+        me share getString(R.string.share_chain_tx).format(info.txString)
       case info: LNUrlPayLink => me share info.payString
       case info: PaymentInfo =>
         val externalInfo = info.description.externalInfo.getOrElse("n/a")
@@ -450,7 +457,7 @@ class HubActivity
             ChannelMaster.NO_PREIMAGE.toHex != realPreimage
           )
           .getOrElse("n/a")
-        me share getString(share_ln_payment).format(
+        me share getString(R.string.share_ln_payment).format(
           info.prExt.raw,
           info.paymentHash.toHex,
           externalInfo,
@@ -470,7 +477,6 @@ class HubActivity
     }
 
     // DANGEROUS HC STUFF
-
     def getStallingCommits(
         localFulfills: List[LocalFulfill],
         info: PaymentInfo
@@ -488,7 +494,8 @@ class HubActivity
     def warnDangerousHc(info: PaymentInfo): Unit = {
       val myFulfills = dangerousHCRevealed(info.fullTag)
       val title =
-        getString(error_hc_dangerous_state).asColoredView(R.color.buttonRed)
+        getString(R.string.error_hc_dangerous_state)
+          .asColoredView(R.color.buttonRed)
       val paymentAmount = WalletApp.denom.parsedWithSign(
         myFulfills.map(_.theirAdd.amountMsat).sum,
         cardOut,
@@ -526,7 +533,8 @@ class HubActivity
         ) {
           case true =>
             LNParams.cm.payBag.updDescription(infoDesc1, info.paymentHash)
-          case false => onFail(error = me getString error_btc_broadcast_fail)
+          case false =>
+            onFail(error = me getString R.string.error_btc_broadcast_fail)
         }
       }
 
@@ -544,9 +552,9 @@ class HubActivity
           cardZero,
           isIncoming = false
         )
-        val msg = getString(error_hc_revealed_preimage)
+        val msg = getString(R.string.error_hc_revealed_preimage)
           .format(
-            getString(error_hc_option_can_stamp)
+            getString(R.string.error_hc_option_can_stamp)
               .format(paymentAmount, formattedFee),
             paymentAmount,
             closestExpiry
@@ -557,16 +565,16 @@ class HubActivity
           none,
           shareDetails,
           new AlertDialog.Builder(me).setCustomTitle(title).setMessage(msg),
-          dialog_stamp,
-          dialog_cancel,
-          dialog_share
+          R.string.dialog_stamp,
+          R.string.dialog_cancel,
+          R.string.dialog_share
         )
       }
 
       def onCanNot(error: Throwable): Unit = {
-        val msg = getString(error_hc_revealed_preimage)
+        val msg = getString(R.string.error_hc_revealed_preimage)
           .format(
-            getString(error_hc_option_can_not_stamp),
+            getString(R.string.error_hc_option_can_not_stamp),
             paymentAmount,
             closestExpiry
           )
@@ -576,9 +584,9 @@ class HubActivity
           none,
           shareDetails,
           new AlertDialog.Builder(me).setCustomTitle(title).setMessage(msg),
-          dialog_ok,
+          R.string.dialog_ok,
           noRes = -1,
-          dialog_share
+          R.string.dialog_share
         )
       }
 
@@ -620,11 +628,11 @@ class HubActivity
           val text2 = view.findViewById(R.id.text2).asInstanceOf[TextView]
 
           getItem(position) match {
-            case tx ~ _ if LNParams.blockCount.get == 0L =>
+            case tx ~ _ if LNParams.blockCount.get == 0L => {
               text1.setText(incoming(tx.txOut.head.amount.toMilliSatoshi).html)
               text2.setText(inBlocks.head)
-
-            case tx ~ Some(at) =>
+            }
+            case tx ~ Some(at) => {
               val blocksDone = LNParams.blockCount.get - at.blockHeight
               val csv = math.max(
                 Scripts
@@ -638,8 +646,8 @@ class HubActivity
                 math.max(Scripts.cltvTimeout(tx) - LNParams.blockCount.get, 0L)
               text2.setText(WalletApp.app.plurOrZero(cltv + csv, inBlocks).html)
               text1.setText(incoming(tx.txOut.head.amount.toMilliSatoshi).html)
-
-            case tx ~ None =>
+            }
+            case tx ~ None => {
               val csvEstimate = math.max(
                 Scripts.csvTimeouts(tx).values.headOption.getOrElse(0L),
                 0L
@@ -648,6 +656,7 @@ class HubActivity
                 math.max(Scripts.cltvTimeout(tx) - LNParams.blockCount.get, 0L)
               text1.setText(incoming(tx.txOut.head.amount.toMilliSatoshi).html)
               text2.setText(inBlocks.last.format(cltv + csvEstimate).html)
+            }
           }
 
           view
@@ -655,7 +664,7 @@ class HubActivity
       }
 
       val list = selectorList(adapter)
-      val title = getString(delayed_refunding_ext).asDefView
+      val title = getString(R.string.delayed_refunding_ext).asDefView
       titleBodyAsViewBuilder(title, list).show
       list.setDividerHeight(0)
       list.setDivider(null)
@@ -668,8 +677,8 @@ class HubActivity
         case None =>
           snack(
             contentWindow,
-            getString(error_btc_no_wallet).html,
-            dialog_ok,
+            getString(R.string.error_btc_no_wallet).html,
+            R.string.dialog_ok,
             _.dismiss
           )
         case Some(fromWallet) => doBoostCPFP(fromWallet, info)
@@ -693,12 +702,12 @@ class HubActivity
         .asInstanceOf[ScrollView]
       val cpfpCurrent = new TwoSidedItem(
         body.findViewById(R.id.cpfpCurrent),
-        getString(tx_cpfp_current),
+        getString(R.string.tx_cpfp_current),
         new String
       )
       val cpfpAfter = new TwoSidedItem(
         body.findViewById(R.id.cpfpAfter),
-        getString(tx_cpfp_after),
+        getString(R.string.tx_cpfp_after),
         new String
       )
 
@@ -791,14 +800,23 @@ class HubActivity
           } else {
             // We revert the whole description back since CPFP has failed
             WalletApp.txDataBag.updDescription(info.description, info.txid)
-            onFail(me getString error_btc_broadcast_fail)
+            onFail(me getString R.string.error_btc_broadcast_fail)
           }
       }
 
       lazy val alert = {
         val builder =
-          titleBodyAsViewBuilder(getString(tx_cpfp_explain).asDefView, body)
-        mkCheckForm(attempt, none, builder, dialog_ok, dialog_cancel)
+          titleBodyAsViewBuilder(
+            getString(R.string.tx_cpfp_explain).asDefView,
+            body
+          )
+        mkCheckForm(
+          attempt,
+          none,
+          builder,
+          R.string.dialog_ok,
+          R.string.dialog_cancel
+        )
       }
 
       feeView.update(feeOpt = None, showIssue = false)
@@ -810,8 +828,8 @@ class HubActivity
         case None =>
           snack(
             contentWindow,
-            getString(error_btc_no_wallet).html,
-            dialog_ok,
+            getString(R.string.error_btc_no_wallet).html,
+            R.string.dialog_ok,
             _.dismiss
           )
         case Some(fromWallet) => doBoostRBF(fromWallet, info)
@@ -828,7 +846,7 @@ class HubActivity
         .asInstanceOf[ScrollView]
       val rbfCurrent = new TwoSidedItem(
         body.findViewById(R.id.rbfCurrent),
-        getString(tx_rbf_current),
+        getString(R.string.tx_rbf_current),
         new String
       )
       val rbfIssue = body.findViewById(R.id.rbfIssue).asInstanceOf[TextView]
@@ -845,11 +863,11 @@ class HubActivity
             def process(reason: String, response: RBFResponse): Unit =
               response.result match {
                 case Left(ElectrumWallet.PARENTS_MISSING) =>
-                  showRbfErrorDesc(tx_rbf_err_parents_missing)
+                  showRbfErrorDesc(R.string.tx_rbf_err_parents_missing)
                 case Left(ElectrumWallet.FOREIGN_INPUTS) =>
-                  showRbfErrorDesc(tx_rbf_err_foreign_inputs)
+                  showRbfErrorDesc(R.string.tx_rbf_err_foreign_inputs)
                 case Left(ElectrumWallet.RBF_DISABLED) =>
-                  showRbfErrorDesc(tx_rbf_err_rbf_disabled)
+                  showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
                 case Right(res) =>
                   update(res.fee.toMilliSatoshi.asSome, showIssue = false)
                 case _ => error(new RuntimeException)
@@ -911,15 +929,21 @@ class HubActivity
             val parentDesc =
               info.description.withNewOrderCond(parentLowestOrder.asSome)
             WalletApp.txDataBag.updDescription(parentDesc, info.txid)
-          } else onFail(me getString error_btc_broadcast_fail)
+          } else onFail(me getString R.string.error_btc_broadcast_fail)
       }
 
       lazy val alert = {
         val builder = titleBodyAsViewBuilder(
-          getString(tx_rbf_boost_explain).asDefView,
+          getString(R.string.tx_rbf_boost_explain).asDefView,
           body
         )
-        mkCheckForm(attempt, none, builder, dialog_ok, dialog_cancel)
+        mkCheckForm(
+          attempt,
+          none,
+          builder,
+          R.string.dialog_ok,
+          R.string.dialog_cancel
+        )
       }
 
       rbfCurrent.secondItem.setText(currentFee.html)
@@ -933,8 +957,8 @@ class HubActivity
         case None =>
           snack(
             contentWindow,
-            getString(error_btc_no_wallet).html,
-            dialog_ok,
+            getString(R.string.error_btc_no_wallet).html,
+            R.string.dialog_ok,
             _.dismiss
           )
         case Some(fromWallet) => doCancelRBF(fromWallet, info)
@@ -951,7 +975,7 @@ class HubActivity
         .asInstanceOf[ScrollView]
       val rbfCurrent = new TwoSidedItem(
         body.findViewById(R.id.rbfCurrent),
-        getString(tx_rbf_current),
+        getString(R.string.tx_rbf_current),
         new String
       )
       val rbfIssue = body.findViewById(R.id.rbfIssue).asInstanceOf[TextView]
@@ -975,11 +999,11 @@ class HubActivity
             def process(reason: String, response: RBFResponse): Unit =
               response.result match {
                 case Left(ElectrumWallet.PARENTS_MISSING) =>
-                  showRbfErrorDesc(tx_rbf_err_parents_missing)
+                  showRbfErrorDesc(R.string.tx_rbf_err_parents_missing)
                 case Left(ElectrumWallet.FOREIGN_INPUTS) =>
-                  showRbfErrorDesc(tx_rbf_err_foreign_inputs)
+                  showRbfErrorDesc(R.string.tx_rbf_err_foreign_inputs)
                 case Left(ElectrumWallet.RBF_DISABLED) =>
-                  showRbfErrorDesc(tx_rbf_err_rbf_disabled)
+                  showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
                 case Right(res) =>
                   update(res.fee.toMilliSatoshi.asSome, showIssue = false)
                 case _ => error(new RuntimeException)
@@ -1044,15 +1068,21 @@ class HubActivity
             val parentDesc =
               info.description.withNewOrderCond(parentLowestOrder.asSome)
             WalletApp.txDataBag.updDescription(parentDesc, info.txid)
-          } else onFail(me getString error_btc_broadcast_fail)
+          } else onFail(me getString R.string.error_btc_broadcast_fail)
       }
 
       lazy val alert = {
         val builder = titleBodyAsViewBuilder(
-          getString(tx_rbf_cancel_explain).asDefView,
+          getString(R.string.tx_rbf_cancel_explain).asDefView,
           body
         )
-        mkCheckForm(attempt, none, builder, dialog_ok, dialog_cancel)
+        mkCheckForm(
+          attempt,
+          none,
+          builder,
+          R.string.dialog_ok,
+          R.string.dialog_cancel
+        )
       }
 
       rbfCurrent.secondItem.setText(currentFee.html)
@@ -1116,21 +1146,21 @@ class HubActivity
 
           addFlowChip(
             extraInfo,
-            getString(popup_hash) format info.paymentHash.toHex.short,
+            getString(R.string.popup_hash) format info.paymentHash.toHex.short,
             R.drawable.border_green,
             info.paymentHash.toHex.asSome
           )
           if (info.isIncoming && myFulfills.nonEmpty)
             addFlowChip(
               extraInfo,
-              getString(error_hc_dangerous_state),
+              getString(R.string.error_hc_dangerous_state),
               R.drawable.border_red,
               _ => self warnDangerousHc info
             )
           for (txid <- info.description.proofTxid)
             addFlowChip(
               extraInfo,
-              getString(popup_proof_stamp),
+              getString(R.string.popup_proof_stamp),
               R.drawable.border_yellow,
               _ =>
                 me share getStallingCommits(
@@ -1142,7 +1172,7 @@ class HubActivity
             addFlowChip(
               extraInfo,
               getString(
-                popup_ln_payee
+                R.string.popup_ln_payee
               ) format info.prExt.pr.nodeId.toString.short,
               R.drawable.border_blue,
               info.prExt.pr.nodeId.toString.asSome
@@ -1150,27 +1180,27 @@ class HubActivity
 
           addFlowChip(
             extraInfo,
-            getString(popup_fiat)
+            getString(R.string.popup_fiat)
               .format(s"<font color=$cardIn>$fiatNow</font>", fiatThen),
             R.drawable.border_gray
           )
           addFlowChip(
             extraInfo,
-            getString(popup_prior_chain_balance) format WalletApp.denom
+            getString(R.string.popup_prior_chain_balance) format WalletApp.denom
               .parsedWithSign(info.balanceSnapshot, cardIn, cardZero),
             R.drawable.border_gray
           )
           if (info.isIncoming && info.status == PaymentStatus.PENDING)
             addFlowChip(
               extraInfo,
-              getString(popup_view_invoice),
+              getString(R.string.popup_view_invoice),
               R.drawable.border_blue,
               _ => self doViewInvoice info
             )
           if (!info.isIncoming && shouldDisplayFee)
             addFlowChip(
               extraInfo,
-              getString(popup_ln_fee)
+              getString(R.string.popup_ln_fee)
                 .format(
                   offChainFeePaid,
                   s"${ratio(amount, liveFeePaid)}$PERCENT"
@@ -1180,7 +1210,7 @@ class HubActivity
           if (shouldRetry)
             addFlowChip(
               extraInfo,
-              getString(popup_retry),
+              getString(R.string.popup_retry),
               R.drawable.border_yellow,
               _ => retryPayment(LNParams.cm.feeReserve(info.sent), info)
             )
@@ -1188,13 +1218,13 @@ class HubActivity
           incomingFSMOpt.filter(info.isActivelyHolding).foreach { fsm =>
             addFlowChip(
               extraInfo,
-              getString(dialog_accept),
+              getString(R.string.dialog_accept),
               R.drawable.border_green,
               _ => fsm doProcess IncomingPaymentProcessor.CMDReleaseHold
             )
             addFlowChip(
               extraInfo,
-              getString(dialog_cancel),
+              getString(R.string.dialog_cancel),
               R.drawable.border_yellow,
               _ => fsm doProcess IncomingPaymentProcessor.CMDTimeout
             )
@@ -1209,7 +1239,7 @@ class HubActivity
             )
             addFlowChip(
               extraInfo,
-              getString(popup_run_action),
+              getString(R.string.popup_run_action),
               R.drawable.border_green,
               _ => run()
             )
@@ -1278,35 +1308,37 @@ class HubActivity
 
           addFlowChip(
             extraInfo,
-            getString(popup_txid) format info.txidString.short,
+            getString(R.string.popup_txid) format info.txidString.short,
             R.drawable.border_green,
             info.txidString.asSome
           )
           for (address <- info.description.toAddress)
             addFlowChip(
               extraInfo,
-              getString(popup_to_address) format address.short,
+              getString(R.string.popup_to_address) format address.short,
               R.drawable.border_yellow,
               address.asSome
             )
           for (nodeId <- info.description.withNodeId)
             addFlowChip(
               extraInfo,
-              getString(popup_ln_node) format nodeId.toString.short,
+              getString(R.string.popup_ln_node) format nodeId.toString.short,
               R.drawable.border_blue,
               nodeId.toString.asSome
             )
 
           addFlowChip(
             extraInfo,
-            getString(popup_fiat)
+            getString(R.string.popup_fiat)
               .format(s"<font color=$cardIn>$fiatNow</font>", fiatThen),
             R.drawable.border_gray
           )
           if (info.description.cpfpOf.isEmpty && info.description.rbf.isEmpty)
             addFlowChip(
               extraInfo,
-              getString(popup_prior_chain_balance) format balanceSnapshot,
+              getString(
+                R.string.popup_prior_chain_balance
+              ) format balanceSnapshot,
               R.drawable.border_gray
             )
           if (
@@ -1314,28 +1346,28 @@ class HubActivity
           )
             addFlowChip(
               extraInfo,
-              getString(popup_chain_fee) format fee,
+              getString(R.string.popup_chain_fee) format fee,
               R.drawable.border_gray
             )
 
           if (isFromSigningWallet && canCPFP)
             addFlowChip(
               extraInfo,
-              getString(dialog_boost),
+              getString(R.string.dialog_boost),
               R.drawable.border_yellow,
               _ => self boostCPFP info
             )
           if (isFromSigningWallet && canRBF)
             addFlowChip(
               extraInfo,
-              getString(dialog_cancel),
+              getString(R.string.dialog_cancel),
               R.drawable.border_yellow,
               _ => self cancelRBF info
             )
           if (isFromSigningWallet && canRBF)
             addFlowChip(
               extraInfo,
-              getString(dialog_boost),
+              getString(R.string.dialog_boost),
               R.drawable.border_yellow,
               _ => self boostRBF info
             )
@@ -1345,12 +1377,12 @@ class HubActivity
             WalletApp.denom.parsedWithSign(info.relayed, cardIn, cardZero)
           addFlowChip(
             extraInfo,
-            getString(popup_hash) format info.paymentHashString.short,
+            getString(R.string.popup_hash) format info.paymentHashString.short,
             R.drawable.border_green
           )
           addFlowChip(
             extraInfo,
-            getString(stats_item_relayed) format relayedHuman,
+            getString(R.string.stats_item_relayed) format relayedHuman,
             R.drawable.border_gray
           )
 
@@ -1445,8 +1477,8 @@ class HubActivity
         nonLinkContainer setBackgroundResource R.drawable.border_gray
         statusIcon setImageResource R.drawable.baseline_feedback_24
         amount.setText(incoming(info.totalAmount).html)
-        meta.setText(getString(delayed_pending).html)
-        description.setText(delayed_refunding)
+        meta.setText(getString(R.string.delayed_pending).html)
+        description.setText(R.string.delayed_refunding)
         setVisibleIcon(id = R.id.lnBtc)
         swipeWrap.setLockDrag(true)
 
@@ -1504,26 +1536,29 @@ class HubActivity
     def txDescription(transactionInfo: TxInfo): String =
       transactionInfo.description match {
         case _ if transactionInfo.description.cpfpOf.isDefined =>
-          getString(tx_description_cpfp)
+          getString(R.string.tx_description_cpfp)
         case _
             if transactionInfo.description.rbf.exists(
               _.mode == TxDescription.RBF_BOOST
             ) =>
-          getString(tx_description_rbf_boost)
+          getString(R.string.tx_description_rbf_boost)
         case _
             if transactionInfo.description.rbf.exists(
               _.mode == TxDescription.RBF_CANCEL
             ) =>
-          getString(tx_description_rbf_cancel)
+          getString(R.string.tx_description_rbf_cancel)
         case plain: PlainTxDescription =>
-          plain.toAddress.map(_.short) getOrElse getString(tx_btc)
+          plain.toAddress.map(_.short) getOrElse getString(R.string.tx_btc)
         case _: ChanRefundingTxDescription =>
-          getString(tx_description_refunding)
+          getString(R.string.tx_description_refunding)
         case _: HtlcClaimTxDescription =>
-          getString(tx_description_htlc_claiming)
-        case _: ChanFundingTxDescription => getString(tx_description_funding)
-        case _: OpReturnTxDescription    => getString(tx_description_op_return)
-        case _: PenaltyTxDescription     => getString(tx_description_penalty)
+          getString(R.string.tx_description_htlc_claiming)
+        case _: ChanFundingTxDescription =>
+          getString(R.string.tx_description_funding)
+        case _: OpReturnTxDescription =>
+          getString(R.string.tx_description_op_return)
+        case _: PenaltyTxDescription =>
+          getString(R.string.tx_description_penalty)
       }
 
     def setTxTypeIcon(info: TxInfo): Unit = info.description match {
@@ -1552,13 +1587,14 @@ class HubActivity
     }
 
     def setTxMeta(info: TxInfo): Unit = {
-      if (info.isDoubleSpent) meta setText getString(tx_state_double_spent).html
+      if (info.isDoubleSpent)
+        meta setText getString(R.string.tx_state_double_spent).html
       else if (info.isConfirmed)
         meta setText WalletApp.app
           .when(info.date, WalletApp.app.dateFormat)
           .html
       else if (info.depth > 0)
-        meta setText getString(tx_state_confs)
+        meta setText getString(R.string.tx_state_confs)
           .format(info.depth, LNParams.minDepthBlocks)
           .html
       else meta setText pctCollected.head
@@ -1718,8 +1754,14 @@ class HubActivity
       override def onLabelTap(wallet: ElectrumEclairWallet): Unit = {
         val (container, extraInputLayout, extraInput) = singleInputPopup
         val builder = titleBodyAsViewBuilder(title = null, body = container)
-        mkCheckForm(proceed, none, builder, dialog_ok, dialog_cancel)
-        extraInputLayout.setHint(dialog_set_label)
+        mkCheckForm(
+          proceed,
+          none,
+          builder,
+          R.string.dialog_ok,
+          R.string.dialog_cancel
+        )
+        extraInputLayout.setHint(R.string.dialog_set_label)
         showKeys(extraInput)
 
         def proceed(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
@@ -1740,9 +1782,9 @@ class HubActivity
         mkCheckForm(
           alert => runAnd(alert.dismiss)(proceed()),
           none,
-          new AlertDialog.Builder(me).setMessage(confirm_remove_item),
-          dialog_ok,
-          dialog_cancel
+          new AlertDialog.Builder(me).setMessage(R.string.confirm_remove_item),
+          R.string.dialog_ok,
+          R.string.dialog_cancel
         )
       }
     }
@@ -1892,7 +1934,9 @@ class HubActivity
         }
 
         val bld =
-          new AlertDialog.Builder(me).setMessage(ln_fee_expensive_omitted)
+          new AlertDialog.Builder(me).setMessage(
+            R.string.ln_fee_expensive_omitted
+          )
         def retryWithIncreasedFee(alert: AlertDialog): Unit =
           runAnd(alert.dismiss) {
             paymentInfos.find(
@@ -1905,15 +1949,15 @@ class HubActivity
         if (isIncompleteGraph && warnNoRouteFound)
           snack(
             contentWindow,
-            getString(ln_sync_not_complete),
-            dialog_ok,
+            getString(R.string.ln_sync_not_complete),
+            R.string.dialog_ok,
             _.dismiss
           )
         else if (warnPayeeOffline && warnNoRouteFound)
           snack(
             contentWindow,
-            getString(ln_payee_likely_offline),
-            dialog_ok,
+            getString(R.string.ln_payee_likely_offline),
+            R.string.dialog_ok,
             _.dismiss
           )
         else if (canIncreaseFee && warnNoRouteFound)
@@ -1921,8 +1965,8 @@ class HubActivity
             retryWithIncreasedFee,
             none,
             bld,
-            dialog_ok,
-            dialog_cancel
+            R.string.dialog_ok,
+            R.string.dialog_cancel
           )
       }.run
 
@@ -1962,27 +2006,29 @@ class HubActivity
     case (error: ChannelTransitionFail, _, data: HasNormalCommitments) =>
       chanError(
         data.channelId,
-        getString(error_channel_closed).format(error.stackTraceAsString),
+        getString(R.string.error_channel_closed)
+          .format(error.stackTraceAsString),
         data.commitments.remoteInfo
       )
     case (error: ChannelTransitionFail, _, hc: HostedCommits)
         if hc.error.isEmpty =>
       chanError(
         hc.channelId,
-        getString(error_channel_suspended).format(error.stackTraceAsString),
+        getString(R.string.error_channel_suspended)
+          .format(error.stackTraceAsString),
         hc.remoteInfo
       )
     case (RemoteErrorException(details), _, data: HasNormalCommitments) =>
       chanError(
         data.channelId,
-        getString(error_channel_remote).format(details),
+        getString(R.string.error_channel_remote).format(details),
         data.commitments.remoteInfo
       )
     case (RemoteErrorException(details), _, hc: HostedCommits)
         if hc.error.isEmpty =>
       chanError(
         hc.channelId,
-        getString(error_channel_remote).format(details),
+        getString(R.string.error_channel_remote).format(details),
         hc.remoteInfo
       )
     case (error, _, data: HasNormalCommitments) =>
@@ -2088,9 +2134,10 @@ class HubActivity
           // We have a single built-in wallet, no need to choose one
           bringSendMultiBitcoinPopup(a2a, LNParams.chainWallets.lnWallet)
         } else
-          bringChainWalletChooser(me getString dialog_send_btc_many) { wallet =>
-            // We have wallet candidates to spend from here
-            bringSendMultiBitcoinPopup(a2a, wallet)
+          bringChainWalletChooser(me getString R.string.dialog_send_btc_many) {
+            wallet =>
+              // We have wallet candidates to spend from here
+              bringSendMultiBitcoinPopup(a2a, wallet)
           }
 
       case info: RemoteNodeInfo =>
@@ -2142,7 +2189,7 @@ class HubActivity
 
               override val alert: AlertDialog = {
                 val title = new TitleView(
-                  getString(dialog_split_ln) format prExt.brDescription
+                  getString(R.string.dialog_split_ln) format prExt.brDescription
                 )
                 val builder = titleBodyAsViewBuilder(
                   title.asColoredView(R.color.cardLightning),
@@ -2150,13 +2197,13 @@ class HubActivity
                 )
                 addFlowChip(
                   title.flow,
-                  getString(dialog_ln_requested) format WalletApp.denom
+                  getString(R.string.dialog_ln_requested) format WalletApp.denom
                     .parsedWithSign(origAmount, cardIn, cardZero),
                   R.drawable.border_blue
                 )
                 addFlowChip(
                   title.flow,
-                  getString(dialog_ln_left) format WalletApp.denom
+                  getString(R.string.dialog_ln_left) format WalletApp.denom
                     .parsedWithSign(prExt.splitLeftover, cardIn, cardZero),
                   R.drawable.border_blue
                 )
@@ -2165,9 +2212,9 @@ class HubActivity
                   none,
                   neutral,
                   builder,
-                  dialog_ok,
-                  dialog_cancel,
-                  dialog_split
+                  R.string.dialog_ok,
+                  R.string.dialog_cancel,
+                  R.string.dialog_split
                 )
               }
 
@@ -2195,7 +2242,7 @@ class HubActivity
                 val totalHuman =
                   WalletApp.denom.parsedWithSign(origAmount, cardIn, cardZero)
                 val title = new TitleView(
-                  getString(dialog_send_ln) format prExt.brDescription
+                  getString(R.string.dialog_send_ln) format prExt.brDescription
                 )
                 val builder = titleBodyAsViewBuilder(
                   title.asColoredView(R.color.cardLightning),
@@ -2206,21 +2253,22 @@ class HubActivity
                   none,
                   neutral,
                   builder,
-                  dialog_ok,
-                  dialog_cancel,
-                  dialog_split
+                  R.string.dialog_ok,
+                  R.string.dialog_cancel,
+                  R.string.dialog_split
                 )
 
                 def fillFlow(value: CharSequence) = UITask {
                   runAnd(title.flow.removeAllViewsInLayout) {
                     addFlowChip(
                       title.flow,
-                      getString(dialog_ln_requested).format(totalHuman),
+                      getString(R.string.dialog_ln_requested)
+                        .format(totalHuman),
                       R.drawable.border_blue
                     )
                     addFlowChip(
                       title.flow,
-                      getString(dialog_ln_expected_fee).format(value),
+                      getString(R.string.dialog_ln_expected_fee).format(value),
                       R.drawable.border_blue
                     )
                   }
@@ -2231,7 +2279,7 @@ class HubActivity
                     val expectedFees = reply.asInstanceOf[ExpectedRouteFees]
                     val percent = expectedFees.%(origAmount)
                     fillFlow(
-                      getString(dialog_up_to).format(percent) + PERCENT
+                      getString(R.string.dialog_up_to).format(percent) + PERCENT
                     ).run
                   }
                 }
@@ -2265,7 +2313,7 @@ class HubActivity
               override def isNeutralEnabled: Boolean = true
 
               override val alert: AlertDialog = {
-                val title = getString(dialog_send_ln)
+                val title = getString(R.string.dialog_send_ln)
                   .format(prExt.brDescription)
                   .asColoredView(R.color.cardLightning)
                 mkCheckFormNeutral(
@@ -2273,9 +2321,9 @@ class HubActivity
                   none,
                   neutral,
                   titleBodyAsViewBuilder(title, manager.content),
-                  dialog_ok,
-                  dialog_cancel,
-                  dialog_max
+                  R.string.dialog_ok,
+                  R.string.dialog_cancel,
+                  R.string.dialog_max
                 )
               }
 
@@ -2309,8 +2357,8 @@ class HubActivity
 
     snack(
       contentWindow,
-      getString(dialog_lnurl_processing).format(lnUrl.warnUri).html,
-      dialog_cancel
+      getString(R.string.dialog_lnurl_processing).format(lnUrl.warnUri).html,
+      R.string.dialog_cancel
     ) foreach { snack =>
       def onErrorFromVendor(error: Throwable): Unit =
         onFail(s"Error from vendor:<br><br><tt>${error.toString}</tt>")
@@ -2319,16 +2367,17 @@ class HubActivity
         .doOnTerminate(snack.dismiss)
       val level2Sub = level1Sub.subscribe(resolve, onErrorFromVendor)
       val listener = onButtonTap(level2Sub.unsubscribe())
-      snack.setAction(dialog_cancel, listener).show
+      snack.setAction(R.string.dialog_cancel, listener).show
     }
   }
 
   def showAuthForm(lnUrl: LNUrl): Unit = lnUrl.k1.foreach { k1 =>
     val (successResource, actionResource) = lnUrl.authAction match {
-      case "register" => (lnurl_auth_register_ok, lnurl_auth_register)
-      case "auth"     => (lnurl_auth_auth_ok, lnurl_auth_auth)
-      case "link"     => (lnurl_auth_link_ok, lnurl_auth_link)
-      case _          => (lnurl_auth_login_ok, lnurl_auth_login)
+      case "register" =>
+        (R.string.lnurl_auth_register_ok, R.string.lnurl_auth_register)
+      case "auth" => (R.string.lnurl_auth_auth_ok, R.string.lnurl_auth_auth)
+      case "link" => (R.string.lnurl_auth_link_ok, R.string.lnurl_auth_link)
+      case _      => (R.string.lnurl_auth_login_ok, R.string.lnurl_auth_login)
     }
 
     val spec = LNUrlAuthSpec(lnUrl.uri.getHost, ByteVector32 fromValidHex k1)
@@ -2342,12 +2391,12 @@ class HubActivity
       displayInfo,
       title,
       actionResource,
-      dialog_cancel,
-      dialog_info
+      R.string.dialog_cancel,
+      R.string.dialog_info
     )
 
     def displayInfo(alert: AlertDialog): Unit = {
-      val explanation = getString(lnurl_auth_info)
+      val explanation = getString(R.string.lnurl_auth_info)
         .format(lnUrl.warnUri, spec.linkingPubKey.humanFour)
         .html
       mkCheckFormNeutral(
@@ -2355,17 +2404,17 @@ class HubActivity
         none,
         _ => share(spec.linkingPubKey),
         new AlertDialog.Builder(me).setMessage(explanation),
-        dialog_ok,
+        R.string.dialog_ok,
         -1,
-        dialog_share
+        R.string.dialog_share
       )
     }
 
     def doAuth(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
       snack(
         contentWindow,
-        getString(dialog_lnurl_processing).format(lnUrl.warnUri).html,
-        dialog_cancel
+        getString(R.string.dialog_lnurl_processing).format(lnUrl.warnUri).html,
+        R.string.dialog_cancel
       ) foreach { snack =>
         val uri = lnUrl.uri.buildUpon
           .appendQueryParameter("sig", spec.derSignatureHex)
@@ -2379,7 +2428,7 @@ class HubActivity
           onFail
         )
         val listener = onButtonTap(level2Sub.unsubscribe())
-        snack.setAction(dialog_cancel, listener).show
+        snack.setAction(R.string.dialog_cancel, listener).show
       }
     }
   }
@@ -2582,11 +2631,11 @@ class HubActivity
         none,
         switchToScanner,
         builder,
-        dialog_ok,
-        dialog_cancel,
-        dialog_scan
+        R.string.dialog_ok,
+        R.string.dialog_cancel,
+        R.string.dialog_scan
       )
-      extraInputLayout.setHint(typing_hints)
+      extraInputLayout.setHint(R.string.typing_hints)
       showKeys(extraInput)
 
       def proceed(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
@@ -2607,7 +2656,11 @@ class HubActivity
   def bringScanner(view: View): Unit = {
     val onScan = UITask(me checkExternalData nothingUsefulTask)
     val sheet =
-      new sheets.OnceBottomSheet(me, getString(typing_hints).asSome, onScan)
+      new sheets.OnceBottomSheet(
+        me,
+        getString(R.string.typing_hints).asSome,
+        onScan
+      )
     callScanner(sheet)
   }
 
@@ -2620,7 +2673,7 @@ class HubActivity
         case _ => nothingUsefulTask.run
       }
 
-    val instruction = getString(scan_btc_address).asSome
+    val instruction = getString(R.string.scan_btc_address).asSome
     def onData: Runnable = UITask(resolveLegacyWalletBtcAddressQr())
     val sheet = new sheets.OnceBottomSheet(me, instruction, onData)
     callScanner(sheet)
@@ -2628,7 +2681,9 @@ class HubActivity
 
   def bringReceiveOptions(view: View): Unit = {
     val options =
-      Array(dialog_receive_btc, dialog_receive_ln).map(getString).map(_.html)
+      Array(R.string.dialog_receive_btc, R.string.dialog_receive_ln)
+        .map(getString)
+        .map(_.html)
     val list = me selectorList new ArrayAdapter(
       me,
       android.R.layout.simple_expandable_list_item_1,
@@ -2640,7 +2695,11 @@ class HubActivity
 
   def bringLegacyWalletMenuSpendOptions(wallet: ElectrumEclairWallet): Unit = {
     val options =
-      Array(dialog_legacy_transfer_btc, dialog_legacy_send_btc).map(getString)
+      Array(
+        R.string.dialog_legacy_transfer_btc,
+        R.string.dialog_legacy_send_btc
+      )
+        .map(getString(_))
     val list = me selectorList new ArrayAdapter(
       me,
       android.R.layout.simple_expandable_list_item_1,
@@ -2662,7 +2721,7 @@ class HubActivity
       onFail
     ) { addresses =>
       val labelAndMessage =
-        s"?label=${me getString btc_transfer_label}&message=${me getString btc_transfer_message}"
+        s"?label=${me getString R.string.btc_transfer_label}&message=${me getString R.string.btc_transfer_message}"
       val uri = BitcoinUri.fromRaw(
         InputParser.bitcoin + addresses.firstAccountAddress + labelAndMessage
       )
@@ -2676,8 +2735,8 @@ class HubActivity
   ): Unit = {
     val sendView = new ChainSendView(
       fromWallet,
-      getString(dialog_set_label).asSome,
-      dialog_visibility_private
+      getString(R.string.dialog_set_label).asSome,
+      R.string.dialog_visibility_private
     )
     val chainPubKeyScript = LNParams.addressToPubKeyScript(uri.address)
 
@@ -2740,14 +2799,14 @@ class HubActivity
       }
 
       val title = titleViewFromUri(uri)
-      val neutralRes = if (uri.amount.isDefined) -1 else dialog_max
+      val neutralRes = if (uri.amount.isDefined) -1 else R.string.dialog_max
       val builder = titleBodyAsViewBuilder(
         title.asColoredView(me chainWalletBackground fromWallet),
         sendView.body
       )
       addFlowChip(
         title.flow,
-        getString(dialog_send_btc_from).format(fromWallet.info.label),
+        getString(R.string.dialog_send_btc_from).format(fromWallet.info.label),
         R.drawable.border_yellow
       )
       if (uri.prExt.isEmpty)
@@ -2756,8 +2815,8 @@ class HubActivity
           none,
           useMax,
           builder,
-          dialog_ok,
-          dialog_cancel,
+          R.string.dialog_ok,
+          R.string.dialog_cancel,
           neutralRes
         )
       else
@@ -2766,9 +2825,9 @@ class HubActivity
           none,
           switchToLn,
           builder,
-          dialog_ok,
-          dialog_cancel,
-          lightning_wallet
+          R.string.dialog_ok,
+          R.string.dialog_cancel,
+          R.string.lightning_wallet
         )
     }
 
@@ -2781,7 +2840,7 @@ class HubActivity
         notifyAndBroadcast(fromWallet, signedTx),
         atMost = 40.seconds
       )
-      if (!isSent) onFail(me getString error_btc_broadcast_fail)
+      if (!isSent) onFail(me getString R.string.error_btc_broadcast_fail)
       alert.dismiss
     }
 
@@ -2887,17 +2946,23 @@ class HubActivity
     }
 
     lazy val alert = {
-      val title = new TitleView(me getString dialog_send_btc_many)
+      val title = new TitleView(me getString R.string.dialog_send_btc_many)
       val builder = titleBodyAsViewBuilder(
         title.asColoredView(me chainWalletBackground fromWallet),
         sendView.body
       )
       addFlowChip(
         title.flow,
-        getString(dialog_send_btc_from).format(fromWallet.info.label),
+        getString(R.string.dialog_send_btc_from).format(fromWallet.info.label),
         R.drawable.border_yellow
       )
-      mkCheckForm(attempt, none, builder, dialog_ok, dialog_cancel)
+      mkCheckForm(
+        attempt,
+        none,
+        builder,
+        R.string.dialog_ok,
+        R.string.dialog_cancel
+      )
     }
 
     lazy val process: Transaction => Unit = signedTx => {
@@ -2908,7 +2973,7 @@ class HubActivity
         notifyAndBroadcast(fromWallet, signedTx),
         atMost = 40.seconds
       )
-      if (!isSent) onFail(me getString error_btc_broadcast_fail)
+      if (!isSent) onFail(me getString R.string.error_btc_broadcast_fail)
       alert.dismiss
     }
 
@@ -2956,7 +3021,7 @@ class HubActivity
   def bringReceivePopup(): Unit =
     lnReceiveGuard(LNParams.cm.all.values, contentWindow) {
       val holdPeriodInMinutes: String =
-        getString(popup_hold).format(LNParams.maxHoldSecs / 60)
+        getString(R.string.popup_hold).format(LNParams.maxHoldSecs / 60)
       new OffChainReceiver(
         LNParams.cm.all.values,
         initMaxReceivable = Long.MaxValue.msat,
@@ -2964,14 +3029,15 @@ class HubActivity
       ) {
         override def getManager: RateManager = new RateManager(
           body,
-          getString(dialog_add_description).asSome,
-          dialog_visibility_sender,
+          getString(R.string.dialog_add_description).asSome,
+          R.string.dialog_visibility_sender,
           LNParams.fiatRates.info.rates,
           WalletApp.fiatCode
         )
         override def processInvoice(payRequestExt: PaymentRequestExt): Unit =
           goToWithValue(ClassNames.qrInvoiceActivityClass, payRequestExt)
-        override def getTitleText: String = getString(dialog_receive_ln)
+        override def getTitleText: String =
+          getString(R.string.dialog_receive_ln)
 
         override def getDescription: PaymentDescription = {
           val invoiceText = manager.resultExtraInput.getOrElse(new String)
@@ -3001,8 +3067,8 @@ class HubActivity
       ) {
         override def getManager: RateManager = new RateManager(
           body,
-          getString(dialog_set_label).asSome,
-          dialog_visibility_private,
+          getString(R.string.dialog_set_label).asSome,
+          R.string.dialog_visibility_private,
           LNParams.fiatRates.info.rates,
           WalletApp.fiatCode
         )
@@ -3014,7 +3080,7 @@ class HubActivity
           meta = data.descriptionOpt
         )
         override def getTitleText: String =
-          getString(dialog_lnurl_withdraw).format(
+          getString(R.string.dialog_lnurl_withdraw).format(
             data.callbackUri.getHost,
             data.descriptionOpt.map(desc =>
               s"<br><br>$desc"
@@ -3034,8 +3100,8 @@ class HubActivity
     ) {
       override lazy val manager: RateManager = new RateManager(
         body,
-        data.commentAllowed.map(_ => me getString dialog_add_comment),
-        dialog_visibility_receiver,
+        data.commentAllowed.map(_ => me getString R.string.dialog_add_comment),
+        R.string.dialog_visibility_receiver,
         LNParams.fiatRates.info.rates,
         WalletApp.fiatCode
       )
@@ -3054,10 +3120,10 @@ class HubActivity
       override def neutral(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
         snack(
           contentWindow,
-          getString(dialog_lnurl_splitting)
+          getString(R.string.dialog_lnurl_splitting)
             .format(data.callbackUri.getHost)
             .html,
-          dialog_cancel
+          R.string.dialog_cancel
         ) foreach { snack =>
           val level2Obs = getFinal(amount = minSendable)
             .doOnUnsubscribe(snack.dismiss)
@@ -3065,7 +3131,7 @@ class HubActivity
           val level2Sub =
             level2Obs.subscribe(payReqFinal => proceed(payReqFinal).run, onFail)
           val listener = onButtonTap(level2Sub.unsubscribe())
-          snack.setAction(dialog_cancel, listener).show
+          snack.setAction(R.string.dialog_cancel, listener).show
         }
 
         def proceed(pf: PayRequestFinal): TimerTask = UITask {
@@ -3110,10 +3176,10 @@ class HubActivity
           .html
         snack(
           contentWindow,
-          getString(dialog_lnurl_sending)
+          getString(R.string.dialog_lnurl_sending)
             .format(amountHuman, data.callbackUri.getHost)
             .html,
-          dialog_cancel
+          R.string.dialog_cancel
         ) foreach { snack =>
           val level2Obs = getFinal(manager.resultMsat)
             .doOnUnsubscribe(snack.dismiss)
@@ -3121,7 +3187,7 @@ class HubActivity
           val level2Sub =
             level2Obs.subscribe(payReqFinal => proceed(payReqFinal).run, onFail)
           val listener = onButtonTap(level2Sub.unsubscribe())
-          snack.setAction(dialog_cancel, listener).show
+          snack.setAction(R.string.dialog_cancel, listener).show
         }
 
         def proceed(pf: PayRequestFinal): TimerTask = UITask {
@@ -3184,7 +3250,7 @@ class HubActivity
       }
 
       override val alert: AlertDialog = {
-        val text = getString(dialog_lnurl_pay).format(
+        val text = getString(R.string.dialog_lnurl_pay).format(
           data.callbackUri.getHost,
           s"<br><br>${data.meta.textPlain}"
         )
@@ -3197,9 +3263,9 @@ class HubActivity
           none,
           neutral,
           title,
-          dialog_ok,
-          dialog_cancel,
-          dialog_split
+          R.string.dialog_ok,
+          R.string.dialog_cancel,
+          R.string.dialog_split
         )
       }
 
@@ -3275,9 +3341,9 @@ class HubActivity
         none,
         _ => share(data.message),
         actionPopup(data.finalMessage.html, data),
-        dialog_ok,
+        R.string.dialog_ok,
         noRes = -1,
-        dialog_share
+        R.string.dialog_share
       )
     case data: UrlAction =>
       mkCheckFormNeutral(
@@ -3285,16 +3351,16 @@ class HubActivity
         none,
         _ => share(data.url),
         actionPopup(data.finalMessage.html, data),
-        dialog_open,
-        dialog_cancel,
-        dialog_share
+        R.string.dialog_open,
+        R.string.dialog_cancel,
+        R.string.dialog_share
       )
     case data: AESAction =>
       showAesAction(theirPreimage, data) getOrElse mkCheckForm(
         _.dismiss,
         none,
-        actionPopup(getString(dialog_lnurl_decrypt_fail), data),
-        dialog_ok,
+        actionPopup(getString(R.string.dialog_lnurl_decrypt_fail), data),
+        R.string.dialog_ok,
         noRes = -1
       )
   }
@@ -3313,16 +3379,17 @@ class HubActivity
       none,
       _ => share(secret),
       actionPopup(msg.html, aes),
-      dialog_ok,
-      dialog_cancel,
-      dialog_share
+      R.string.dialog_ok,
+      R.string.dialog_cancel,
+      R.string.dialog_share
     )
   }
 
   private def actionPopup(msg: CharSequence, action: PaymentAction) = {
     val fromVendor =
       action.domain.map(site => s"<br><br><b>$site</b>").getOrElse(new String)
-    val title = getString(dialog_lnurl_from_vendor).format(fromVendor).asDefView
+    val title =
+      getString(R.string.dialog_lnurl_from_vendor).format(fromVendor).asDefView
     new AlertDialog.Builder(me).setCustomTitle(title).setMessage(msg)
   }
 

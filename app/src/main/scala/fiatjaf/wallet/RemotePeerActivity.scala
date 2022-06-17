@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.{LinearLayout, TextView}
 import androidx.appcompat.app.AlertDialog
 import com.fiatjaf.wallet.BaseActivity.StringOps
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.ornach.nobobutton.NoboButton
 import fr.acinq.bitcoin.Crypto.PublicKey
 import fr.acinq.bitcoin._
@@ -105,7 +105,9 @@ class RemotePeerActivity
       case theirMsg: OpenChannel if (theirMsg.channelFlags & 0x01) == 0 =>
         acceptIncomingChannel(theirMsg)
       case _: OpenChannel =>
-        UITask(WalletApp.app quickToast error_rejected_incoming_public).run
+        UITask(
+          WalletApp.app quickToast R.string.error_rejected_incoming_public
+        ).run
       case _ => // Do nothing
     }
   }
@@ -350,14 +352,14 @@ class RemotePeerActivity
     }
 
     lazy val alert = {
-      val fundTitle = new TitleView(me getString rpa_open_nc)
+      val fundTitle = new TitleView(me getString R.string.rpa_open_nc)
       val builder = titleBodyAsViewBuilder(
         fundTitle.asColoredView(me chainWalletBackground fromWallet),
         sendView.manager.content
       )
       addFlowChip(
         fundTitle.flow,
-        getString(dialog_send_btc_from).format(fromWallet.info.label),
+        getString(R.string.dialog_send_btc_from).format(fromWallet.info.label),
         R.drawable.border_yellow
       )
       def setMax(fundAlert: AlertDialog): Unit =
@@ -367,9 +369,9 @@ class RemotePeerActivity
         none,
         setMax,
         builder,
-        dialog_ok,
-        dialog_cancel,
-        dialog_max
+        R.string.dialog_ok,
+        R.string.dialog_cancel,
+        R.string.dialog_max
       )
     }
 
@@ -420,7 +422,7 @@ class RemotePeerActivity
       // We have a single built-in wallet, no need to choose
       doFundNewChannel(LNParams.chainWallets.lnWallet)
     } else
-      bringChainWalletChooser(me getString rpa_open_nc) { wallet =>
+      bringChainWalletChooser(me getString R.string.rpa_open_nc) { wallet =>
         // We have wallet candidates to spend from here
         doFundNewChannel(wallet)
       }
@@ -434,9 +436,15 @@ class RemotePeerActivity
 
   def askHostedChannel(secret: ByteVector32): Unit = {
     val builder = new AlertDialog.Builder(me)
-      .setTitle(rpa_request_hc)
-      .setMessage(getString(rpa_hc_warn).html)
-    mkCheckForm(doAskHostedChannel, none, builder, dialog_ok, dialog_cancel)
+      .setTitle(R.string.rpa_request_hc)
+      .setMessage(getString(R.string.rpa_hc_warn).html)
+    mkCheckForm(
+      doAskHostedChannel,
+      none,
+      builder,
+      R.string.dialog_ok,
+      R.string.dialog_cancel
+    )
 
     def doAskHostedChannel(alert: AlertDialog): Unit = {
       // Switch view first since HC may throw immediately

@@ -7,7 +7,7 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.fiatjaf.wallet.BaseActivity.StringOps
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import fr.acinq.bitcoin.Crypto.PublicKey
 import fr.acinq.bitcoin._
 import fr.acinq.eclair._
@@ -142,7 +142,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
   }
 
   def showWalletInfo(wallet: ElectrumEclairWallet): Unit = {
-    val title = new TitleView(me getString coin_control)
+    val title = new TitleView(me getString R.string.coin_control)
     title.view.setOnClickListener(me onButtonTap finish)
     title.backArrow.setVisibility(View.VISIBLE)
     coinControlContainer.addView(title.view, 0)

@@ -23,7 +23,7 @@ import androidx.core.content.{ContextCompat, FileProvider}
 import androidx.recyclerview.widget.RecyclerView
 import com.fiatjaf.wallet.BaseActivity.StringOps
 import com.fiatjaf.wallet.Colors._
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.fiatjaf.wallet.sheets.HasUrDecoder
 import com.chauthai.swipereveallayout.SwipeRevealLayout
 import com.cottacush.android.currencyedittext.CurrencyEditText
@@ -108,7 +108,7 @@ trait ChoiceReceiver {
 trait BaseActivity extends AppCompatActivity { me =>
   lazy val qrSize: Int = getResources.getDimensionPixelSize(R.dimen.qr_size)
   val nothingUsefulTask: Runnable = UITask(
-    WalletApp.app quickToast error_nothing_useful
+    WalletApp.app quickToast R.string.error_nothing_useful
   )
   val timer: java.util.Timer = new java.util.Timer
 
@@ -153,10 +153,14 @@ trait BaseActivity extends AppCompatActivity { me =>
       _.dismiss,
       none,
       titleBodyAsViewBuilder(title.view, cardsContainer),
-      dialog_cancel,
+      R.string.dialog_cancel,
       -1
     )
-    addFlowChip(title.flow, getString(choose_wallet), R.drawable.border_yellow)
+    addFlowChip(
+      title.flow,
+      getString(R.string.choose_wallet),
+      R.drawable.border_yellow
+    )
 
     val chooser: ChainWalletCards = new ChainWalletCards(me) {
       override def onWalletTap(wallet: ElectrumEclairWallet): Unit = {
@@ -184,12 +188,14 @@ trait BaseActivity extends AppCompatActivity { me =>
     val message =
       uri.message.map(message => s"<br><i>$message<i>").getOrElse(new String)
     val caption =
-      getString(dialog_send_btc).format(uri.address.short, label + message)
+      getString(R.string.dialog_send_btc)
+        .format(uri.address.short, label + message)
     val title = new TitleView(caption)
 
     for (amount <- uri.amount) {
       val amountHuman = WalletApp.denom.parsedWithSign(amount, cardIn, cardZero)
-      val requested = getString(dialog_ln_requested).format(amountHuman)
+      val requested =
+        getString(R.string.dialog_ln_requested).format(amountHuman)
       addFlowChip(title.flow, requested, R.drawable.border_yellow)
     }
 
@@ -202,8 +208,8 @@ trait BaseActivity extends AppCompatActivity { me =>
   else R.color.cardBitcoinLegacy
   def chainWalletNotice(wallet: ElectrumEclairWallet): Option[Int] = if (
     wallet.hasFingerprint
-  ) Some(hardware_wallet)
-  else if (!wallet.isSigning) Some(watching_wallet)
+  ) Some(R.string.hardware_wallet)
+  else if (!wallet.isSigning) Some(R.string.watching_wallet)
   else None
   def browse(maybeUri: String): Unit = try
     me startActivity new Intent(Intent.ACTION_VIEW, Uri parse maybeUri)
@@ -222,7 +228,9 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   def viewRecoveryCode(): Unit = {
-    val content = new TitleView(me getString settings_view_revocery_phrase_ext)
+    val content = new TitleView(
+      me getString R.string.settings_view_revocery_phrase_ext
+    )
     getWindow.setFlags(
       WindowManager.LayoutParams.FLAG_SECURE,
       WindowManager.LayoutParams.FLAG_SECURE
@@ -330,7 +338,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def onFail(error: String): Unit = UITask {
     val bld = titleBodyAsViewBuilder(null, error.asDefView)
-    val bld1 = bld.setPositiveButton(dialog_ok, null)
+    val bld1 = bld.setPositiveButton(R.string.dialog_ok, null)
     showForm(bld1.create)
   }.run
 
@@ -387,7 +395,6 @@ trait BaseActivity extends AppCompatActivity { me =>
       noRes: Int,
       neutralRes: Int
   ): AlertDialog = {
-
     if (-1 != neutralRes) bld.setNeutralButton(neutralRes, null)
     val alert = mkCheckForm(ok, no, bld, okRes, noRes)
 
@@ -656,7 +663,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     var rate: FeeratePerKw = _
 
     def update(feeOpt: Option[MilliSatoshi], showIssue: Boolean): Unit = {
-      feeRate setText getString(dialog_fee_sat_vbyte)
+      feeRate setText getString(R.string.dialog_fee_sat_vbyte)
         .format(FeeratePerByte(rate).feerate.toLong)
         .html
       setVisMany(
@@ -772,17 +779,17 @@ trait BaseActivity extends AppCompatActivity { me =>
     val chainButtonsView: ChainButtonsView = new ChainButtonsView(host)
     val confirmFiat = new TwoSidedItem(
       host.findViewById(R.id.confirmFiat),
-      getString(dialog_send_btc_confirm_fiat),
+      getString(R.string.dialog_send_btc_confirm_fiat),
       new String
     )
     val confirmAmount = new TwoSidedItem(
       host.findViewById(R.id.confirmAmount),
-      getString(dialog_send_btc_confirm_amount),
+      getString(R.string.dialog_send_btc_confirm_amount),
       new String
     )
     val confirmFee = new TwoSidedItem(
       host.findViewById(R.id.confirmFee),
-      getString(dialog_send_btc_confirm_fee),
+      getString(R.string.dialog_send_btc_confirm_fee),
       new String
     )
   }
@@ -802,10 +809,12 @@ trait BaseActivity extends AppCompatActivity { me =>
     )
     val inputChain: LinearLayout =
       host.findViewById(R.id.inputChain).asInstanceOf[LinearLayout]
-    manager.hintFiatDenom setText getString(dialog_up_to)
+    manager.hintFiatDenom setText getString(R.string.dialog_up_to)
       .format(canSendFiat)
       .html
-    manager.hintDenom setText getString(dialog_up_to).format(canSend).html
+    manager.hintDenom setText getString(R.string.dialog_up_to)
+      .format(canSend)
+      .html
   }
 
   class CircularSpinnerView(val host: View) extends HasHostView
@@ -954,16 +963,26 @@ trait BaseActivity extends AppCompatActivity { me =>
       onOK: Option[MilliSatoshi] => Unit
   ): Unit = LNParams.cm.checkIfSendable(prExt.pr.paymentHash) match {
     case _ if !LNParams.cm.all.values.exists(Channel.isOperationalOrWaiting) =>
-      snack(container, getString(error_ln_no_chans).html, dialog_ok, _.dismiss)
+      snack(
+        container,
+        getString(R.string.error_ln_no_chans).html,
+        R.string.dialog_ok,
+        _.dismiss
+      )
     case _ if !prExt.pr.features.hasFeature(Features.PaymentSecret) =>
       snack(
         container,
-        getString(error_ln_send_no_secret).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_no_secret).html,
+        R.string.dialog_ok,
         _.dismiss
       )
     case _ if !LNParams.cm.all.values.exists(Channel.isOperational) =>
-      snack(container, getString(error_ln_waiting).html, dialog_ok, _.dismiss)
+      snack(
+        container,
+        getString(R.string.error_ln_waiting).html,
+        R.string.dialog_ok,
+        _.dismiss
+      )
 
     case _
         if LNParams.cm
@@ -973,8 +992,8 @@ trait BaseActivity extends AppCompatActivity { me =>
           .availableForSend < LNParams.minPayment =>
       snack(
         container,
-        getString(error_ln_send_reserve).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_reserve).html,
+        R.string.dialog_ok,
         _.dismiss
       )
 
@@ -984,42 +1003,44 @@ trait BaseActivity extends AppCompatActivity { me =>
       val minHuman =
         WalletApp.denom.parsedWithSign(LNParams.minPayment, cardIn, cardZero)
       val msg =
-        getString(error_ln_send_small).format(requestedHuman, minHuman).html
-      snack(container, msg, dialog_ok, _.dismiss)
+        getString(R.string.error_ln_send_small)
+          .format(requestedHuman, minHuman)
+          .html
+      snack(container, msg, R.string.dialog_ok, _.dismiss)
 
     case _ if prExt.hasSplitIssue =>
       snack(
         container,
-        getString(error_ln_send_split).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_split).html,
+        R.string.dialog_ok,
         _.dismiss
       )
     case _ if prExt.pr.isExpired() =>
       snack(
         container,
-        getString(error_ln_send_expired).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_expired).html,
+        R.string.dialog_ok,
         _.dismiss
       )
     case Some(PaymentInfo.NOT_SENDABLE_IN_FLIGHT) =>
       snack(
         container,
-        getString(error_ln_send_in_flight).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_in_flight).html,
+        R.string.dialog_ok,
         _.dismiss
       )
     case Some(PaymentInfo.NOT_SENDABLE_SUCCESS) =>
       snack(
         container,
-        getString(error_ln_send_done_already).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_done_already).html,
+        R.string.dialog_ok,
         _.dismiss
       )
     case _ if prExt.pr.prefix != Bolt11Invoice.prefixes(LNParams.chainHash) =>
       snack(
         container,
-        getString(error_ln_send_network).html,
-        dialog_ok,
+        getString(R.string.error_ln_send_network).html,
+        R.string.dialog_ok,
         _.dismiss
       )
     case _ => onOK(prExt.pr.amountOpt)
@@ -1029,14 +1050,24 @@ trait BaseActivity extends AppCompatActivity { me =>
       onOk: => Unit
   ): Unit = LNParams.cm.sortedReceivable(into).lastOption match {
     case _ if !into.exists(Channel.isOperationalOrWaiting) =>
-      snack(container, getString(error_ln_no_chans).html, dialog_ok, _.dismiss)
+      snack(
+        container,
+        getString(R.string.error_ln_no_chans).html,
+        R.string.dialog_ok,
+        _.dismiss
+      )
     case _ if !into.exists(Channel.isOperational) =>
-      snack(container, getString(error_ln_waiting).html, dialog_ok, _.dismiss)
+      snack(
+        container,
+        getString(R.string.error_ln_waiting).html,
+        R.string.dialog_ok,
+        _.dismiss
+      )
     case None =>
       snack(
         container,
-        getString(error_ln_receive_no_update).html,
-        dialog_ok,
+        getString(R.string.error_ln_receive_no_update).html,
+        R.string.dialog_ok,
         _.dismiss
       )
 
@@ -1051,8 +1082,10 @@ trait BaseActivity extends AppCompatActivity { me =>
         )
         snack(
           container,
-          getString(error_ln_receive_reserve).format(reserveHuman).html,
-          dialog_ok,
+          getString(R.string.error_ln_receive_reserve)
+            .format(reserveHuman)
+            .html,
+          R.string.dialog_ok,
           _.dismiss
         )
       } else onOk
@@ -1067,8 +1100,8 @@ trait BaseActivity extends AppCompatActivity { me =>
       .asInstanceOf[android.view.ViewGroup]
     lazy val manager = new RateManager(
       body,
-      getString(dialog_set_label).asSome,
-      dialog_visibility_private,
+      getString(R.string.dialog_set_label).asSome,
+      R.string.dialog_visibility_private,
       LNParams.fiatRates.info.rates,
       WalletApp.fiatCode
     )
@@ -1078,9 +1111,11 @@ trait BaseActivity extends AppCompatActivity { me =>
     val canSendHuman: String =
       WalletApp.denom.parsedWithSign(maxSendable, cardIn, cardZero)
     manager.hintFiatDenom.setText(
-      getString(dialog_up_to).format(canSendFiatHuman).html
+      getString(R.string.dialog_up_to).format(canSendFiatHuman).html
     )
-    manager.hintDenom.setText(getString(dialog_up_to).format(canSendHuman).html)
+    manager.hintDenom.setText(
+      getString(R.string.dialog_up_to).format(canSendHuman).html
+    )
 
     manager.inputAmount addTextChangedListener onTextChange { _ =>
       updatePopupButton(getNeutralButton(alert), isNeutralEnabled)
@@ -1186,8 +1221,8 @@ trait BaseActivity extends AppCompatActivity { me =>
         LNParams.fiatRates.info.rates
       )
       WalletApp.app.showStickyNotification(
-        incoming_notify_title,
-        incoming_notify_body,
+        R.string.incoming_notify_title,
+        R.string.incoming_notify_body,
         manager.resultMsat
       )
       // This must be called AFTER PaymentInfo is present in db
@@ -1207,9 +1242,9 @@ trait BaseActivity extends AppCompatActivity { me =>
         none,
         setMax,
         builder,
-        dialog_ok,
-        dialog_cancel,
-        dialog_max
+        R.string.dialog_ok,
+        R.string.dialog_cancel,
+        R.string.dialog_max
       )
     }
 
@@ -1223,10 +1258,10 @@ trait BaseActivity extends AppCompatActivity { me =>
     }
 
     manager.hintFiatDenom.setText(
-      getString(dialog_up_to).format(canReceiveFiatHuman).html
+      getString(R.string.dialog_up_to).format(canReceiveFiatHuman).html
     )
     manager.hintDenom.setText(
-      getString(dialog_up_to).format(canReceiveHuman).html
+      getString(R.string.dialog_up_to).format(canReceiveHuman).html
     )
     updatePopupButton(getPositiveButton(alert), isEnabled = false)
 
@@ -1306,7 +1341,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
     def break(alert: AlertDialog): Unit = runAnd(alert.dismiss)(
       worker requestRemoteForceClose reestablish.channelId
     )
-    val msg = getString(error_channel_unknown)
+    val msg = getString(R.string.error_channel_unknown)
       .format(
         reestablish.channelId.toHex,
         worker.info.nodeSpecificPubKey.toString,
@@ -1314,7 +1349,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
       )
       .html
     val builder = new AlertDialog.Builder(me)
-      .setCustomTitle(getString(error_channel).asDefView)
+      .setCustomTitle(getString(R.string.error_channel).asDefView)
       .setCancelable(true)
       .setMessage(msg)
     mkCheckFormNeutral(
@@ -1322,9 +1357,9 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
       share(msg),
       break,
       builder,
-      dialog_ok,
-      dialog_share,
-      dialog_break
+      R.string.dialog_ok,
+      R.string.dialog_share,
+      R.string.dialog_break
     )
     channelErrors.put(reestablish.channelId, errorCount + 1)
   }.run
@@ -1334,10 +1369,16 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
       val errorCount =
         Option(channelErrors getIfPresent chanId).getOrElse(default = 0: JInt)
       val builder = new AlertDialog.Builder(me)
-        .setCustomTitle(getString(error_channel).asDefView)
+        .setCustomTitle(getString(R.string.error_channel).asDefView)
         .setMessage(msg.html)
       if (errorCount < MAX_ERROR_COUNT_WITHIN_WINDOW)
-        mkCheckForm(_.dismiss, share(msg), builder, dialog_ok, dialog_share)
+        mkCheckForm(
+          _.dismiss,
+          share(msg),
+          builder,
+          R.string.dialog_ok,
+          R.string.dialog_share
+        )
       channelErrors.put(chanId, errorCount + 1)
     }.run
 }

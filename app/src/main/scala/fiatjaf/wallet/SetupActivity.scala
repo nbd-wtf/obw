@@ -8,7 +8,7 @@ import android.widget.{ArrayAdapter, LinearLayout}
 import androidx.appcompat.app.AlertDialog
 import androidx.documentfile.provider.DocumentFile
 import androidx.transition.TransitionManager
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.fiatjaf.wallet.utils.LocalBackup
 import com.google.common.io.ByteStreams
 import com.ornach.nobobutton.NoboButton
@@ -60,7 +60,7 @@ class SetupActivity extends BaseActivity { me =>
   lazy private[this] val enforceTor = new SettingsHolder(me) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
-    settingsTitle.setText(settings_ensure_tor)
+    settingsTitle.setText(R.string.settings_ensure_tor)
     setVis(isVisible = false, settingsInfo)
     disableIfOldAndroid()
 

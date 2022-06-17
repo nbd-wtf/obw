@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.azoft.carousellayoutmanager._
 import com.fiatjaf.wallet.BaseActivity.StringOps
 import com.fiatjaf.wallet.Colors._
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.ornach.nobobutton.NoboButton
 import fr.acinq.bitcoin.Btc
 import fr.acinq.eclair._
@@ -103,8 +103,8 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
       .asInstanceOf[ViewGroup]
     lazy val manager = new RateManager(
       body,
-      getString(dialog_add_description).asSome,
-      dialog_visibility_sender,
+      getString(R.string.dialog_add_description).asSome,
+      R.string.dialog_visibility_sender,
       LNParams.fiatRates.info.rates,
       WalletApp.fiatCode
     )
@@ -112,19 +112,19 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
       proceed,
       none,
       titleBodyAsViewBuilder(
-        getString(dialog_receive_btc).asColoredView(
+        getString(R.string.dialog_receive_btc).asColoredView(
           me chainWalletBackground wallet
         ),
         manager.content
       ),
-      dialog_ok,
-      dialog_cancel
+      R.string.dialog_ok,
+      R.string.dialog_cancel
     )
     manager.hintFiatDenom.setText(
-      getString(dialog_up_to).format(canReceiveFiatHuman).html
+      getString(R.string.dialog_up_to).format(canReceiveFiatHuman).html
     )
     manager.hintDenom.setText(
-      getString(dialog_up_to).format(canReceiveHuman).html
+      getString(R.string.dialog_up_to).format(canReceiveHuman).html
     )
     bu.amount.foreach(manager.updateText)
 
@@ -193,9 +193,11 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
       chainQrCodes.setAdapter(adapter)
     }
 
-    val text = chainWalletNotice(wallet) map { textRes =>
-      getString(dialog_receive_btc) + "<br>" + getString(textRes)
-    } getOrElse getString(dialog_receive_btc)
+    val text = chainWalletNotice(wallet)
+      .map(textRes =>
+        getString(R.string.dialog_receive_btc) + "<br>" + getString(textRes)
+      )
+      .getOrElse(getString(R.string.dialog_receive_btc))
     chainQrCaption.setText(text.html)
   }
 

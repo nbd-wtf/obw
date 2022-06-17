@@ -13,7 +13,7 @@ import android.widget.{EditText, Toast}
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import com.fiatjaf.wallet.BaseActivity.StringOps
-import com.fiatjaf.wallet.R.string._
+import com.fiatjaf.wallet.R
 import com.fiatjaf.wallet.sqlite._
 import com.fiatjaf.wallet.utils.{
   ClearnetConnectionProvider,
@@ -514,8 +514,8 @@ object WalletApp {
     DelayedNotification.schedule(
       app,
       DelayedNotification.WATCH_TOWER_TAG,
-      title = app.getString(delayed_notify_wt_title),
-      body = app.getString(delayed_notify_wt_body),
+      title = app.getString(R.string.delayed_notify_wt_title),
+      body = app.getString(R.string.delayed_notify_wt_body),
       DelayedNotification.WATCH_TOWER_PERIOD_MSEC
     )
 
@@ -523,8 +523,8 @@ object WalletApp {
     DelayedNotification.schedule(
       app,
       DelayedNotification.IN_FLIGHT_HTLC_TAG,
-      title = app.getString(delayed_notify_pending_payment_title),
-      body = app.getString(delayed_notify_pending_payment_body),
+      title = app.getString(R.string.delayed_notify_pending_payment_title),
+      body = app.getString(R.string.delayed_notify_pending_payment_body),
       DelayedNotification.IN_FLIGHT_HTLC_PERIOD_MSEC
     )
 
@@ -716,6 +716,6 @@ class WalletApp extends Application { me =>
   def copy(text: String): Unit = {
     val bufferContent = ClipData.newPlainText("wallet", text)
     clipboardManager.setPrimaryClip(bufferContent)
-    quickToast(copied_to_clipboard)
+    quickToast(R.string.copied_to_clipboard)
   }
 }
