@@ -95,6 +95,7 @@ tasks.withType(ScalaCompile) {
 
 dependencies {
     // Android-specific
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.work:work-runtime:2.7.1'
     implementation 'androidx.appcompat:appcompat:1.3.1'
@@ -115,11 +116,9 @@ dependencies {
 
     // Related to Immortan
     implementation 'com.fiatjaf:immortan_2.13:0.7.1-SNAPSHOT'
-    implementation 'com.lihaoyi:requests_2.13:0.7.0'
     implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.6.4'
 
     // Built-in Tor
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'info.guardianproject:tor-android:0.4.6.9'
     implementation 'info.guardianproject:jtorctl:0.4.5.7'
 

@@ -1,7 +1,14 @@
 package wtf.nbd.obw
 
 import org.junit.{Ignore, Test}
-import immortan.{ClearnetConnectionProvider, LNParams, PureRoutingData, SyncMaster, SyncMasterShortIdData, SyncParams}
+import immortan.{
+  OkHttpConnectionProvider,
+  LNParams,
+  PureRoutingData,
+  SyncMaster,
+  SyncMasterShortIdData,
+  SyncParams
+}
 import fr.acinq.eclair.router.Graph.GraphStructure.DirectedGraph
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.acinq.eclair.router.Router.Data
@@ -13,7 +20,6 @@ import fr.acinq.bitcoin.Block
 import java.io.File
 
 import fr.acinq.eclair.wire.NodeAnnouncement
-
 
 //@Ignore
 @RunWith(classOf[AndroidJUnit4])
@@ -28,7 +34,7 @@ class SyncSpec {
   def run(dbName: String, makeSnapshot: Boolean): Unit = {
     val (normalStore, _, dbInterface) = DBSpec.getNetworkStores(dbName)
 
-    LNParams.connectionProvider = new ClearnetConnectionProvider
+    LNParams.connectionProvider = new OkHttpConnectionProvider
     LNParams.chainHash = Block.LivenetGenesisBlock.hash
     LNParams.ourInit = LNParams.createInit
 
@@ -38,17 +44,37 @@ class SyncSpec {
     }
 
     val channelMap0 = normalStore.getRoutingData
-    val data0 = Data(channelMap0, hostedChannels = Map.empty, graph = DirectedGraph makeGraph channelMap0)
-    val setupData = SyncMasterShortIdData(LNParams.syncParams.syncNodes, extInfos = Set.empty, activeSyncs = Set.empty, ranges = Map.empty)
+    val data0 = Data(
+      channelMap0,
+      hostedChannels = Map.empty,
+      graph = DirectedGraph makeGraph channelMap0
+    )
+    val setupData = SyncMasterShortIdData(
+      LNParams.syncParams.syncNodes,
+      extInfos = Set.empty,
+      activeSyncs = Set.empty,
+      ranges = Map.empty
+    )
 
-    val syncMaster = new SyncMaster(normalStore.listExcludedChannels, Set.empty, data0, LNParams.syncParams.maxNodesToSyncFrom) {
-      def onNodeAnnouncement(na: NodeAnnouncement): Unit = println("onNodeAnnouncement")
+    val syncMaster = new SyncMaster(
+      normalStore.listExcludedChannels,
+      Set.empty,
+      data0,
+      LNParams.syncParams.maxNodesToSyncFrom
+    ) {
+      def onNodeAnnouncement(na: NodeAnnouncement): Unit = println(
+        "onNodeAnnouncement"
+      )
 
       def onChunkSyncComplete(pure: PureRoutingData): Unit = {
-        println(s"Chunk complete, announces=${pure.announces.size}, updates=${pure.updates.size}, excluded=${pure.excluded.size}")
+        println(
+          s"Chunk complete, announces=${pure.announces.size}, updates=${pure.updates.size}, excluded=${pure.excluded.size}"
+        )
         val a = System.currentTimeMillis
         normalStore.processPureData(pure)
-        println(s"DB chunk processing took ${System.currentTimeMillis - a} msec")
+        println(
+          s"DB chunk processing took ${System.currentTimeMillis - a} msec"
+        )
       }
 
       def onTotalSyncComplete: Unit = {
@@ -57,17 +83,28 @@ class SyncSpec {
 
         val a1 = System.currentTimeMillis
         val oneSidedShortIds = normalStore.listChannelsWithOneUpdate
-        normalStore.removeGhostChannels(data1.keySet.diff(provenShortIds), oneSidedShortIds)
-        println(s"Removing of ghost channels took ${System.currentTimeMillis - a1} msec")
+        normalStore.removeGhostChannels(
+          data1.keySet.diff(provenShortIds),
+          oneSidedShortIds
+        )
+        println(
+          s"Removing of ghost channels took ${System.currentTimeMillis - a1} msec"
+        )
 
         val a2 = System.currentTimeMillis
         val data2 = normalStore.getRoutingData
-        println(s"Post-processing data took ${System.currentTimeMillis - a2} msec")
-        println(s"Total sync complete, we have ${data2.keys.size} purified channels")
+        println(
+          s"Post-processing data took ${System.currentTimeMillis - a2} msec"
+        )
+        println(
+          s"Total sync complete, we have ${data2.keys.size} purified channels"
+        )
 
         val a3 = System.currentTimeMillis
         val graph = DirectedGraph.makeGraph(data2)
-        assert(graph.vertices.forall { case (nodeId, incomingEdges) => incomingEdges.forall(_.desc.to == nodeId) })
+        assert(graph.vertices.forall { case (nodeId, incomingEdges) =>
+          incomingEdges.forall(_.desc.to == nodeId)
+        })
         println(s"Making graph took ${System.currentTimeMillis - a3} msec")
         assert(data2.nonEmpty)
 
@@ -75,15 +112,25 @@ class SyncSpec {
         normalStore.clearDataTables
         println(s"Cleared data tables")
 
-        val dataBaseFile = new File(WalletApp.app.getDatabasePath(dbName).getPath)
+        val dataBaseFile = new File(
+          WalletApp.app.getDatabasePath(dbName).getPath
+        )
         val plainBytes = ByteVector(Files toByteArray dataBaseFile)
         println(s"Size of graph db is ${plainBytes.size}")
 
-        val compressedPlainBytes = ExtCodecs.compressedByteVecCodec.encode(plainBytes).require.toByteVector
+        val compressedPlainBytes = ExtCodecs.compressedByteVecCodec
+          .encode(plainBytes)
+          .require
+          .toByteVector
         println(s"Size of compressed graph db is ${compressedPlainBytes.size}")
 
-        val decompressedPlainBytes = ExtCodecs.compressedByteVecCodec.decode(compressedPlainBytes.toBitVector).require.value
-        println(s"Size of decompressed graph db is ${decompressedPlainBytes.size}")
+        val decompressedPlainBytes = ExtCodecs.compressedByteVecCodec
+          .decode(compressedPlainBytes.toBitVector)
+          .require
+          .value
+        println(
+          s"Size of decompressed graph db is ${decompressedPlainBytes.size}"
+        )
         assert(plainBytes == decompressedPlainBytes)
         println("Done")
 

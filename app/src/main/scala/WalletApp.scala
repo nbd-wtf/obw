@@ -16,7 +16,7 @@ import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.R
 import wtf.nbd.obw.sqlite._
 import wtf.nbd.obw.utils.{
-  ClearnetConnectionProvider,
+  OkHttpConnectionProvider,
   AwaitService,
   DelayedNotification,
   LocalBackup
@@ -167,7 +167,7 @@ object WalletApp {
       RouterConf(initRouteMaxLength = 10, LNParams.maxCltvExpiryDelta)
     LNParams.connectionProvider =
       if (ensureTor) new TorConnectionProvider(app)
-      else new ClearnetConnectionProvider
+      else new OkHttpConnectionProvider
     LNParams.ourInit = LNParams.createInit
     LNParams.syncParams = new SyncParams
   }
