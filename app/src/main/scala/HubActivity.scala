@@ -176,7 +176,6 @@ class HubActivity
 
   lazy val walletCards = new WalletCardsViewHolder
   private[this] val viewBinderHelper = new ViewBinderHelper
-  private[this] val CHOICE_RECEIVE_TAG: String = "choiceReceiveTag"
   var openListItems = Set.empty[String]
 
   private def updateLnCaches(): Unit = {
@@ -2446,13 +2445,7 @@ class HubActivity
       transferFromLegacyToModern(legacy)
     case (legacy: ElectrumEclairWallet, 1) if legacy.isSigning =>
       bringBitcoinSpecificScanner(legacy)
-    case (CHOICE_RECEIVE_TAG, 0) =>
-      goToWithValue(
-        ClassNames.qrChainActivityClass,
-        LNParams.chainWallets.lnWallet
-      )
-    case (CHOICE_RECEIVE_TAG, 1) => bringReceivePopup()
-    case _                       =>
+    case _ =>
   }
 
   override def PROCEED(state: Bundle): Unit = {
@@ -2683,20 +2676,6 @@ class HubActivity
     def onData: Runnable = UITask(resolveLegacyWalletBtcAddressQr())
     val sheet = new sheets.OnceBottomSheet(me, instruction, onData)
     callScanner(sheet)
-  }
-
-  def bringReceiveOptions(view: View): Unit = {
-    val options =
-      Array(R.string.dialog_receive_btc, R.string.dialog_receive_ln)
-        .map(getString)
-        .map(_.html)
-    val list = me selectorList new ArrayAdapter(
-      me,
-      android.R.layout.simple_expandable_list_item_1,
-      options
-    )
-    new sheets.ChoiceBottomSheet(list, CHOICE_RECEIVE_TAG, me)
-      .show(getSupportFragmentManager, "unused-tag")
   }
 
   def bringLegacyWalletMenuSpendOptions(wallet: ElectrumEclairWallet): Unit = {
@@ -3024,7 +3003,7 @@ class HubActivity
     feeView.worker addWork "MULTI-SEND-INIT-CALL"
   }
 
-  def bringReceivePopup(): Unit =
+  def bringReceivePopup(view: View): Unit =
     lnReceiveGuard(LNParams.cm.all.values, contentWindow) {
       val holdPeriodInMinutes: String =
         getString(R.string.popup_hold).format(LNParams.maxHoldSecs / 60)
