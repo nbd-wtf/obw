@@ -388,7 +388,7 @@
         <item><![CDATA[Получить в канал]]></item>
     </array>
 
-    <string name="ln_hc_override">Override proposal</string>
+    <string name="ln_hc_override">Check Override Proposal</string>
 
     <string name="ln_hc_override_warn"><![CDATA[
         <br>Удаленный хост хочет изменить ваш баланс в hosted-канале с текущего <b>%1$s</b> на  новый <b>%2$s</b>,

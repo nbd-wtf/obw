@@ -36,13 +36,13 @@
             android:visibility="gone"
             f:layout_newLine="true">
 
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/ChannelRangeQueriesExtended"/>
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/OptionDataLossProtect"/>
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/BasicMultiPartPayment"/>
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/StaticRemoteKey"/>
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/HostedChannels"/>
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/ChainSwap"/>
-            <TextView style="@style/ChipTextGrayMargin" android:id="@+id/Wumbo"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/ChannelRangeQueriesExtended"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/OptionDataLossProtect"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/BasicMultiPartPayment"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/StaticRemoteKey"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/HostedChannels"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/ChainSwap"/>
+            <TextView style="@style/ChipTextBasic" android:id="@+id/Wumbo"/>
         </org.apmem.tools.layouts.FlowLayout>
 
         <TextView

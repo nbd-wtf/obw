@@ -49,10 +49,11 @@
             android:layout_width="match_parent"
             android:layout_marginBottom="-1dp"/>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             card_view:cardCornerRadius="@dimen/corner_radius"
             android:id="@+id/paymentCardContainer"
-            style="@style/Card">
+            style="@style/Card"
+            card_view:cardBackgroundColor="@color/bgBrighter">
 
             <!-- Everything besides pay links -->
             <LinearLayout
@@ -199,7 +200,7 @@
                 android:visibility="gone"
                 style="@style/FillingView"
                 android:id="@+id/linkContainer"
-                android:background="@drawable/border_gray">
+                android:background="@drawable/border_basic">
 
                 <androidx.cardview.widget.CardView
                     card_view:cardCornerRadius="@dimen/corner_radius"
@@ -245,6 +246,6 @@
 
                 </LinearLayout>
             </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </com.chauthai.swipereveallayout.SwipeRevealLayout>

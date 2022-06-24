@@ -35,7 +35,7 @@ class StatActivity extends BaseCheckActivity { me =>
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_transactions).format(summary.count),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -48,7 +48,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = true
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -61,7 +61,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = false
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -74,7 +74,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = false
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
       }
@@ -84,7 +84,7 @@ class StatActivity extends BaseCheckActivity { me =>
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_payments).format(summary.count),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -97,7 +97,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = true
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -110,7 +110,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = false
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -123,7 +123,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = false
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         val feesSaved = WalletApp.denom.directedWithSign(
           summary.chainFees - summary.fees,
@@ -136,7 +136,7 @@ class StatActivity extends BaseCheckActivity { me =>
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_fees_saved) format feesSaved,
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
       }
@@ -146,13 +146,13 @@ class StatActivity extends BaseCheckActivity { me =>
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_relays).format(summary.count),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_relayed) format WalletApp.denom
             .parsedWithSign(summary.relayed, cardIn, cardZero),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -165,7 +165,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = true
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
       }
@@ -176,7 +176,7 @@ class StatActivity extends BaseCheckActivity { me =>
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_transactions).format(summary.count),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
@@ -189,7 +189,7 @@ class StatActivity extends BaseCheckActivity { me =>
               cardZero,
               isIncoming = false
             ),
-          R.drawable.border_gray
+          R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
       }

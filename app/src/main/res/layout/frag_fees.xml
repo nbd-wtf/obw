@@ -12,25 +12,25 @@
         f:layout_newLine="true">
 
         <TextView
-            style="@style/ChipTextGrayMargin"
+            style="@style/ChipTextBasic"
             android:background="@drawable/border_green"
             android:id="@+id/feeRate"/>
 
         <TextView
-            style="@style/ChipTextGrayMargin"
+            style="@style/ChipTextBasic"
             android:background="@drawable/border_yellow"
             android:text="@string/dialog_insufficient_funds"
             android:visibility="invisible"
             android:id="@+id/txIssues"/>
 
         <TextView
-            style="@style/ChipTextGrayMargin"
+            style="@style/ChipTextBasic"
             android:background="@drawable/border_green"
             android:visibility="invisible"
             android:id="@+id/bitcoinFee"/>
 
         <TextView
-            style="@style/ChipTextGrayMargin"
+            style="@style/ChipTextBasic"
             android:background="@drawable/border_green"
             android:visibility="invisible"
             android:id="@+id/fiatFee"/>

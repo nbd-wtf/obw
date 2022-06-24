@@ -38,10 +38,12 @@
         android:id="@+id/chainPaddingWrap"
         style="@style/FillingView">
 
-        <androidx.cardview.widget.CardView
-            card_view:cardCornerRadius="@dimen/corner_radius"
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/chainWrap"
-            style="@style/Card">
+            style="@style/Card"
+            card_view:strokeWidth="1dp"
+            card_view:strokeColor="@color/zbdPurple"
+            card_view:cardCornerRadius="@dimen/corner_radius">
 
             <RelativeLayout
                 style="@style/FillingView"
@@ -94,7 +96,6 @@
                 </LinearLayout>
 
                 <!-- No coins present -->
-
                 <ImageView
                     style="@style/BoundedView"
                     android:id="@+id/receiveBitcoinTip"
@@ -112,6 +113,6 @@
                     android:visibility="gone"/>
 
             </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </com.chauthai.swipereveallayout.SwipeRevealLayout>

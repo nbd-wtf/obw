@@ -137,7 +137,7 @@ class RemotePeerActivity
           view.setText(feature.rfcName)
 
         case (feature, view) =>
-          view.setBackgroundResource(R.drawable.border_gray)
+          view.setBackgroundResource(R.drawable.border_basic)
           view.setText(feature.rfcName)
       }
 
@@ -364,6 +364,7 @@ class RemotePeerActivity
       )
       def setMax(fundAlert: AlertDialog): Unit =
         sendView.manager.updateText(fromWallet.info.lastBalance.toMilliSatoshi)
+
       mkCheckFormNeutral(
         attempt,
         none,
@@ -435,7 +436,7 @@ class RemotePeerActivity
   def requestHostedChannel(view: View): Unit = askHostedChannel(randomBytes32)
 
   def askHostedChannel(secret: ByteVector32): Unit = {
-    val builder = new AlertDialog.Builder(me)
+    val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
       .setTitle(R.string.rpa_request_hc)
       .setMessage(getString(R.string.rpa_hc_warn).html)
     mkCheckForm(

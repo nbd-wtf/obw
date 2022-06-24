@@ -6,7 +6,6 @@
     android:id="@+id/contentWindow">
 
     <!-- Payment list + header -->
-
     <ListView
         android:scrollbars="none"
         android:id="@+id/itemsList"
@@ -16,9 +15,8 @@
         style="@style/StandardLinearLayout"/>
 
     <!-- Bottom menu -->
-
     <com.github.mmin18.widget.RealtimeBlurView
-        app:realtimeOverlayColor="@color/bgalpha"
+        app:realtimeOverlayColor="@color/bg"
         android:layout_alignParentBottom="true"
         android:id="@+id/bottomBlurringArea"
         android:layout_width="match_parent"
@@ -41,19 +39,19 @@
             android:onClick="bringSendOptions"
             android:layout_width="110dp"
             android:layout_margin="10dp"
-            style="@style/GrayButton"/>
+            style="@style/PurpleButton"/>
 
         <com.ornach.nobobutton.NoboButton
             app:nb_drawableResource="@drawable/outline_qr_code_scanner_32_24"
             android:onClick="bringScanner"
-            style="@style/GrayButton"/>
+            style="@style/PurpleButton"/>
 
         <com.ornach.nobobutton.NoboButton
             app:nb_text="@string/dialog_receive"
             android:onClick="bringReceiveOptions"
             android:layout_width="110dp"
             android:layout_margin="10dp"
-            style="@style/GrayButton"/>
+            style="@style/PurpleButton"/>
 
     </LinearLayout>
 </RelativeLayout>

@@ -384,7 +384,7 @@
         <item><![CDATA[Receive to channel]]></item>
     </array>
 
-    <string name="ln_hc_override">Override proposal</string>
+    <string name="ln_hc_override">Check Override Proposal</string>
 
     <string name="ln_hc_override_warn"><![CDATA[
         <br>Remote host wants to override your hosted channel balance from current <b>%1$s</b> to updated <b>%2$s</b>,

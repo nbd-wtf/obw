@@ -202,18 +202,18 @@ trait BaseActivity extends AppCompatActivity { me =>
     title
   }
 
-  def chainWalletBackground(wallet: ElectrumEclairWallet): Int = if (
-    wallet.isBuiltIn
-  ) R.color.cardBitcoinModern
-  else R.color.cardBitcoinLegacy
-  def chainWalletNotice(wallet: ElectrumEclairWallet): Option[Int] = if (
-    wallet.hasFingerprint
-  ) Some(R.string.hardware_wallet)
-  else if (!wallet.isSigning) Some(R.string.watching_wallet)
-  else None
-  def browse(maybeUri: String): Unit = try
-    me startActivity new Intent(Intent.ACTION_VIEW, Uri parse maybeUri)
-  catch { case exception: Throwable => me onFail exception }
+  def chainWalletBackground(wallet: ElectrumEclairWallet): Int =
+    if (wallet.isBuiltIn) R.color.bgBrighter else R.color.bgBrighter
+
+  def chainWalletNotice(wallet: ElectrumEclairWallet): Option[Int] =
+    if (wallet.hasFingerprint) Some(R.string.hardware_wallet)
+    else if (!wallet.isSigning) Some(R.string.watching_wallet)
+    else None
+
+  def browse(maybeUri: String): Unit =
+    try
+      me startActivity new Intent(Intent.ACTION_VIEW, Uri parse maybeUri)
+    catch { case exception: Throwable => me onFail exception }
 
   def bringRateDialog(view: View): Unit = {
     val marketUri = Uri.parse(s"market://details?id=$getPackageName")
@@ -235,7 +235,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       WindowManager.LayoutParams.FLAG_SECURE,
       WindowManager.LayoutParams.FLAG_SECURE
     )
-    new AlertDialog.Builder(me)
+    new AlertDialog.Builder(me, R.style.DialogTheme)
       .setView(content.asDefView)
       .show setOnDismissListener new DialogInterface.OnDismissListener {
       override def onDismiss(dialog: DialogInterface): Unit =
@@ -334,7 +334,9 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   def titleBodyAsViewBuilder(title: View, body: View): AlertDialog.Builder =
-    new AlertDialog.Builder(me).setCustomTitle(title).setView(body)
+    new AlertDialog.Builder(me, R.style.DialogTheme)
+      .setCustomTitle(title)
+      .setView(body)
 
   def onFail(error: String): Unit = UITask {
     val bld = titleBodyAsViewBuilder(null, error.asDefView)
@@ -426,7 +428,6 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Scanner
-
   final val scannerRequestCode = 101
 
   def callScanner(sheet: sheets.ScannerBottomSheet): Unit = {
@@ -1234,7 +1235,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       def setMax(alert1: AlertDialog): Unit =
         manager.updateText(finalMaxReceivable)
       val builder = titleBodyAsViewBuilder(
-        getTitleText.asColoredView(R.color.cardLightning),
+        getTitleText.asColoredView(R.color.zbdPurple),
         manager.content
       )
       mkCheckFormNeutral(
@@ -1348,7 +1349,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
         worker.info.nodeId.toString
       )
       .html
-    val builder = new AlertDialog.Builder(me)
+    val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
       .setCustomTitle(getString(R.string.error_channel).asDefView)
       .setCancelable(true)
       .setMessage(msg)
@@ -1368,7 +1369,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
     UITask {
       val errorCount =
         Option(channelErrors getIfPresent chanId).getOrElse(default = 0: JInt)
-      val builder = new AlertDialog.Builder(me)
+      val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
         .setCustomTitle(getString(R.string.error_channel).asDefView)
         .setMessage(msg.html)
       if (errorCount < MAX_ERROR_COUNT_WITHIN_WINDOW)

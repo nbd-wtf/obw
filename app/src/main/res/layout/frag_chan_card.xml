@@ -28,20 +28,20 @@
             android:layout_height="15dp"
             android:layout_width="match_parent"/>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             card_view:cardCornerRadius="@dimen/corner_radius"
+            card_view:cardBackgroundColor="@color/bgBrighter"
             android:id="@+id/channelCard"
             style="@style/Card">
 
             <LinearLayout
                 android:paddingEnd="15dp"
                 android:paddingStart="15dp"
-                android:background="@drawable/border_gray"
+                android:background="@drawable/border_basic"
                 android:orientation="vertical"
                 style="@style/FillingView">
 
                 <!-- Branding info for HCs -->
-
                 <RelativeLayout
                     android:layout_marginTop="10dp"
                     android:id="@+id/hcBranding"
@@ -82,7 +82,6 @@
                 </RelativeLayout>
 
                 <!-- Channel info and status -->
-
                 <RelativeLayout
                     android:paddingTop="10dp"
                     android:paddingBottom="15dp"
@@ -106,7 +105,6 @@
                 </RelativeLayout>
 
                 <!-- Progress bars -->
-
                 <FrameLayout
                     style="@style/FillingView"
                     android:paddingBottom="15dp"
@@ -124,12 +122,11 @@
                         style="?android:attr/progressBarStyleHorizontal"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:id="@+id/overBar"/>
+                        android:id="@+id/overBar" />
 
                 </FrameLayout>
 
                 <!-- Capacity, can send/receive, other info -->
-
                 <RelativeLayout style="@style/FillingView" android:layout_marginBottom="10dp" android:id="@+id/totalCapacity">
                     <TextView style="@style/BoundedView" android:layout_centerVertical="true" android:layout_alignParentStart="true" android:text="@string/chan_capacity"/>
                     <TextView style="@style/BoundedView" android:layout_centerVertical="true" android:layout_alignParentEnd="true" android:id="@+id/totalCapacityText"/>
@@ -160,7 +157,6 @@
                 </RelativeLayout>
 
                 <!-- Extra message -->
-
                 <TextView
                     style="@style/FillingView"
                     android:textStyle="italic"
@@ -177,11 +173,11 @@
                     android:layout_marginBottom="10dp"
                     android:background="@drawable/border_green"
                     android:text="@string/ln_hc_override"
-                    style="@style/ChipTextGrayMargin"/>
+                    style="@style/ChipTextBasic" />
 
             </LinearLayout>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 

@@ -5,7 +5,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Default view -->
-
     <LinearLayout
         android:id="@+id/defaultHeader"
         style="@style/StandardLinearLayout">
@@ -127,18 +126,25 @@
             android:orientation="vertical"/>
 
         <!-- Lightning card -->
-        <androidx.cardview.widget.CardView
-            card_view:cardCornerRadius="@dimen/corner_radius"
+        <com.google.android.material.card.MaterialCardView
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="8dp"
             android:onClick="goToStatPage"
-            style="@style/Card">
+            style="@style/Card"
+            card_view:strokeWidth="1dp"
+            card_view:strokeColor="@color/zbdPurple"
+            card_view:cardCornerRadius="@dimen/corner_radius">
+
+            <FrameLayout
+                android:background="@color/zbdPurple"
+                android:layout_width="4dp"
+                android:layout_height="match_parent"/>
 
             <LinearLayout
                 android:padding="15dp"
                 android:orientation="vertical"
-                android:background="@color/cardLightning"
+                android:background="@color/bgBrighter"
                 style="@style/FillingView">
 
                 <!-- Text and balance -->
@@ -208,7 +214,7 @@
 
                 </RelativeLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Recovery phrase warning -->
         <TextView

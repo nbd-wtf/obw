@@ -621,30 +621,33 @@ class ChanActivity
       addFlowChip(
         footer.flow,
         getString(R.string.chan_open_scan),
-        R.drawable.border_blue,
+        R.drawable.border_purple,
         _ => scanNodeQr()
       )
-      if (LNParams.isMainnet)
+
+      if (LNParams.isMainnet) {
         addFlowChip(
           footer.flow,
           getString(R.string.chan_open_lnbig),
           R.drawable.border_blue,
           _ => me browse "https://lnbig.com/#/open-channel"
         )
-      if (LNParams.isMainnet)
+
         addFlowChip(
           footer.flow,
           getString(R.string.chan_open_bitrefill),
           R.drawable.border_blue,
           _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
         )
-      if (LNParams.isMainnet && LNParams.cm.allHostedCommits.isEmpty)
-        addFlowChip(
-          footer.flow,
-          getString(R.string.rpa_request_hc),
-          R.drawable.border_yellow,
-          _ => requestHostedChannel()
-        )
+
+        if (LNParams.cm.allHostedCommits.isEmpty)
+          addFlowChip(
+            footer.flow,
+            getString(R.string.rpa_request_hc),
+            R.drawable.border_yellow,
+            _ => requestHostedChannel()
+          )
+      }
       chanList.addFooterView(footer.view)
       chanList.setAdapter(chanAdapter)
       chanList.setDividerHeight(0)
@@ -690,7 +693,7 @@ class ChanActivity
     s"<strong>${info.alias}</strong><br>${info.address.toString}"
 
   private def confirmationBuilder(commits: Commitments, msg: CharSequence) =
-    new AlertDialog.Builder(me)
+    new AlertDialog.Builder(me, R.style.DialogTheme)
       .setTitle(commits.remoteInfo.address.toString)
       .setMessage(msg)
 

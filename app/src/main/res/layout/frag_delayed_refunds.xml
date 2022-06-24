@@ -16,6 +16,6 @@
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:background="@drawable/border_yellow"
-        style="@style/ChipTextGrayMargin"/>
+        style="@style/ChipTextBasic"/>
 
 </RelativeLayout>
