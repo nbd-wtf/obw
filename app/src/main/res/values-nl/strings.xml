@@ -349,8 +349,6 @@
     <string name="chan_nothing"><![CDATA[<i>niets</i>]]></string>
 
     <string name="chan_open">Get new kanaal</string>
-    <string name="chan_open_lnbig">Koop bij LNBIG.COM</string>
-    <string name="chan_open_bitrefill">Koop bij BITREFILL.COM</string>
     <string name="chan_open_scan">Scan Node-QR</string>
 
     <string name="ln_info_no_update">Kan nog niet ontvangen</string>

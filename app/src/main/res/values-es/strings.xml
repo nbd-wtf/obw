@@ -349,8 +349,6 @@
     <string name="chan_nothing"><![CDATA[<i>nada</i>]]></string>
 
     <string name="chan_open">Obtener nuevo canal</string>
-    <string name="chan_open_lnbig">Comprar en LNBIG.COM</string>
-    <string name="chan_open_bitrefill">Comprar en BITREFILL.COM</string>
     <string name="chan_open_scan">Escanear QR del nodo</string>
 
     <string name="ln_info_no_update">No se puede recibir aún</string>

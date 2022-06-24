@@ -628,14 +628,25 @@ class ChanActivity
       if (LNParams.isMainnet) {
         addFlowChip(
           footer.flow,
-          getString(R.string.chan_open_lnbig),
+          "LNBIG.com",
           R.drawable.border_blue,
           _ => me browse "https://lnbig.com/#/open-channel"
         )
-
         addFlowChip(
           footer.flow,
-          getString(R.string.chan_open_bitrefill),
+          "Zero Fee Routing",
+          R.drawable.border_blue,
+          _ => me browse "https://zerofeerouting.com/mobile-wallets/"
+        )
+        addFlowChip(
+          footer.flow,
+          "BlockTank",
+          R.drawable.border_blue,
+          _ => me browse "https://synonym.to/blocktank/"
+        )
+        addFlowChip(
+          footer.flow,
+          "Bitrefill",
           R.drawable.border_blue,
           _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
         )

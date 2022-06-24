@@ -353,8 +353,6 @@
     <string name="chan_nothing"><![CDATA[<i>ничего</i>]]></string>
 
     <string name="chan_open">Новый канал</string>
-    <string name="chan_open_lnbig">Купить на LNBIG.COM</string>
-    <string name="chan_open_bitrefill">Купить на BITREFILL.COM</string>
     <string name="chan_open_scan">Отсканируйте QR код узла</string>
 
     <string name="ln_info_no_update">Прием пока невозможен</string>
