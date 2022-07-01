@@ -14,26 +14,21 @@ import com.google.common.io.ByteStreams
 import com.ornach.nobobutton.NoboButton
 import fr.acinq.bitcoin.MnemonicCode
 import immortan.crypto.Tools.{SEPARATOR, none}
-import immortan.wire.ExtCodecs
-import immortan.{LNParams, LightningNodeKeys, WalletSecret}
+import immortan.wire.ExtCodecs.compressedByteVecCodec
+import immortan.LNParams
 import scodec.bits.{BitVector, ByteVector}
 
 import scala.util.{Failure, Success}
 
 object SetupActivity {
   def fromMnemonics(mnemonics: List[String], host: BaseActivity): Unit = {
-    val walletSeed = MnemonicCode.toSeed(mnemonics, passphrase = new String)
-    val keys = LightningNodeKeys.makeFromSeed(seed = walletSeed.toArray)
-    val secret = WalletSecret(keys, mnemonics, walletSeed)
-
     try {
       // Implant graph into db file from resources
       val snapshotName = LocalBackup.getGraphResourceName(LNParams.chainHash)
       val compressedPlainBytes =
         ByteStreams.toByteArray(host.getAssets open snapshotName)
-      val plainBytes = ExtCodecs.compressedByteVecCodec.decode(
-        BitVector view compressedPlainBytes
-      )
+      val plainBytes =
+        compressedByteVecCodec.decode(BitVector.view(compressedPlainBytes))
       LocalBackup.copyPlainDataToDbLocation(
         host,
         WalletApp.dbFileNameGraph,
@@ -41,8 +36,8 @@ object SetupActivity {
       )
     } catch none
 
-    WalletApp.extDataBag.putSecret(secret)
-    WalletApp.makeOperational(secret)
+    WalletApp.extDataBag.putMnemonics(mnemonics)
+    WalletApp.makeOperational(mnemonics)
   }
 }
 
@@ -103,10 +98,10 @@ class SetupActivity extends BaseActivity { me =>
       )
 
       showMnemonicPopup(R.string.action_backup_present_title) { mnemonics =>
-        val walletSeed = MnemonicCode.toSeed(mnemonics, passphrase = new String)
+        val seed = MnemonicCode.toSeed(mnemonics, passphrase = "")
         LocalBackup.decryptBackup(
           ByteVector.view(cipherBytes),
-          walletSeed
+          seed
         ) match {
 
           case Success(plainEssentialBytes) =>

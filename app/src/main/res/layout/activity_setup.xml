@@ -38,7 +38,6 @@
                 android:visibility="gone">
 
                 <!-- backup file + recovery phrase -->
-
                 <com.ornach.nobobutton.NoboButton
                     android:layout_marginTop="@dimen/large_button_margin"
                     app:nb_text="@string/setup_backup_file"
@@ -51,7 +50,6 @@
                     style="@style/BoundedView"/>
 
                 <!-- recovery phrase only -->
-
                 <com.ornach.nobobutton.NoboButton
                     android:layout_marginTop="@dimen/large_button_margin"
                     app:nb_text="@string/setup_recovery_phrase"

@@ -1,6 +1,6 @@
 package wtf.nbd.obw.sqlite
 
-import immortan.crypto.Tools.{Bytes, runAnd}
+import immortan.crypto.Tools.runAnd
 import immortan.sqlite.RichCursor
 import android.database.Cursor
 import scala.util.Try
@@ -15,7 +15,7 @@ case class RichCursorSQLiteAndroid(c: Cursor) extends RichCursor { me =>
   def headTry[T](fun: RichCursor => T): Try[T] = try Try(fun apply head)
   finally c.close
 
-  def bytes(key: String): Bytes = c.getBlob(c getColumnIndex key)
+  def bytes(key: String): Array[Byte] = c.getBlob(c getColumnIndex key)
 
   def string(key: String): String = c.getString(c getColumnIndex key)
 

@@ -3,7 +3,6 @@ package wtf.nbd.obw.sqlite
 import java.lang.{Double => JDouble, Integer => JInt, Long => JLong}
 import immortan.sqlite.{PreparedQuery, RichCursor}
 import android.database.sqlite.SQLiteStatement
-import immortan.crypto.Tools.Bytes
 
 case class PreparedQuerySQLiteAndroid(prepared: SQLiteStatement)
     extends PreparedQuery { me =>
@@ -20,7 +19,7 @@ case class PreparedQuerySQLiteAndroid(prepared: SQLiteStatement)
           prepared.bindDouble(positionIndex, queryParameter)
         case queryParameter: String =>
           prepared.bindString(positionIndex, queryParameter)
-        case queryParameter: Bytes =>
+        case queryParameter: Array[Byte] =>
           prepared.bindBlob(positionIndex, queryParameter)
         case queryParameter: JLong =>
           prepared.bindLong(positionIndex, queryParameter)

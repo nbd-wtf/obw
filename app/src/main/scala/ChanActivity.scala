@@ -85,7 +85,7 @@ class ChanActivity
   private[this] var updateSubscription = Option.empty[Subscription]
   private[this] var csToDisplay = Seq.empty[ChanAndCommits]
 
-  val hcImageMemo: LoadingCache[Bytes, Bitmap] = memoize { bytes =>
+  val hcImageMemo: LoadingCache[Array[Byte], Bitmap] = memoize { bytes =>
     BitmapFactory.decodeByteArray(bytes, 0, bytes.length)
   }
 
@@ -308,6 +308,7 @@ class ChanActivity
       }
 
       val brandOpt = brandingInfos.get(hc.remoteInfo.nodeId)
+
       // Hide image container at start, show it later if bitmap is fine
       hcInfo setOnClickListener onButtonTap(
         me browse "https://sbw.app/posts/scaling-ln-with-hosted-channels/"

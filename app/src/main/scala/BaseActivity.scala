@@ -516,7 +516,6 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Fiat / BTC converter
-
   def updatePopupButton(button: Button, isEnabled: Boolean): Unit = {
     val alpha = if (isEnabled) 1f else 0.3f
     button.setEnabled(isEnabled)

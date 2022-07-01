@@ -145,7 +145,7 @@ case class ZPubPairingData(zPubText: String) extends PairingData {
   val (_, bip84XPub) = ExtendedPublicKey.decode(zPubText, bip84PathPrefix)
 }
 
-case class HWBytesPairingData(urBytes: Bytes) extends PairingData {
+case class HWBytesPairingData(urBytes: Array[Byte]) extends PairingData {
   val charBuffer: JsObject = StandardCharsets.UTF_8.newDecoder
     .decode(ByteBuffer wrap urBytes)
     .toString
@@ -163,9 +163,9 @@ case class HWBytesPairingData(urBytes: Bytes) extends PairingData {
 }
 
 case class HWAccountPairingData(urAccount: CryptoAccount) extends PairingData {
-  private implicit def bytesToByteVector(bytes: Bytes): ByteVector =
+  private implicit def bytesToByteVector(bytes: Array[Byte]): ByteVector =
     ByteVector.view(bytes)
-  private implicit def arrayToLongFingerprint(fingerPrint: Bytes): Long =
+  private implicit def arrayToLongFingerprint(fingerPrint: Array[Byte]): Long =
     Protocol.uint32(urAccount.getMasterFingerprint, ByteOrder.BIG_ENDIAN)
   private def isBip84AccountKey(key: CryptoHDKey): Boolean =
     null != key && null != key.getOrigin && !key.isPrivateKey && KeyPath(
@@ -218,7 +218,7 @@ class URBottomSheet(host: BaseActivity, onPairData: PairingData => Unit)
 
   override def onUR(ur: UR): Unit = {
     scala.util.Try(ur.decodeFromRegistry) map {
-      case urBytes: Bytes           => HWBytesPairingData(urBytes)
+      case urBytes: Array[Byte]     => HWBytesPairingData(urBytes)
       case urAccount: CryptoAccount => HWAccountPairingData(urAccount)
       case _ =>
         throw new RuntimeException(host getString R.string.error_nothing_useful)

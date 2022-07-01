@@ -82,7 +82,6 @@ class SettingsActivity
   }
 
   override def onChoiceMade(tag: AnyRef, pos: Int): Unit = tag match {
-
     case CHOICE_FIAT_DENOMINATION_TAG =>
       val fiatCode ~ _ = fiatSymbols(pos)
       WalletApp.app.prefs.edit.putString(WalletApp.FIAT_CODE, fiatCode).commit

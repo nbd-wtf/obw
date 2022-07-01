@@ -2,6 +2,13 @@ package wtf.nbd.obw
 
 import java.net.InetSocketAddress
 import java.util.TimerTask
+import scala.jdk.CollectionConverters._
+import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.util.{Success, Try}
+import scala.util.chaining._
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -64,13 +71,6 @@ import org.ndeftools.Message
 import org.ndeftools.util.activity.NfcReaderActivity
 import rx.lang.scala.{Observable, Subscription}
 import spray.json._
-
-import scala.jdk.CollectionConverters._
-import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.util.{Success, Try}
 
 object HubActivity {
   var txInfos: Iterable[TxInfo] = Nil
@@ -187,7 +187,6 @@ class HubActivity
   }
 
   // PAYMENT LIST
-
   def reloadTxInfos(): Unit = txInfos =
     WalletApp.txDataBag.listRecentTxs(20).map(WalletApp.txDataBag.toTxInfo)
   def reloadPaymentInfos(): Unit = paymentInfos = LNParams.cm.payBag
@@ -264,7 +263,7 @@ class HubActivity
         paymentAdapterDataChanged.run
     }
 
-  val payLinkImageMemo: LoadingCache[Bytes, Bitmap] = memoize { bytes =>
+  val payLinkImageMemo: LoadingCache[Array[Byte], Bitmap] = memoize { bytes =>
     BitmapFactory.decodeByteArray(bytes, 0, bytes.length)
   }
 
@@ -378,7 +377,6 @@ class HubActivity
     shareItem setOnClickListener onButtonTap(doShareItem())
 
     // MENU BUTTONS
-
     def doViewInvoice(info: PaymentInfo): Unit =
       goToWithValue(ClassNames.qrInvoiceActivityClass, info.prExt)
     def doCallPayLink(info: LNUrlPayLink): Unit = runAnd(InputParser.value =
@@ -675,7 +673,6 @@ class HubActivity
     }
 
     // CPFP / RBF
-
     def boostCPFP(info: TxInfo): Unit =
       LNParams.chainWallets.findByPubKey(info.pubKey) match {
         case None =>
@@ -1096,7 +1093,6 @@ class HubActivity
     }
 
     // VIEW RELATED
-
     def collapse[T <: TransactionDetails](item: T): Unit = {
       setVis(isVisible = false, extraInfo)
       extraInfo.removeAllViewsInLayout
@@ -1520,22 +1516,21 @@ class HubActivity
     }
 
     def marketLinkCaption(info: LNUrlPayLink): String = info.payMetaData match {
-      case Success(payMeta) if payMeta.identities.nonEmpty =>
-        payMeta.identities.head
-      case Success(payMeta) if payMeta.emails.nonEmpty => payMeta.emails.head
+      case Success(payMeta) if payMeta.identity.isDefined =>
+        payMeta.identity.get
+      case Success(payMeta) if payMeta.email.isDefined => payMeta.email.get
       case _ => info.payLink.get.warnUri
     }
 
     def marketLinkIcon(info: LNUrlPayLink): Drawable = info.payMetaData match {
-      case Success(payMeta) if payMeta.identities.nonEmpty =>
+      case Success(payMeta) if payMeta.identity.isDefined =>
         getDrawable(R.drawable.baseline_perm_identity_18)
-      case Success(payMeta) if payMeta.emails.nonEmpty =>
+      case Success(payMeta) if payMeta.email.isDefined =>
         getDrawable(R.drawable.baseline_alternate_email_18)
       case _ => getDrawable(R.drawable.baseline_language_18)
     }
 
     // TX helpers
-
     def txDescription(transactionInfo: TxInfo): String =
       transactionInfo.description match {
         case _ if transactionInfo.description.cpfpOf.isDefined =>
@@ -1604,7 +1599,6 @@ class HubActivity
     }
 
     // LN helpers
-
     def paymentDescription(info: PaymentInfo): String = {
       val finalText = info.description.label
         .orElse(info.description.externalInfo)
@@ -2083,7 +2077,6 @@ class HubActivity
     if (isSearchOn) rmSearch(null) else super.onBackPressed
 
   // Getting graph sync status and our peer announcements
-
   override def process(reply: Any): Unit = reply match {
     case na: NodeAnnouncement =>
       LNParams.cm.all.values.foreach(_ process na.toRemoteInfo)
@@ -2336,20 +2329,20 @@ class HubActivity
             }
         }
 
-      case lnUrl: LNUrl =>
-        lnUrl.fastWithdrawAttempt.toOption match {
+      case lnurl: LNUrl =>
+        lnurl.fastWithdrawAttempt.toOption match {
           case Some(withdraw)       => bringWithdrawPopup(withdraw)
-          case None if lnUrl.isAuth => showAuthForm(lnUrl)
-          case None                 => resolveLnurl(lnUrl)
+          case None if lnurl.isAuth => showAuthForm(lnurl)
+          case None                 => resolveLnurl(lnurl)
         }
 
       case _ =>
         whenNone.run
     }
 
-  def resolveLnurl(lnUrl: LNUrl): Unit = {
+  def resolveLnurl(lnurl: LNUrl): Unit = {
     val resolve: PartialFunction[LNUrlData, Unit] = {
-      case pay: PayRequest => bringPayPopup(pay, lnUrl).run
+      case pay: PayRequest => bringPayPopup(pay, lnurl).run
       case withdraw: WithdrawRequest =>
         UITask(me bringWithdrawPopup withdraw).run
       case nc: NormalChannelRequest =>
@@ -2361,12 +2354,12 @@ class HubActivity
 
     snack(
       contentWindow,
-      getString(R.string.dialog_lnurl_processing).format(lnUrl.warnUri).html,
+      getString(R.string.dialog_lnurl_processing).format(lnurl.warnUri).html,
       R.string.dialog_cancel
     ) foreach { snack =>
       def onErrorFromVendor(error: Throwable): Unit =
         onFail(s"Error from vendor:<br><br><tt>${error.toString}</tt>")
-      val level1Sub = lnUrl.level1DataResponse
+      val level1Sub = lnurl.level1DataResponse
         .doOnUnsubscribe(snack.dismiss)
         .doOnTerminate(snack.dismiss)
       val level2Sub = level1Sub.subscribe(resolve, onErrorFromVendor)
@@ -2375,8 +2368,8 @@ class HubActivity
     }
   }
 
-  def showAuthForm(lnUrl: LNUrl): Unit = lnUrl.k1.foreach { k1 =>
-    val (successResource, actionResource) = lnUrl.authAction match {
+  def showAuthForm(lnurl: LNUrl): Unit = lnurl.k1.foreach { k1 =>
+    val (successResource, actionResource) = lnurl.authAction match {
       case "register" =>
         (R.string.lnurl_auth_register_ok, R.string.lnurl_auth_register)
       case "auth" => (R.string.lnurl_auth_auth_ok, R.string.lnurl_auth_auth)
@@ -2384,9 +2377,9 @@ class HubActivity
       case _      => (R.string.lnurl_auth_login_ok, R.string.lnurl_auth_login)
     }
 
-    val spec = LNUrlAuthSpec(lnUrl.uri.getHost, ByteVector32 fromValidHex k1)
+    val authData = LNUrlAuther.make(lnurl.uri.getHost, k1)
     val title = titleBodyAsViewBuilder(
-      s"<big>${lnUrl.warnUri}</big>".asColoredView(R.color.zbdPurple),
+      s"<big>${lnurl.warnUri}</big>".asColoredView(R.color.zbdPurple),
       null
     )
     mkCheckFormNeutral(
@@ -2401,12 +2394,12 @@ class HubActivity
 
     def displayInfo(alert: AlertDialog): Unit = {
       val explanation = getString(R.string.lnurl_auth_info)
-        .format(lnUrl.warnUri, spec.linkingPubKey.humanFour)
+        .format(lnurl.warnUri, authData.key.humanFour)
         .html
       mkCheckFormNeutral(
         _.dismiss,
         none,
-        _ => share(spec.linkingPubKey),
+        _ => share(authData.key),
         new AlertDialog.Builder(me, R.style.DialogTheme)
           .setMessage(explanation),
         R.string.dialog_ok,
@@ -2418,12 +2411,12 @@ class HubActivity
     def doAuth(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
       snack(
         contentWindow,
-        getString(R.string.dialog_lnurl_processing).format(lnUrl.warnUri).html,
+        getString(R.string.dialog_lnurl_processing).format(lnurl.warnUri).html,
         R.string.dialog_cancel
       ) foreach { snack =>
-        val uri = lnUrl.uri.buildUpon
-          .appendQueryParameter("sig", spec.derSignatureHex)
-          .appendQueryParameter("key", spec.linkingPubKey)
+        val uri = lnurl.uri.buildUpon
+          .appendQueryParameter("sig", authData.sig)
+          .appendQueryParameter("key", authData.key)
         val level2Obs = LNUrl
           .level2DataResponse(uri)
           .doOnUnsubscribe(snack.dismiss)
@@ -2581,7 +2574,6 @@ class HubActivity
   }
 
   // VIEW HANDLERS
-
   def bringSearch(view: View): Unit = {
     walletCards.searchField.setTag(true)
     TransitionManager.beginDelayedTransition(contentWindow)
@@ -3076,7 +3068,7 @@ class HubActivity
       }
     }
 
-  def bringPayPopup(data: PayRequest, lnUrl: LNUrl): TimerTask = UITask {
+  def bringPayPopup(data: PayRequest, lnurl: LNUrl): TimerTask = UITask {
     new OffChainSender(
       maxSendable = LNParams.cm.maxSendable(
         LNParams.cm.all.values
@@ -3090,8 +3082,6 @@ class HubActivity
         LNParams.fiatRates.info.rates,
         WalletApp.fiatCode
       )
-      val expectedIds: ExpectedIds =
-        ExpectedIds(wantsAuth = None, wantsRandomKey = false)
       val maxCommentLength: Int = data.commentAllowed.getOrElse(0)
       val randKey: Crypto.PrivateKey = randomKey
 
@@ -3122,7 +3112,7 @@ class HubActivity
         def proceed(pf: PayRequestFinal): TimerTask = UITask {
           lnSendGuard(pf.prExt, container = contentWindow) { _ =>
             val paymentOrder = SemanticOrder(
-              id = lnUrl.request,
+              id = lnurl.request,
               order = -System.currentTimeMillis
             )
             val cmd = LNParams.cm
@@ -3139,7 +3129,7 @@ class HubActivity
               label = None,
               semanticOrder = paymentOrder.asSome,
               invoiceText = new String,
-              data.meta.textPlain.asSome
+              data.meta.textShort
             )
             goToWithValue(
               value = SplitParams(
@@ -3178,9 +3168,9 @@ class HubActivity
         def proceed(pf: PayRequestFinal): TimerTask = UITask {
           lnSendGuard(pf.prExt, container = contentWindow) { _ =>
             val linkOrder =
-              SemanticOrder(id = lnUrl.request, order = Long.MinValue)
+              SemanticOrder(id = lnurl.request, order = Long.MinValue)
             val paymentOrder = SemanticOrder(
-              id = lnUrl.request,
+              id = lnurl.request,
               order = -System.currentTimeMillis
             )
             val cmd = LNParams.cm
@@ -3197,7 +3187,7 @@ class HubActivity
               label = None,
               semanticOrder = paymentOrder.asSome,
               invoiceText = new String,
-              meta = data.meta.textPlain.asSome
+              meta = data.meta.textShort
             )
             replaceOutgoingPayment(
               pf.prExt,
@@ -3208,27 +3198,26 @@ class HubActivity
             LNParams.cm.localSend(cmd)
 
             if (!pf.isThrowAway) {
-              val currentLabel = lnUrlPayLinks
-                .find(_.payString == lnUrl.request)
-                .flatMap(_.description.label)
-              val desc = LNUrlDescription(
-                currentLabel,
-                linkOrder.asSome,
-                randKey.value.toHex,
-                pf.prExt.pr.paymentHash,
-                pf.prExt.pr.paymentSecret.get,
-                manager.resultMsat
+              WalletApp.lnUrlPayBag.saveLink(
+                LNUrlPayLink(
+                  domain = lnurl.uri.getHost,
+                  payString = lnurl.request,
+                  data.metadata,
+                  updatedAt = System.currentTimeMillis,
+                  LNUrlDescription(
+                    lnUrlPayLinks
+                      .find(_.payString == lnurl.request)
+                      .flatMap(_.description.label),
+                    linkOrder.asSome,
+                    randKey.value.toHex,
+                    pf.prExt.pr.paymentHash,
+                    pf.prExt.pr.paymentSecret.get,
+                    manager.resultMsat
+                  ),
+                  pf.prExt.pr.nodeId.toString,
+                  getComment
+                )
               )
-              val info = LNUrlPayLink(
-                domain = lnUrl.uri.getHost,
-                payString = lnUrl.request,
-                data.metadata,
-                updatedAt = System.currentTimeMillis,
-                desc,
-                pf.prExt.pr.nodeId.toString,
-                getComment
-              )
-              WalletApp.lnUrlPayBag.saveLink(info)
             }
           }
         }
@@ -3237,7 +3226,7 @@ class HubActivity
       override val alert: AlertDialog = {
         val text = getString(R.string.dialog_lnurl_pay).format(
           data.callbackUri.getHost,
-          s"<br><br>${data.meta.textPlain}"
+          s"<br><br>${data.meta.textShort}"
         )
         val title = titleBodyAsViewBuilder(
           text.asColoredView(R.color.zbdPurple),
@@ -3254,46 +3243,69 @@ class HubActivity
         )
       }
 
-      private def getFinal(amount: MilliSatoshi) = LNUrl level2DataResponse {
-        val ids1 =
-          if (expectedIds.wantsRandomKey)
-            List("application/pubkey", randKey.publicKey.toString) :: Nil
-          else Nil
-        val ids2 = expectedIds.wantsAuth
-          .filter(_ => manager.attachIdentity.isChecked)
-          .map(_.getRecord(lnUrl.uri.getHost) :: ids1) getOrElse ids1
+      private def getFinal(amount: MilliSatoshi) = {
+        val rawPayerdata: Option[String] = data.payerData
+          .map(spec =>
+            PayerData(
+              name = None,
+              pubkey = spec.pubkey.map(_ => randKey.publicKey.toString),
+              auth = spec.auth
+                .flatMap(authSpec => {
+                  if (manager.attachIdentity.isChecked) None
+                  else
+                    Try(
+                      LNUrlAuther.make(lnurl.uri.getHost, authSpec.k1)
+                    ).toOption
+                })
+            )
+          )
+          .map(_.toJson.compactPrint)
 
-        val base1 = data.callbackUri.buildUpon
+        val url = data.callbackUri.buildUpon
           .appendQueryParameter("amount", amount.toLong.toString)
-        val base2 =
-          if (ids2.nonEmpty)
-            base1.appendQueryParameter("payerid", ids2.toJson.compactPrint)
-          else base1
-        if (manager.resultExtraInput.isDefined)
-          base2.appendQueryParameter("comment", getComment)
-        else base2
-      } map { rawResponse =>
-        val payRequestFinal = to[PayRequestFinal](rawResponse)
-        val descriptionHashOpt =
-          payRequestFinal.prExt.pr.description.toOption
-        require(
-          descriptionHashOpt.contains(data.metaDataHash),
-          s"Metadata hash mismatch, original=${data.metaDataHash}, later provided=$descriptionHashOpt"
-        )
-        require(
-          payRequestFinal.prExt.pr.amountOpt.contains(amount),
-          s"Payment amount mismatch, requested by wallet=$amount, provided in invoice=${payRequestFinal.prExt.pr.amountOpt}"
-        )
-        payRequestFinal
-          .modify(_.successAction.each.domain)
-          .setTo(data.callbackUri.getHost.asSome)
+          .pipe(base =>
+            if (manager.resultExtraInput.isDefined)
+              base.appendQueryParameter("comment", getComment)
+            else base
+          )
+          .pipe(base =>
+            if (rawPayerdata != "")
+              base.appendQueryParameter(
+                "payerdata",
+                rawPayerdata.get
+              )
+            else base
+          )
+
+        LNUrl
+          .level2DataResponse(url)
+          .map(to[PayRequestFinal](_))
+          .map { payRequestFinal =>
+            val descriptionHashOpt =
+              payRequestFinal.prExt.pr.description.toOption
+
+            val expectedHash = data.metadataHash(rawPayerdata.getOrElse(""))
+            require(
+              descriptionHashOpt == Some(expectedHash),
+              s"Metadata hash mismatch, expected=${expectedHash}, provided in invoice=$descriptionHashOpt"
+            )
+            require(
+              payRequestFinal.prExt.pr.amountOpt == Some(amount),
+              s"Payment amount mismatch, requested by wallet=$amount, provided in invoice=${payRequestFinal.prExt.pr.amountOpt}"
+            )
+            payRequestFinal
+              .modify(_.successAction.each.domain)
+              .setTo(data.callbackUri.getHost.asSome)
+          }
       }
 
       manager.updateText(minSendable)
-      expectedIds.wantsAuth.foreach { expectedAuth =>
-        manager.attachIdentity.setChecked(expectedAuth.isMandatory)
-        manager.attachIdentity.setEnabled(!expectedAuth.isMandatory)
-        setVis(isVisible = true, manager.attachIdentity)
+      data.payerData.foreach { payerDataSpec =>
+        payerDataSpec.auth.foreach { authSpec =>
+          manager.attachIdentity.setChecked(authSpec.mandatory)
+          manager.attachIdentity.setEnabled(!authSpec.mandatory)
+          setVis(isVisible = true, manager.attachIdentity)
+        }
       }
 
       data.commentAllowed.foreach { limit =>
@@ -3315,7 +3327,6 @@ class HubActivity
   }
 
   // Payment actions
-
   def resolveAction(
       theirPreimage: ByteVector32,
       paymentAction: PaymentAction

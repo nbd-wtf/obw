@@ -172,7 +172,7 @@ object WalletApp {
     LNParams.syncParams = new SyncParams
   }
 
-  def makeOperational(secret: WalletSecret): Unit = {
+  def makeOperational(mnemonics: List[String]): Unit = {
     require(
       isAlive,
       "Application is not alive, hence can not become operational"
@@ -180,8 +180,7 @@ object WalletApp {
     val essentialInterface =
       new DBInterfaceSQLiteAndroidEssential(app, dbFileNameEssential)
     val graphInterface = new DBInterfaceSQLiteAndroidGraph(app, dbFileNameGraph)
-    val currentCustomElectrum: Try[NodeAddress] = customElectrumAddress
-    LNParams.secret = secret
+    LNParams.secret = WalletSecret(mnemonics)
 
     val normalBag = new SQLiteNetwork(
       graphInterface,
@@ -228,31 +227,6 @@ object WalletApp {
         LNParams.cm.allHostedCommits.map(_.remoteInfo).toSet
     }
 
-    ElectrumClientPool.loadFromChainHash = {
-      case _ if currentCustomElectrum.isSuccess =>
-        ElectrumServerAddress(
-          currentCustomElectrum.get.socketAddress,
-          SSL.DECIDE
-        ).asSome.toSet
-      case Block.LivenetGenesisBlock.hash =>
-        ElectrumClientPool.readServerAddresses(
-          app.getAssets open "servers_mainnet.json"
-        )
-      case Block.TestnetGenesisBlock.hash =>
-        ElectrumClientPool.readServerAddresses(
-          app.getAssets open "servers_testnet.json"
-        )
-      case _ => throw new RuntimeException
-    }
-
-    CheckPoint.loadFromChainHash = {
-      case Block.LivenetGenesisBlock.hash =>
-        CheckPoint.load(app.getAssets open "checkpoints_mainnet.json")
-      case Block.TestnetGenesisBlock.hash =>
-        CheckPoint.load(app.getAssets open "checkpoints_testnet.json")
-      case _ => throw new RuntimeException
-    }
-
     LNParams.cm = new ChannelMaster(payBag, chanBag, extDataBag, pf)
 
     val params = WalletParameters(
@@ -263,7 +237,16 @@ object WalletApp {
     )
     val pool = new ElectrumClientPool(
       LNParams.blockCount,
-      LNParams.chainHash
+      LNParams.chainHash,
+      ensureTor,
+      customElectrumAddress
+        .map(current =>
+          ElectrumServerAddress(
+            current.socketAddress,
+            SSL.DECIDE
+          )
+        )
+        .toOption
     )
     val sync = new ElectrumChainSync(
       pool,

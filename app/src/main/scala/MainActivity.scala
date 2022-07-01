@@ -57,7 +57,7 @@ class MainActivity extends BaseActivity { me =>
       me exitTo ClassNames.hubActivityClass
 
     case true =>
-      WalletApp.extDataBag.tryGetSecret match {
+      WalletApp.extDataBag.tryGetMnemonics match {
         case Failure(_: android.database.CursorIndexOutOfBoundsException) =>
           // Record is not present at all, this is probaby a fresh wallet
           me exitTo classOf[SetupActivity]
@@ -66,8 +66,8 @@ class MainActivity extends BaseActivity { me =>
           // Notify user about it
           throw reason
 
-        case Success(secret) =>
-          WalletApp.makeOperational(secret)
+        case Success(mnemonics) =>
+          WalletApp.makeOperational(mnemonics)
           me exitTo ClassNames.hubActivityClass
       }
   }
