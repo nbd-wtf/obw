@@ -78,8 +78,7 @@ object HubActivity {
   var lnUrlPayLinks: Iterable[LNUrlPayLink] = Nil
   var relayedPreimageInfos: Iterable[RelayedPreimageInfo] = Nil
   // Run clear up method once on app start, do not re-run it every time this activity gets restarted
-  lazy val markAsFailedOnce: Unit =
-    LNParams.cm.markAsFailed(paymentInfos, LNParams.cm.allInChannelOutgoing)
+  lazy val markAsFailedOnce: Unit = LNParams.cm.cleanupUntriedPending()
   val disaplyThreshold: Long = System.currentTimeMillis
 
   var lastHostedReveals: Map[ByteVector32, RevealedLocalFulfills] = Map.empty
@@ -1914,8 +1913,7 @@ class HubActivity
       UITask {
         val assistedShortIds =
           data.cmd.assistedEdges.map(_.updExt.update.shortChannelId)
-        val isIncompleteGraph =
-          LNParams.cm.pf.data.channels.isEmpty || LNParams.cm.pf.syncMaster.isDefined
+        val isIncompleteGraph = LNParams.cm.pf.isIncompleteGraph
         val canIncreaseFee =
           data.cmd.split.myPart + data.cmd.totalFeeReserve * 2 <= LNParams.cm
             .maxSendable(LNParams.cm.all.values)
@@ -3090,7 +3088,7 @@ class HubActivity
       override def isPayEnabled: Boolean =
         manager.resultMsat >= minSendable && manager.resultMsat <= maxSendable
       private def getComment: String =
-        manager.resultExtraInput.getOrElse(new String).take(maxCommentLength)
+        manager.resultExtraInput.getOrElse("").take(maxCommentLength)
 
       override def neutral(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
         snack(
@@ -3128,7 +3126,7 @@ class HubActivity
               cmd.split.asSome,
               label = None,
               semanticOrder = paymentOrder.asSome,
-              invoiceText = new String,
+              invoiceText = "",
               data.meta.textShort
             )
             goToWithValue(
@@ -3243,61 +3241,13 @@ class HubActivity
         )
       }
 
-      private def getFinal(amount: MilliSatoshi) = {
-        val rawPayerdata: Option[String] = data.payerData
-          .map(spec =>
-            PayerData(
-              name = None,
-              pubkey = spec.pubkey.map(_ => randKey.publicKey.toString),
-              auth = spec.auth
-                .flatMap(authSpec => {
-                  if (manager.attachIdentity.isChecked) None
-                  else
-                    Try(
-                      LNUrlAuther.make(lnurl.uri.getHost, authSpec.k1)
-                    ).toOption
-                })
-            )
-          )
-          .map(_.toJson.compactPrint)
-
-        val url = data.callbackUri.buildUpon
-          .appendQueryParameter("amount", amount.toLong.toString)
-          .pipe(base =>
-            if (manager.resultExtraInput.isDefined)
-              base.appendQueryParameter("comment", getComment)
-            else base
-          )
-          .pipe(base =>
-            if (rawPayerdata != "")
-              base.appendQueryParameter(
-                "payerdata",
-                rawPayerdata.get
-              )
-            else base
-          )
-
-        LNUrl
-          .level2DataResponse(url)
-          .map(to[PayRequestFinal](_))
-          .map { payRequestFinal =>
-            val descriptionHashOpt =
-              payRequestFinal.prExt.pr.description.toOption
-
-            val expectedHash = data.metadataHash(rawPayerdata.getOrElse(""))
-            require(
-              descriptionHashOpt == Some(expectedHash),
-              s"Metadata hash mismatch, expected=${expectedHash}, provided in invoice=$descriptionHashOpt"
-            )
-            require(
-              payRequestFinal.prExt.pr.amountOpt == Some(amount),
-              s"Payment amount mismatch, requested by wallet=$amount, provided in invoice=${payRequestFinal.prExt.pr.amountOpt}"
-            )
-            payRequestFinal
-              .modify(_.successAction.each.domain)
-              .setTo(data.callbackUri.getHost.asSome)
-          }
-      }
+      private def getFinal(amount: MilliSatoshi) = data.getFinal(
+        amount = amount,
+        comment = getComment,
+        randomKey = randKey.publicKey,
+        authKeyHost =
+          if (manager.attachIdentity.isChecked) lnurl.uri.getHost else None
+      )
 
       manager.updateText(minSendable)
       data.payerData.foreach { payerDataSpec =>
@@ -3362,11 +3312,7 @@ class HubActivity
   }
 
   private def showAesAction(preimage: ByteVector32, aes: AESAction) = Try {
-    val secret = SQLiteData byteVecToString AES.decode(
-      data = aes.ciphertextBytes,
-      key = preimage.toArray,
-      initVector = aes.ivBytes
-    )
+    val secret = aes.plaintext
     val msg =
       if (secret.length > 36) s"${aes.finalMessage}<br><br><tt>$secret</tt><br>"
       else s"${aes.finalMessage}<br><br><tt><big>$secret</big></tt><br>"

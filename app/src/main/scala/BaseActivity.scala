@@ -958,10 +958,23 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Guards and send/receive helpers
-
   def lnSendGuard(prExt: PaymentRequestExt, container: View)(
       onOK: Option[MilliSatoshi] => Unit
   ): Unit = LNParams.cm.checkIfSendable(prExt.pr.paymentHash) match {
+    case Some(PaymentInfo.NotSendableInFlight) =>
+      snack(
+        container,
+        getString(R.string.error_ln_send_in_flight).html,
+        R.string.dialog_ok,
+        _.dismiss
+      )
+    case Some(PaymentInfo.NotSendableSuccess) =>
+      snack(
+        container,
+        getString(R.string.error_ln_send_done_already).html,
+        R.string.dialog_ok,
+        _.dismiss
+      )
     case _ if !LNParams.cm.all.values.exists(Channel.isOperationalOrWaiting) =>
       snack(
         container,
@@ -1019,20 +1032,6 @@ trait BaseActivity extends AppCompatActivity { me =>
       snack(
         container,
         getString(R.string.error_ln_send_expired).html,
-        R.string.dialog_ok,
-        _.dismiss
-      )
-    case Some(PaymentInfo.NOT_SENDABLE_IN_FLIGHT) =>
-      snack(
-        container,
-        getString(R.string.error_ln_send_in_flight).html,
-        R.string.dialog_ok,
-        _.dismiss
-      )
-    case Some(PaymentInfo.NOT_SENDABLE_SUCCESS) =>
-      snack(
-        container,
-        getString(R.string.error_ln_send_done_already).html,
         R.string.dialog_ok,
         _.dismiss
       )

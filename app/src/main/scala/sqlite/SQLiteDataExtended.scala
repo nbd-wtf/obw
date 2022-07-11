@@ -43,5 +43,6 @@ class SQLiteDataExtended(override val db: DBInterfaceSQLiteAndroidMisc)
     put(LABEL_ADDONS, addons.toJson.compactPrint getBytes "UTF-8")
 
   def tryGetAddons: Try[UsedAddons] =
-    tryGet(LABEL_ADDONS).map(SQLiteData.byteVecToString) map to[UsedAddons]
+    tryGet(LABEL_ADDONS)
+      .map(bv => new String(bv.toArray, "UTF-8")) map to[UsedAddons]
 }
