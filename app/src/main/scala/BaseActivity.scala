@@ -79,20 +79,20 @@ object BaseActivity {
 
 object Colors {
   val cardIn: String =
-    "#" + WalletApp.app.getResources.getString(R.color.colorAccent).substring(3)
+    "#" + WalletApp.app.getResources.getString(R.color.ourGreen).substring(3)
   val cardOut: String =
-    "#" + WalletApp.app.getResources.getString(R.color.cardOutText).substring(3)
+    "#" + WalletApp.app.getResources.getString(R.color.ourRed).substring(3)
   val cardZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.cardZeroText)
+    .getString(R.color.darkerWhite)
     .substring(3)
   val totalZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.totalZeroText)
+    .getString(R.color.darkerWhite)
     .substring(3)
   val btcCardZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.btcCardZeroText)
+    .getString(R.color.darkerWhite)
     .substring(3)
   val lnCardZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.lnCardZeroText)
+    .getString(R.color.darkerWhite)
     .substring(3)
 }
 
@@ -203,7 +203,7 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   def chainWalletBackground(wallet: ElectrumEclairWallet): Int =
-    if (wallet.isBuiltIn) R.color.bgBrighter else R.color.bgBrighter
+    if (wallet.isBuiltIn) R.color.veryDarkGrey else R.color.veryDarkGrey
 
   def chainWalletNotice(wallet: ElectrumEclairWallet): Option[Int] =
     if (wallet.hasFingerprint) Some(R.string.hardware_wallet)
@@ -961,14 +961,14 @@ trait BaseActivity extends AppCompatActivity { me =>
   def lnSendGuard(prExt: PaymentRequestExt, container: View)(
       onOK: Option[MilliSatoshi] => Unit
   ): Unit = LNParams.cm.checkIfSendable(prExt.pr.paymentHash) match {
-    case Some(PaymentInfo.NotSendableInFlight) =>
+    case PaymentInfo.NotSendableInFlight =>
       snack(
         container,
         getString(R.string.error_ln_send_in_flight).html,
         R.string.dialog_ok,
         _.dismiss
       )
-    case Some(PaymentInfo.NotSendableSuccess) =>
+    case PaymentInfo.NotSendableSuccess =>
       snack(
         container,
         getString(R.string.error_ln_send_done_already).html,
@@ -1233,7 +1233,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       def setMax(alert1: AlertDialog): Unit =
         manager.updateText(finalMaxReceivable)
       val builder = titleBodyAsViewBuilder(
-        getTitleText.asColoredView(R.color.zbdPurple),
+        getTitleText.asColoredView(R.color.ourPurple),
         manager.content
       )
       mkCheckFormNeutral(

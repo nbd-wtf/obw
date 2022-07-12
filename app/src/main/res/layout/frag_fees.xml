@@ -49,9 +49,9 @@
             android:textStyle="bold"/>
 
         <com.google.android.material.slider.Slider
-            app:trackColor="@color/buttonGrayRipple"
-            app:thumbColor="@color/colorAccent"
-            app:haloColor="@color/colorAccent"
+            app:trackColor="@color/boringGrey"
+            app:thumbColor="@color/veryWhite"
+            app:haloColor="@color/veryWhite"
             android:layout_marginBottom="10dp"
             android:id="@+id/customFeerate"
             style="@style/FillingView"

@@ -10,8 +10,8 @@
         <TextView
             style="@style/FillingView"
             android:id="@+id/rbfIssue"
-            android:textColor="@color/almostBlack"
-            android:background="@color/paymentAwait"
+            android:textColor="@color/veryBlack"
+            android:background="@color/yellow"
             android:paddingBottom="15dp"
             android:paddingStart="15dp"
             android:paddingTop="10dp"

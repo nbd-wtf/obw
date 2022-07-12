@@ -24,7 +24,7 @@
         <TextView
             style="@style/BoundedView"
             android:id="@+id/settingsInfo"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/veryWhite"
             android:paddingTop="5dp"
             android:textSize="16sp"/>
 

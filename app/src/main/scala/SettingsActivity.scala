@@ -161,7 +161,7 @@ class SettingsActivity
             itemParentGroup: ViewGroup
         ): View = {
           val bgColor =
-            if (itemPosition == hardcodedPosition) R.color.almostBlack
+            if (itemPosition == hardcodedPosition) R.color.veryBlack
             else android.R.color.transparent
           val finalView =
             super.getView(itemPosition, itemConvertedView, itemParentGroup)
@@ -438,21 +438,15 @@ class SettingsActivity
     val links = new TitleView("Useful links")
     addFlowChip(
       links.flow,
-      getString(R.string.manual),
-      R.drawable.border_green,
-      _ => me browse "https://sbw.app/posts/manual"
-    )
-    addFlowChip(
-      links.flow,
       getString(R.string.sources),
       R.drawable.border_green,
-      _ => me browse "https://github.wtf.nbd.obw"
+      _ => me browse "https://github.com/nbd-wft/obw"
     )
     addFlowChip(
       links.flow,
       getString(R.string.twitter),
-      R.drawable.border_blue,
-      _ => me browse "https://twitter.com/SimpleBtcWallet"
+      R.drawable.border_purple,
+      _ => me browse "https://twitter.com/nbd_wtf"
     )
     addFlowChip(
       links.flow,

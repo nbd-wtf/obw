@@ -630,25 +630,25 @@ class ChanActivity
         addFlowChip(
           footer.flow,
           "LNBIG.com",
-          R.drawable.border_blue,
+          R.drawable.border_purple,
           _ => me browse "https://lnbig.com/#/open-channel"
         )
         addFlowChip(
           footer.flow,
           "Zero Fee Routing",
-          R.drawable.border_blue,
+          R.drawable.border_purple,
           _ => me browse "https://zerofeerouting.com/mobile-wallets/"
         )
         addFlowChip(
           footer.flow,
           "BlockTank",
-          R.drawable.border_blue,
+          R.drawable.border_purple,
           _ => me browse "https://synonym.to/blocktank/"
         )
         addFlowChip(
           footer.flow,
           "Bitrefill",
-          R.drawable.border_blue,
+          R.drawable.border_purple,
           _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
         )
 

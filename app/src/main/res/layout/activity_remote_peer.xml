@@ -19,12 +19,12 @@
             android:id="@+id/peerNodeKey"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="15dp"
-            android:textColor="@color/colorAccent"/>
+            android:textColor="@color/veryWhite"/>
 
         <TextView
             style="@style/BoundedView"
             android:id="@+id/peerIpAddress"
-            android:textColor="@color/colorAccent"/>
+            android:textColor="@color/veryWhite"/>
 
         <!-- Features and actions -->
 
@@ -53,7 +53,6 @@
             android:visibility="gone"/>
 
         <!-- Actions -->
-
         <LinearLayout
             android:visibility="gone"
             android:id="@+id/viewYesFeatureSupport"
@@ -63,7 +62,7 @@
                 app:nb_text="@string/rpa_open_nc"
                 android:onClick="fundNewChannel"
                 android:layout_marginTop="25dp"
-                style="@style/GreenButton"/>
+                style="@style/PurpleButton"/>
 
             <TextView
                 style="@style/BoundedView"

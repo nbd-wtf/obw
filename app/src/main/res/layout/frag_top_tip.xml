@@ -18,7 +18,7 @@
         <TextView
             style="@style/FillingView"
             android:layout_toEndOf="@id/backArrow"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/veryWhite"
             android:id="@+id/tipTitle"/>
 
     </RelativeLayout>

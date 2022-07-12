@@ -8,7 +8,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Success, Try}
-import scala.util.chaining._
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -63,7 +62,6 @@ import immortan._
 import immortan.crypto.CanBeRepliedTo
 import immortan.crypto.Tools._
 import immortan.fsm._
-import immortan.sqlite.SQLiteData
 import immortan.utils.ImplicitJsonFormats._
 import immortan.utils._
 import org.apmem.tools.layouts.FlowLayout
@@ -492,7 +490,7 @@ class HubActivity
       val myFulfills = dangerousHCRevealed(info.fullTag)
       val title =
         getString(R.string.error_hc_dangerous_state)
-          .asColoredView(R.color.buttonRed)
+          .asColoredView(R.color.ourRed)
       val paymentAmount = WalletApp.denom.parsedWithSign(
         myFulfills.map(_.theirAdd.amountMsat).sum,
         cardOut,
@@ -1110,7 +1108,8 @@ class HubActivity
           val myFulfills = dangerousHCRevealed(info.fullTag)
           val amount = if (info.isIncoming) info.received else info.sent
           val incomingFSMOpt = LNParams.cm.inProcessors.get(info.fullTag)
-          val outgoingFSMOpt = LNParams.cm.opm.data.payments.get(info.fullTag)
+          val outgoingFSMOpt =
+            LNParams.cm.opm.data.paymentSenders.get(info.fullTag)
 
           val fiatThen = WalletApp.msatInFiatHuman(
             info.fiatRateSnapshot,
@@ -1173,7 +1172,7 @@ class HubActivity
               getString(
                 R.string.popup_ln_payee
               ) format info.prExt.pr.nodeId.toString.short,
-              R.drawable.border_blue,
+              R.drawable.border_basic,
               info.prExt.pr.nodeId.toString.asSome
             )
 
@@ -1193,7 +1192,7 @@ class HubActivity
             addFlowChip(
               extraInfo,
               getString(R.string.popup_view_invoice),
-              R.drawable.border_blue,
+              R.drawable.border_purple,
               _ => self doViewInvoice info
             )
           if (!info.isIncoming && shouldDisplayFee)
@@ -1322,7 +1321,7 @@ class HubActivity
             addFlowChip(
               extraInfo,
               getString(R.string.popup_ln_node) format nodeId.toString.short,
-              R.drawable.border_blue,
+              R.drawable.border_basic,
               nodeId.toString.asSome
             )
 
@@ -1653,12 +1652,12 @@ class HubActivity
     def paymentBackground(fullTag: FullPaymentTag): Int = {
       R.drawable.border_none
       // if (dangerousHCRevealed(fullTag).nonEmpty) R.drawable.border_red
-      // else if (LNParams.cm.opm.data.payments contains fullTag)
-      //   R.drawable.border_blue // An active outgoing FSM is present for this tag
+      // else if (LNParams.cm.opm.data.paymentSenders contains fullTag)
+      //   R.drawable.border_purple // An active outgoing FSM is present for this tag
       // else if (LNParams.cm.inProcessors contains fullTag)
-      //   R.drawable.border_blue // An active incoming FSM is present for this tag
+      //   R.drawable.border_purple // An active incoming FSM is present for this tag
       // else if (lastInChannelOutgoing contains fullTag)
-      //   R.drawable.border_blue // Payments in channel are present for this tag
+      //   R.drawable.border_purple // Payments in channel are present for this tag
       // else R.drawable.border_basic
     }
   }
@@ -1811,7 +1810,7 @@ class HubActivity
       val trampolineCount = LNParams.cm.inProcessors.count {
         case (fullTag, _) => fullTag.tag == PaymentTagTlv.TRAMPLOINE_ROUTED
       }
-      val localOutCount = LNParams.cm.opm.data.payments.count {
+      val localOutCount = LNParams.cm.opm.data.paymentSenders.count {
         case (fullTag, _) => fullTag.tag == PaymentTagTlv.LOCALLY_SENT
       }
 
@@ -2187,20 +2186,20 @@ class HubActivity
                   getString(R.string.dialog_split_ln) format prExt.brDescription
                 )
                 val builder = titleBodyAsViewBuilder(
-                  title.asColoredView(R.color.zbdPurple),
+                  title.asColoredView(R.color.ourPurple),
                   manager.content
                 )
                 addFlowChip(
                   title.flow,
                   getString(R.string.dialog_ln_requested) format WalletApp.denom
                     .parsedWithSign(origAmount, cardIn, cardZero),
-                  R.drawable.border_blue
+                  R.drawable.border_basic
                 )
                 addFlowChip(
                   title.flow,
                   getString(R.string.dialog_ln_left) format WalletApp.denom
                     .parsedWithSign(prExt.splitLeftover, cardIn, cardZero),
-                  R.drawable.border_blue
+                  R.drawable.border_basic
                 )
                 mkCheckFormNeutral(
                   send,
@@ -2240,7 +2239,7 @@ class HubActivity
                   getString(R.string.dialog_send_ln) format prExt.brDescription
                 )
                 val builder = titleBodyAsViewBuilder(
-                  title.asColoredView(R.color.zbdPurple),
+                  title.asColoredView(R.color.ourPurple),
                   manager.content
                 )
                 val popup = mkCheckFormNeutral(
@@ -2259,12 +2258,12 @@ class HubActivity
                       title.flow,
                       getString(R.string.dialog_ln_requested)
                         .format(totalHuman),
-                      R.drawable.border_blue
+                      R.drawable.border_basic
                     )
                     addFlowChip(
                       title.flow,
                       getString(R.string.dialog_ln_expected_fee).format(value),
-                      R.drawable.border_blue
+                      R.drawable.border_basic
                     )
                   }
                 }
@@ -2310,7 +2309,7 @@ class HubActivity
               override val alert: AlertDialog = {
                 val title = getString(R.string.dialog_send_ln)
                   .format(prExt.brDescription)
-                  .asColoredView(R.color.zbdPurple)
+                  .asColoredView(R.color.ourPurple)
                 mkCheckFormNeutral(
                   send,
                   none,
@@ -2377,7 +2376,7 @@ class HubActivity
 
     val authData = LNUrlAuther.make(lnurl.uri.getHost, k1)
     val title = titleBodyAsViewBuilder(
-      s"<big>${lnurl.warnUri}</big>".asColoredView(R.color.zbdPurple),
+      s"<big>${lnurl.warnUri}</big>".asColoredView(R.color.ourPurple),
       null
     )
     mkCheckFormNeutral(
@@ -3227,7 +3226,7 @@ class HubActivity
           s"<br><br>${data.meta.textShort}"
         )
         val title = titleBodyAsViewBuilder(
-          text.asColoredView(R.color.zbdPurple),
+          text.asColoredView(R.color.ourPurple),
           manager.content
         )
         mkCheckFormNeutral(
@@ -3243,10 +3242,11 @@ class HubActivity
 
       private def getFinal(amount: MilliSatoshi) = data.getFinal(
         amount = amount,
-        comment = getComment,
-        randomKey = randKey.publicKey,
+        comment = Some(getComment),
+        randomKey = Some(randKey.publicKey),
         authKeyHost =
-          if (manager.attachIdentity.isChecked) lnurl.uri.getHost else None
+          if (manager.attachIdentity.isChecked) Some(lnurl.uri.getHost)
+          else None
       )
 
       manager.updateText(minSendable)
@@ -3312,7 +3312,7 @@ class HubActivity
   }
 
   private def showAesAction(preimage: ByteVector32, aes: AESAction) = Try {
-    val secret = aes.plaintext
+    val secret = aes.plaintext(preimage)
     val msg =
       if (secret.length > 36) s"${aes.finalMessage}<br><br><tt>$secret</tt><br>"
       else s"${aes.finalMessage}<br><br><tt><big>$secret</big></tt><br>"

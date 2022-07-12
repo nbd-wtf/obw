@@ -16,7 +16,7 @@
 
     <!-- Bottom menu -->
     <com.github.mmin18.widget.RealtimeBlurView
-        app:realtimeOverlayColor="@color/bg"
+        app:realtimeOverlayColor="@color/somewhatBlack"
         android:layout_alignParentBottom="true"
         android:id="@+id/bottomBlurringArea"
         android:layout_width="match_parent"

@@ -45,7 +45,7 @@
         <View
             android:id="@+id/spacer1"
             android:layout_height="1dp"
-            android:background="@color/bg"
+            android:background="@color/somewhatBlack"
             android:layout_width="match_parent"
             android:layout_marginBottom="-1dp"/>
 
@@ -53,7 +53,7 @@
             card_view:cardCornerRadius="@dimen/corner_radius"
             android:id="@+id/paymentCardContainer"
             style="@style/Card"
-            card_view:cardBackgroundColor="@color/bgBrighter">
+            card_view:cardBackgroundColor="@color/veryDarkGrey">
 
             <!-- Everything besides pay links -->
             <LinearLayout

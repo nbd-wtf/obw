@@ -2,13 +2,13 @@
 <resources>
     <style name="AppTheme" parent="Theme.MaterialComponents.Bridge">
         <item name="android:fontFamily">@font/lato_regular</item>
-        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/somewhatBlack</item>
         <item name="snackbarStyle">@style/snackbarStyle</item>
-        <item name="colorOnSurface">@color/colorAccent</item>
-        <item name="colorPrimary">@color/colorAccent</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">@color/text</item>
-        <item name="colorPrimaryDark">@color/bg</item>
+        <item name="colorOnSurface">@color/veryWhite</item>
+        <item name="colorPrimary">@color/veryWhite</item>
+        <item name="colorAccent">@color/veryWhite</item>
+        <item name="android:textColor">@color/darkerWhite</item>
+        <item name="colorPrimaryDark">@color/somewhatBlack</item>
         <item name="android:disabledAlpha">0.7</item>
         <item name="android:textSize">18sp</item>
     </style>
@@ -18,17 +18,14 @@
     </style>
 
     <style name="AppThemeNoActionBar" parent="AppTheme">
-        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:windowBackground">@color/somewhatBlack</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
     <!-- item styles -->
-    <style name="GreenButton">
-        <item name="nb_textColor">@color/colorAccent</item>
-        <item name="nb_focusColor">@color/buttonGreenRipple</item>
-        <item name="nb_borderColor">@color/buttonGreenBorder</item>
-        <item name="nb_backgroundColor">@color/buttonGreen</item>
+    <style name="BaseButton">
+        <item name="nb_textColor">@color/veryWhite</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:paddingBottom">11dp</item>
@@ -39,22 +36,22 @@
         <item name="nb_radius">6dp</item>
     </style>
 
-    <style name="RedButton" parent="GreenButton">
-        <item name="nb_focusColor">@color/buttonRedRipple</item>
-        <item name="nb_borderColor">@color/buttonRedBorder</item>
-        <item name="nb_backgroundColor">@color/buttonRed</item>
+    <style name="RedButton" parent="BaseButton">
+        <item name="nb_focusColor">@color/ourRed</item>
+        <item name="nb_borderColor">@color/boringGrey</item>
+        <item name="nb_backgroundColor">@color/ourRed</item>
     </style>
 
-    <style name="GrayButton" parent="GreenButton">
-        <item name="nb_focusColor">@color/buttonGrayRipple</item>
-        <item name="nb_borderColor">@color/buttonGrayBorder</item>
-        <item name="nb_backgroundColor">@color/bg</item>
+    <style name="GrayButton" parent="BaseButton">
+        <item name="nb_focusColor">@color/veryDarkGrey</item>
+        <item name="nb_borderColor">@color/boringGrey</item>
+        <item name="nb_backgroundColor">@color/veryDarkGrey</item>
     </style>
 
-    <style name="PurpleButton" parent="GreenButton">
-        <item name="nb_focusColor">@color/buttonGrayRipple</item>
-        <item name="nb_borderColor">@color/buttonGrayBorder</item>
-        <item name="nb_backgroundColor">@color/zbdPurple</item>
+    <style name="PurpleButton" parent="BaseButton">
+        <item name="nb_focusColor">@color/ourPurple</item>
+        <item name="nb_borderColor">@color/boringGrey</item>
+        <item name="nb_backgroundColor">@color/ourPurple</item>
     </style>
 
     <style name="ToggleButton" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
@@ -165,7 +162,7 @@
     <style name="DefaultChipSuggestionTextView">
         <item name="chipVerticalSpacing">6dp</item>
         <item name="chipHorizontalSpacing">4dp</item>
-        <item name="chipBackground">@color/colorAccent</item>
+        <item name="chipBackground">@color/veryWhite</item>
         <item name="android:inputType">textMultiLine|textVisiblePassword</item>
         <item name="android:completionThreshold">1</item>
         <item name="chipTextSize">18sp</item>
@@ -174,6 +171,6 @@
 
     <!-- dialogs -->
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:background">@color/bgDarker</item>
+        <item name="android:background">@color/veryBlack</item>
     </style>
 </resources>

@@ -9,7 +9,7 @@
 
     <TextView
         style="@style/BoundedView"
-        android:background="@color/bg"
+        android:background="@color/somewhatBlack"
         android:layout_marginTop="15dp"
         android:layout_marginStart="15dp"
         android:id="@+id/txLabelOrId"/>

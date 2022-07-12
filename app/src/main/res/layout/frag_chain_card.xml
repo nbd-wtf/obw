@@ -42,7 +42,7 @@
             android:id="@+id/chainWrap"
             style="@style/Card"
             card_view:strokeWidth="1dp"
-            card_view:strokeColor="@color/zbdPurple"
+            card_view:strokeColor="@color/ourPurple"
             card_view:cardCornerRadius="@dimen/corner_radius">
 
             <RelativeLayout
@@ -65,7 +65,7 @@
 
                     <TextView
                         android:id="@+id/chainLabel"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/veryWhite"
                         style="@style/BoundedView"/>
 
                     <TextView

@@ -60,8 +60,8 @@
                 card_view:text_inverted_color="@android:color/black"
                 android:layout_toStartOf="@id/torIndicator"
                 card_view:text_color="@android:color/white"
-                android:background="@drawable/border_blue"
-                android:src="@color/paymentActiveBorder"
+                android:background="@drawable/border_purple"
+                android:src="@color/ourPurple"
                 android:layout_centerVertical="true"
                 android:id="@+id/lnSyncIndicator"
                 android:layout_marginEnd="6dp"
@@ -133,25 +133,25 @@
             android:onClick="goToStatPage"
             style="@style/Card"
             card_view:strokeWidth="1dp"
-            card_view:strokeColor="@color/zbdPurple"
+            card_view:strokeColor="@color/ourPurple"
             card_view:cardCornerRadius="@dimen/corner_radius">
 
             <FrameLayout
-                android:background="@color/zbdPurple"
+                android:background="@color/ourPurple"
                 android:layout_width="4dp"
                 android:layout_height="match_parent"/>
 
             <LinearLayout
                 android:padding="15dp"
                 android:orientation="vertical"
-                android:background="@color/bgBrighter"
+                android:background="@color/veryDarkGrey"
                 style="@style/FillingView">
 
                 <!-- Text and balance -->
                 <RelativeLayout style="@style/FillingView">
                     <TextView
                         android:layout_marginEnd="3dp"
-                        android:textColor="@color/colorAccent"
+                        android:textColor="@color/veryWhite"
                         android:text="@string/lightning_wallet"
                         android:layout_centerVertical="true"
                         style="@style/BoundedView"/>
