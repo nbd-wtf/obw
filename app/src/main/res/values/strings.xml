@@ -348,8 +348,10 @@
 
     <string name="chan_nothing"><![CDATA[<i>nothing</i>]]></string>
 
-    <string name="chan_open">Get new channel</string>
-    <string name="chan_open_scan">Scan Node QR</string>
+    <string name="chan_open">Get a new channel</string>
+    <string name="chan_open_scan">Scan node QR</string>
+    <string name="chan_lsp_list_title">Paid Lightning Channel providers</string>
+    <string name="chan_hcp_list_title">Hosted Channel providers</string>
 
     <string name="ln_info_no_update">Can not receive yet</string>
     <string name="ln_info_fee_mismatch">Temporary feerate mismatch</string>

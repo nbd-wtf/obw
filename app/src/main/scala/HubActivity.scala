@@ -84,13 +84,13 @@ object HubActivity {
   var allInfos: Seq[TransactionDetails] = Nil
   var instance: HubActivity = _
 
-  def requestHostedChannel(): Unit = {
+  def requestHostedChannel(from: RemoteNodeInfo): Unit = {
     val localParams =
       LNParams.makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
     def implant(cs: Commitments, channel: ChannelHosted): Unit =
       RemotePeerActivity.implantNewChannel(cs, channel)
     new HCOpenHandler(
-      LNParams.syncParams.motherbase,
+      from,
       randomBytes32,
       localParams.defaultFinalScriptPubKey,
       LNParams.cm
@@ -1836,7 +1836,7 @@ class HubActivity
           .html
       )
       totalLightningBalance.setText(
-        WalletApp.denom.parsedWithSign(lnBalance, cardIn, lnCardZero).html
+        WalletApp.denom.parsedWithSign(lnBalance, lnCardZero, lnCardZero).html
       )
       lnBalanceFiat.setText(WalletApp currentMsatInFiatHuman lnBalance)
       channelIndicator.createIndicators(allChannels.toArray)

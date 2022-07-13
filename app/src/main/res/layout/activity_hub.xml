@@ -39,11 +39,13 @@
             android:onClick="bringSendOptions"
             android:layout_width="110dp"
             android:layout_margin="10dp"
+            android:layout_height="46dp"
             style="@style/PurpleButton"/>
 
         <com.ornach.nobobutton.NoboButton
             app:nb_drawableResource="@drawable/outline_qr_code_scanner_32_24"
             android:onClick="bringScanner"
+            android:layout_height="46dp"
             style="@style/PurpleButton"/>
 
         <com.ornach.nobobutton.NoboButton
@@ -51,6 +53,7 @@
             android:onClick="bringReceivePopup"
             android:layout_width="110dp"
             android:layout_margin="10dp"
+            android:layout_height="46dp"
             style="@style/PurpleButton"/>
 
     </LinearLayout>

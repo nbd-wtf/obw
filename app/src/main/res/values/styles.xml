@@ -50,7 +50,7 @@
 
     <style name="PurpleButton" parent="BaseButton">
         <item name="nb_focusColor">@color/ourPurple</item>
-        <item name="nb_borderColor">@color/boringGrey</item>
+        <item name="nb_borderColor">@color/ourPurple</item>
         <item name="nb_backgroundColor">@color/ourPurple</item>
     </style>
 
@@ -149,13 +149,13 @@
         <item name="android:textSize">16sp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
+        <item name="android:background">@drawable/border_basic</item>
     </style>
 
     <style name="ChipTextBasic" parent="ChipTextGray">
         <item name="android:layout_marginBottom">4dp</item>
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:background">@drawable/border_basic</item>
     </style>
 
     <!-- nachos -->

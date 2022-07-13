@@ -6,7 +6,7 @@
 
     <ListView
         android:scrollbars="none"
-        android:id="@+id/chanList"
+        android:id="@+id/getChanList"
         android:clipToPadding="false"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"

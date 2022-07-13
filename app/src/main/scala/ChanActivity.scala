@@ -18,10 +18,11 @@ import com.google.common.cache.LoadingCache
 import com.indicator.ChannelIndicatorLine
 import com.ornach.nobobutton.NoboButton
 import com.softwaremill.quicklens._
+import scodec.bits.ByteVector
 import fr.acinq.bitcoin._
 import fr.acinq.eclair._
 import fr.acinq.eclair.channel._
-import fr.acinq.eclair.wire.HostedChannelBranding
+import fr.acinq.eclair.wire.{HostedChannelBranding, NodeAddress}
 import immortan.ChannelListener.Malfunction
 import immortan._
 import immortan.crypto.Tools._
@@ -73,8 +74,8 @@ class ChanActivity
     with ChannelListener { me =>
   private[this] lazy val chanContainer =
     findViewById(R.id.chanContainer).asInstanceOf[LinearLayout]
-  private[this] lazy val chanList =
-    findViewById(R.id.chanList).asInstanceOf[ListView]
+  private[this] lazy val getChanList =
+    findViewById(R.id.getChanList).asInstanceOf[ListView]
 
   private[this] lazy val brandingInfos =
     WalletApp.txDataBag.db.txWrap(getBrandingInfos.toMap)
@@ -613,14 +614,17 @@ class ChanActivity
       setContentView(R.layout.activity_chan)
       updateChanData.run
 
-      val title = new TitleView(me getString R.string.title_chans)
-      title.view.setOnClickListener(me onButtonTap finish)
-      title.backArrow.setVisibility(View.VISIBLE)
-      chanList.addHeaderView(title.view)
+      val scanTitle = new TitleView(me getString R.string.title_chans)
+      scanTitle.view.setOnClickListener(me onButtonTap finish)
+      scanTitle.backArrow.setVisibility(View.VISIBLE)
+      getChanList.addHeaderView(scanTitle.view)
 
-      val footer = new TitleView(me getString R.string.chan_open)
+      val scanFooter = new TitleView(me getString R.string.chan_open)
+      val lspFooter = new TitleView(me getString R.string.chan_lsp_list_title)
+      val hcpFooter = new TitleView(me getString R.string.chan_hcp_list_title)
+
       addFlowChip(
-        footer.flow,
+        scanFooter.flow,
         getString(R.string.chan_open_scan),
         R.drawable.border_purple,
         _ => scanNodeQr()
@@ -628,42 +632,72 @@ class ChanActivity
 
       if (LNParams.isMainnet) {
         addFlowChip(
-          footer.flow,
+          lspFooter.flow,
           "LNBIG.com",
           R.drawable.border_purple,
           _ => me browse "https://lnbig.com/#/open-channel"
         )
         addFlowChip(
-          footer.flow,
+          lspFooter.flow,
           "Zero Fee Routing",
           R.drawable.border_purple,
           _ => me browse "https://zerofeerouting.com/mobile-wallets/"
         )
         addFlowChip(
-          footer.flow,
+          lspFooter.flow,
           "BlockTank",
           R.drawable.border_purple,
           _ => me browse "https://synonym.to/blocktank/"
         )
         addFlowChip(
-          footer.flow,
+          lspFooter.flow,
           "Bitrefill",
           R.drawable.border_purple,
           _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
         )
 
-        if (LNParams.cm.allHostedCommits.isEmpty)
-          addFlowChip(
-            footer.flow,
-            getString(R.string.rpa_request_hc),
-            R.drawable.border_yellow,
-            _ => requestHostedChannel()
-          )
+        addFlowChip(
+          hcpFooter.flow,
+          "Motherbase",
+          R.drawable.border_purple,
+          _ => requestHostedChannel(LNParams.syncParams.motherbase)
+        )
+
+        addFlowChip(
+          hcpFooter.flow,
+          "ergvein.net",
+          R.drawable.border_purple,
+          _ => requestHostedChannel(LNParams.syncParams.ergveinNet)
+        )
+
+        addFlowChip(
+          hcpFooter.flow,
+          "SATM",
+          R.drawable.border_purple,
+          _ => requestHostedChannel(LNParams.syncParams.satm)
+        )
+
+        addFlowChip(
+          hcpFooter.flow,
+          "Jaspion",
+          R.drawable.border_purple,
+          _ => requestHostedChannel(LNParams.syncParams.jaspion)
+        )
+
+        addFlowChip(
+          hcpFooter.flow,
+          "Jiraiya",
+          R.drawable.border_purple,
+          _ => requestHostedChannel(LNParams.syncParams.jiraiya)
+        )
       }
-      chanList.addFooterView(footer.view)
-      chanList.setAdapter(chanAdapter)
-      chanList.setDividerHeight(0)
-      chanList.setDivider(null)
+
+      getChanList.addFooterView(scanFooter.view)
+      getChanList.addFooterView(lspFooter.view)
+      // getChanList.addFooterView(hcpFooter.view)
+      getChanList.setAdapter(chanAdapter)
+      getChanList.setDividerHeight(0)
+      getChanList.setDivider(null)
 
       val window = 500.millis
       val stateEvents = Rx.uniqueFirstAndLastWithinWindow(
@@ -684,8 +718,8 @@ class ChanActivity
     }
   }
 
-  private def requestHostedChannel(): Unit = {
-    HubActivity.requestHostedChannel()
+  private def requestHostedChannel(from: RemoteNodeInfo): Unit = {
+    HubActivity.requestHostedChannel(from)
     finish
   }
 
