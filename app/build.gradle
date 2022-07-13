@@ -103,6 +103,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.google.code.ndef-tools-for-android:ndeftools:1.2.4'
     implementation 'com.guardanis:applock:3.0.2'
+    implementation 'com.hootsuite.android:nachos:1.1.1'
     implementation('com.journeyapps:zxing-android-embedded:4.2.0') {
         // We use zxing sources with fixed List.sort which is not in API21
         exclude group: 'com.google.zxing', module: 'core'
