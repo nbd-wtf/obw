@@ -5,15 +5,7 @@
     <dimen name="header_size">22sp</dimen>
     <dimen name="qr_size">120sp</dimen>
 
-    <!-- nachos -->
-
-    <dimen name="chip_default_padding_edge">12dp</dimen>
-    <dimen name="chip_default_padding_between_image">8dp</dimen>
-    <dimen name="chip_default_left_margin">0dp</dimen>
-    <dimen name="chip_default_right_margin">0dp</dimen>
-
     <!-- tooltip -->
-
     <dimen name="simpletooltip_padding">8dp</dimen>
     <dimen name="simpletooltip_arrow_width">30dp</dimen>
     <dimen name="simpletooltip_arrow_height">15dp</dimen>

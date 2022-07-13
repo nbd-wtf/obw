@@ -8,6 +8,12 @@
         style="@style/XSmallMarginFillingView"
         android:hint="@string/action_recovery_phrase_hint"
         android:layout_marginBottom="25dp"
-        android:layout_marginTop="25dp"/>
+        android:layout_marginTop="25dp"
+        chipHorizontalSpacing="4dp"
+        chipBackground="@color/ourGreenTransparent"
+        chipTextColor="@color/veryWhite"
+        chipTextSize="18dp"
+        chipHeight="28dp"
+        chipVerticalSpacing="6dp" />
 
 </LinearLayout>
