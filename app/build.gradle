@@ -103,6 +103,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.google.code.ndef-tools-for-android:ndeftools:1.2.4'
     implementation 'com.guardanis:applock:3.0.2'
+    implementation('com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1') {
+        exclude group: 'com.android.support', module: 'support-v4'
+    }
     implementation('com.danilomendes.progressbar:progressbar:1.0.2') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
