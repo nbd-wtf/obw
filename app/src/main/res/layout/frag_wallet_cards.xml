@@ -26,7 +26,7 @@
                 android:focusable="true"
                 style="@style/ChipTextGray"
                 android:onClick="bringRateDialog"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="12sp"
                 android:background="@drawable/border_green"
                 android:layout_toStartOf="@id/offlineIndicator"
                 android:layout_centerVertical="true"
@@ -38,7 +38,7 @@
             <TextView
                 style="@style/ChipTextGray"
                 android:layout_toStartOf="@id/chainSyncIndicator"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="12sp"
                 android:layout_centerVertical="true"
                 android:id="@+id/offlineIndicator"
                 android:layout_marginEnd="6dp"
@@ -47,7 +47,7 @@
 
             <TextView
                 style="@style/ChipTextGray"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="12sp"
                 android:background="@drawable/border_yellow"
                 android:layout_toStartOf="@id/lnSyncIndicator"
                 android:layout_centerVertical="true"
@@ -74,7 +74,7 @@
             <TextView
                 style="@style/ChipTextGray"
                 android:layout_toStartOf="@id/settingsButton"
-                android:textSize="@dimen/text_size_12"
+                android:textSize="12sp"
                 android:layout_centerVertical="true"
                 android:id="@+id/torIndicator"
                 android:layout_marginEnd="2dp"

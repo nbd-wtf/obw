@@ -1786,10 +1786,9 @@ class HubActivity
     }
 
     def updateLnSyncProgress(total: Int, left: Int): Unit = UITask {
-      lnSyncIndicator
-        .setMaxProgress(total)
-        .setMinProgress(0)
-        .setProgress(total - left)
+      lnSyncIndicator.setMaxProgress(total)
+      lnSyncIndicator.setMinProgress(0)
+      lnSyncIndicator.setProgress(total - left)
       setVis(isVisible = true, lnSyncIndicator)
     }.run
 

@@ -24,8 +24,6 @@
 
     <application
         android:fullBackupContent="false"
-        android:supportsRtl="false"
-        android:allowBackup="false"
         android:largeHeap="true"
 
         android:theme="@style/AppTheme"
