@@ -103,6 +103,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.google.code.ndef-tools-for-android:ndeftools:1.2.4'
     implementation 'com.guardanis:applock:3.0.2'
+    implementation 'com.mig35:carousellayoutmanager:1.4.6'
     implementation('com.ornach.nobobutton:nobobutton:1.6') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }

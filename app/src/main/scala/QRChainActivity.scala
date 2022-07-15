@@ -5,7 +5,7 @@ import android.view.{View, ViewGroup}
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.azoft.carousellayoutmanager._
+import com.mig35.carousellayoutmanager._
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.Colors._
 import wtf.nbd.obw.R
