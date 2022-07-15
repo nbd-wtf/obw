@@ -118,6 +118,7 @@ dependencies {
     }
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
     implementation 'com.github.mmin18:realtimeblurview:1.2.1'
+    implementation 'org.apmem.tools:layouts:1.10@aar'
 
     // Wallet Utils
     implementation 'com.sparrowwallet:hummingbird:1.6.5'
