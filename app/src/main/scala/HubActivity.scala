@@ -2448,7 +2448,10 @@ class HubActivity
     doMaxMinView()
 
     bottomActionBar post UITask {
-      bottomBlurringArea.setHeightTo(bottomActionBar)
+      val viewParams = bottomBlurringArea.getLayoutParams();
+      viewParams.height = bottomActionBar.getHeight();
+      bottomBlurringArea.setLayoutParams(viewParams);
+
       itemsList.setPadding(0, 0, 0, bottomActionBar.getHeight)
     }
 

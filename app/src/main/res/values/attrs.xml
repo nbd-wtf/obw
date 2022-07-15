@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ViewButton">
-        <attr name="nb_borderWidth"/>
-        <attr name="nb_borderColor"/>
-        <attr name="nb_radius"/>
-        <attr name="nb_backgroundColor"/>
-        <attr name="nb_disableColor"/>
-        <attr name="nb_focusColor"/>
-        <attr name="nb_shape"/>
-        <attr name="nb_enabled"/>
-    </declare-styleable>
-
     <!-- flow layout -->
     <declare-styleable name="FlowLayout">
         <attr name="android:orientation" />
@@ -27,12 +16,5 @@
         <attr name="layout_newLine" format="boolean"/>
         <attr name="layout_weight" format="float"/>
         <attr name="android:layout_gravity"/>
-    </declare-styleable>
-
-    <!-- Blur view -->
-    <declare-styleable name="RealtimeBlurView">
-        <attr name="realtimeBlurRadius" format="dimension"/>
-        <attr name="realtimeDownsampleFactor" format="float"/>
-        <attr name="realtimeOverlayColor" format="color"/>
     </declare-styleable>
 </resources>
