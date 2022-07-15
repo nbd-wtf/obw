@@ -25,6 +25,7 @@
     <application
         android:fullBackupContent="false"
         android:largeHeap="true"
+        android:hardwareAccelerated="true"
 
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
