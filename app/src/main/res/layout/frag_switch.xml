@@ -19,6 +19,7 @@
         <TextView
             style="@style/BoundedView"
             android:id="@+id/settingsTitle"
+            android:textColor="@color/darkerWhite"
             android:textStyle="bold"/>
 
         <TextView
