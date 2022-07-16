@@ -55,8 +55,9 @@ class SetupActivity extends BaseActivity { me =>
   lazy private[this] val enforceTor = new SettingsHolder(me) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
+
     settingsTitle.setText(R.string.settings_ensure_tor)
-    setVis(isVisible = false, settingsInfo)
+    settingsInfo.setText(R.string.setup_ensure_tor_hint)
 
     view setOnClickListener onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)
