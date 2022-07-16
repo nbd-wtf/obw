@@ -6,7 +6,6 @@ import java.util.Date
 
 import android.app.{Application, NotificationChannel, NotificationManager}
 import android.content._
-import android.os.Build
 import android.text.format.DateFormat
 import android.view.inputmethod.InputMethodManager
 import android.widget.{EditText, Toast}
@@ -603,21 +602,19 @@ class WalletApp extends Application { me =>
     // Currently night theme is the only option, should be set by default
     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
-      val manager = this getSystemService classOf[NotificationManager]
-      val chan1 = new NotificationChannel(
-        AwaitService.CHANNEL_ID,
-        "Foreground notifications",
-        NotificationManager.IMPORTANCE_LOW
-      )
-      val chan2 = new NotificationChannel(
-        DelayedNotification.CHANNEL_ID,
-        "Scheduled notifications",
-        NotificationManager.IMPORTANCE_LOW
-      )
-      manager.createNotificationChannel(chan1)
-      manager.createNotificationChannel(chan2)
-    }
+    val manager = this getSystemService classOf[NotificationManager]
+    val chan1 = new NotificationChannel(
+      AwaitService.CHANNEL_ID,
+      "Foreground notifications",
+      NotificationManager.IMPORTANCE_LOW
+    )
+    val chan2 = new NotificationChannel(
+      DelayedNotification.CHANNEL_ID,
+      "Scheduled notifications",
+      NotificationManager.IMPORTANCE_LOW
+    )
+    manager.createNotificationChannel(chan1)
+    manager.createNotificationChannel(chan2)
 
     ChannelMaster.inFinalized.foreach { _ =>
       // Delayed notification is removed when payment gets either failed or fulfilled

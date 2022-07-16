@@ -1,7 +1,7 @@
 package wtf.nbd.obw
 
 import android.content.Intent
-import android.os.{Build, Bundle}
+import android.os.Bundle
 import android.view.{View, ViewGroup}
 import android.widget._
 import wtf.nbd.obw.BaseActivity.StringOps
@@ -42,18 +42,6 @@ abstract class SettingsHolder(host: BaseActivity) {
     WalletApp.app.prefs.edit.putBoolean(key, value).commit
     updateView()
   }
-
-  def disableIfOldAndroid(): Unit =
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-      val message =
-        host
-          .getString(R.string.error_old_api_level)
-          .format(Build.VERSION.SDK_INT)
-      host.setVis(isVisible = true, settingsInfo)
-      settingsInfo.setText(message)
-      settingsTitle.setAlpha(0.5f)
-      view.setEnabled(false)
-    }
 }
 
 class SettingsActivity
@@ -213,7 +201,6 @@ class SettingsActivity
     view setOnClickListener onButtonTap(callUrScanner())
     settingsTitle.setText(R.string.settings_hardware_add)
     override def updateView(): Unit = none
-    disableIfOldAndroid()
 
     def callUrScanner(): Unit = {
       def onKey(data: PairingData): Unit = {
@@ -399,7 +386,6 @@ class SettingsActivity
 
     settingsTitle.setText(R.string.settings_ensure_tor)
     setVis(isVisible = false, settingsInfo)
-    disableIfOldAndroid()
 
     view setOnClickListener onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)

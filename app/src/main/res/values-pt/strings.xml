@@ -133,7 +133,6 @@
     <string name="error_btc_broadcast_fail">Não foi possível transmitir a transação, por favor certifique-se de que a carteira está conectada à rede e tente novamente.</string>
     <string name="error_could_not_decrypt"><![CDATA[<b>A decodificação do backup falhou</b>.<br><br>Certifique-se de que o arquivo de backup e a frase de recuperação estão corretos.<br><br>Detalhes do erro<br><b>%1$s</b>]]></string>
     <string name="error_wrong_phrase"><![CDATA[<b>A frase fornecida está incorreta</b>.<br><br>Detalhes do erro<br><b>%1$s</b>]]></string>
-    <string name="error_old_api_level">Requires API 24+, yours is %1$s</string>
     <string name="error_nothing_useful">Nada útil foi encontrado</string>
 
     <string name="error_ln_no_chans"><![CDATA[Não é possível enviar ou receber pagamentos Relâmpago porque não há nenhum canal aberto.]]></string>

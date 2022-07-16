@@ -133,7 +133,6 @@
     <string name="error_btc_broadcast_fail">No se pudo transmitir la transacción, por favor asegúrese de que la billetera tenga conexión de red e intente de nuevo.</string>
     <string name="error_could_not_decrypt"><![CDATA[<b>Falló el descifrado del respaldo</b>.<br><br>Asegúrese que tanto el archivo de respaldo como la frase de recuperación sean las correctas.<br><br>Detalles del error<br><b>%1$s</b>]]></string>
     <string name="error_wrong_phrase"><![CDATA[<b>La frase introducida es incorrecta</b>.<br><br>Detalles del error<br><b>%1$s</b>]]></string>
-    <string name="error_old_api_level">Requiere API 24+, el tuyo es %1$s</string>
     <string name="error_nothing_useful">No se encontró nada útil</string>
 
     <string name="error_ln_no_chans"><![CDATA[No se puede enviar ni recibir pagos Lightning porque no hay canales abiertos.]]></string>

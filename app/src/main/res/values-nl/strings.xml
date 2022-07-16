@@ -133,7 +133,6 @@
     <string name="error_btc_broadcast_fail">Kon transactie niet uitzenden, ga a.u.b. na dat de portemonnee een netwerkverbinding heeft en probeer het dan opnieuw.</string>
     <string name="error_could_not_decrypt"><![CDATA[<b>Ontsleuteling van backp-up is mislukt</b>.<br><br>Zorg dat het back-upbestand en de herstelzin correct zijn en tot dezelfde portemonnee behoren.<br><br>Foutdetails<br><b>%1$s</b>]]></string>
     <string name="error_wrong_phrase"><![CDATA[<b>Ingevoerde wachtwoordzin is incorrect</b>.<br><br>Foutdetails<br><b>%1$s</b>]]></string>
-    <string name="error_old_api_level">Vereist API 24+, die van jou is %1$s</string>
     <string name="error_nothing_useful">Niets bruikbaars is gevonden</string>
 
     <string name="error_ln_no_chans"><![CDATA[Kan geen Lightningbetalingen verzenden of ontvangen omdat er geen open kanalen beschikbaar zijn.]]></string>

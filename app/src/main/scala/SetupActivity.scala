@@ -57,7 +57,6 @@ class SetupActivity extends BaseActivity { me =>
       settingsCheck.setChecked(WalletApp.ensureTor)
     settingsTitle.setText(R.string.settings_ensure_tor)
     setVis(isVisible = false, settingsInfo)
-    disableIfOldAndroid()
 
     view setOnClickListener onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)

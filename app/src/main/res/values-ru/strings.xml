@@ -133,7 +133,6 @@
     <string name="error_btc_broadcast_fail">Невозможно отправить транзакцию. Пожалуйста, убедитесь, что кошелек имеет доступ к сети и попробуйте снова.</string>
     <string name="error_could_not_decrypt"><![CDATA[<b>Расшифровка резервного файла не удалась</b>.<br><br>Убедитесь, что резервный файл и фзаза восстановления корректны и принадлежат к одному и тому же кошельку.<br><br>Подробности ошибки<br><b>%1$s</b>]]></string>
     <string name="error_wrong_phrase"><![CDATA[<b>Введенная фраза восстановления некорректна</b>.<br><br>Подробности ошибки<br><b>%1$s</b>]]></string>
-    <string name="error_old_api_level">Требует API уровня 24+, ваш: %1$s</string>
     <string name="error_nothing_useful">Не найдено ничего интересного</string>
 
     <string name="error_ln_no_chans"><![CDATA[Невозможно получить или отправить платеж-молнию потому что нет открытых каналов.]]></string>
