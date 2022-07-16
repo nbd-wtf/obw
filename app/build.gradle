@@ -20,14 +20,37 @@ android {
         javaMaxHeapSize '12g'
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles 'proguard-rules.pro'
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('STORE_FILE')) {
+                storeFile file(STORE_FILE)
+                storePassword STORE_PASSWORD
+                keyAlias KEY_ALIAS
+                keyPassword KEY_PASSWORD
+            }
+        }
+    }
+
+    buildTypes {
         debug {
             minifyEnabled false
             proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            applicationIdSuffix ".debug"
+        }
+        release {
+            minifyEnabled false
+            proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            if (project.hasProperty('STORE_FILE')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 

@@ -18,11 +18,10 @@ import com.google.common.cache.LoadingCache
 import com.indicator.ChannelIndicatorLine
 import com.ornach.nobobutton.NoboButton
 import com.softwaremill.quicklens._
-import scodec.bits.ByteVector
 import fr.acinq.bitcoin._
 import fr.acinq.eclair._
 import fr.acinq.eclair.channel._
-import fr.acinq.eclair.wire.{HostedChannelBranding, NodeAddress}
+import fr.acinq.eclair.wire.HostedChannelBranding
 import immortan.ChannelListener.Malfunction
 import immortan._
 import immortan.crypto.Tools._

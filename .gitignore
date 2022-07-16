@@ -9,3 +9,4 @@ local.properties
 .metals
 .bloop
 build
+release.keystore

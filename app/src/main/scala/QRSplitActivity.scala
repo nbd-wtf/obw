@@ -38,7 +38,7 @@ class QRSplitActivity
     )
     val mySplitHuman =
       WalletApp.denom.parsedWithSign(sp.cmd.split.myPart, cardIn, totalZero)
-    splitQrPay.setText(s"$dialogPay $mySplitHuman".html)
+    splitQrPay.setText(s"$dialogPay $mySplitHuman")
 
     splitQrPay setOnClickListener onButtonTap {
       // It is assumed that many users start sending their splits at about the same time

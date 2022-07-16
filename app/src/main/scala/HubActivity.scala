@@ -62,13 +62,11 @@ import immortan._
 import immortan.crypto.CanBeRepliedTo
 import immortan.crypto.Tools._
 import immortan.fsm._
-import immortan.utils.ImplicitJsonFormats._
 import immortan.utils._
 import org.apmem.tools.layouts.FlowLayout
 import org.ndeftools.Message
 import org.ndeftools.util.activity.NfcReaderActivity
 import rx.lang.scala.{Observable, Subscription}
-import spray.json._
 
 object HubActivity {
   var txInfos: Iterable[TxInfo] = Nil
