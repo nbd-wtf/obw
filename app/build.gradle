@@ -42,7 +42,7 @@ android {
             minifyEnabled false
             proguardFiles 'proguard-rules.pro'
             signingConfig signingConfigs.debug
-            applicationIdSuffix ".debug"
+            applicationIdSuffix ".dev"
         }
         release {
             minifyEnabled false
