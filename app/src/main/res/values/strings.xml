@@ -209,6 +209,7 @@
     <string name="popup_fiat"><![CDATA[<b>fiat&#160;value</b>&#160;%1$s&#160;(%2$s)]]></string>
     <string name="popup_chain_fee"><![CDATA[<b>chain&#160;fee</b>&#160;%1$s]]></string>
     <string name="popup_hash"><![CDATA[<b>hash</b>&#160;%1$s]]></string>
+    <string name="popup_preimage"><![CDATA[<b>preimage</b>&#160;%1$s]]></string>
 
     <!-- /special tx/payment descriptions -->
 

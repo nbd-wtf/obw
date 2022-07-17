@@ -1122,6 +1122,17 @@ class HubActivity
             R.drawable.border_green,
             info.paymentHash.toHex.asSome
           )
+
+          if (info.status == PaymentStatus.SUCCEEDED)
+            addFlowChip(
+              extraInfo,
+              getString(
+                R.string.popup_preimage
+              ) format info.preimage.toHex.short,
+              R.drawable.border_yellow,
+              info.preimage.toHex.asSome
+            )
+
           if (info.isIncoming && myFulfills.nonEmpty)
             addFlowChip(
               extraInfo,
