@@ -2,13 +2,13 @@ package wtf.nbd.obw
 
 import java.net.InetSocketAddress
 import java.util.TimerTask
+import scala.util.chaining._
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Success, Try}
-
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.graphics.{Bitmap, BitmapFactory}
@@ -1812,9 +1812,22 @@ class HubActivity
       }
 
       val change = LNParams.fiatRates.info
-        .pctDifference(WalletApp.fiatCode)
+        .pipe { case FiatRatesInfo(rates, oldRates, _) =>
+          (rates.get(WalletApp.fiatCode), oldRates.get(WalletApp.fiatCode))
+        }
+        .pipe {
+          case (Some(fresh), Some(old)) if fresh > old =>
+            Some((R.color.ourGreen, "▲", (fresh - old) / old * 100))
+          case (Some(fresh), Some(old)) if old > fresh =>
+            Some((R.color.ourRed, "▼", (fresh - old) / old * 100))
+          case _ => None
+        }
+        .map { case (color, sign, pct) =>
+          s"<font color=#${getResources.getColor(color)}><small>$sign</small> ${Denomination.formatFiat
+              .format(pct)}%</font>"
+        }
         .map(_ + "<br>")
-        .getOrElse(new String)
+        .getOrElse("")
       val unitRate = WalletApp.msatInFiatHuman(
         LNParams.fiatRates.info.rates,
         WalletApp.fiatCode,
