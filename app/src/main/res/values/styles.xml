@@ -33,19 +33,30 @@
         <item name="android:paddingLeft">14dp</item>
         <item name="android:paddingTop">9dp</item>
         <item name="nb_borderWidth">2dp</item>
-        <item name="nb_radius">6dp</item>
-    </style>
-
-    <style name="RedButton" parent="BaseButton">
-        <item name="nb_focusColor">@color/ourRed</item>
-        <item name="nb_borderColor">@color/boringGrey</item>
-        <item name="nb_backgroundColor">@color/ourRed</item>
+        <item name="nb_radius">3dp</item>
     </style>
 
     <style name="GrayButton" parent="BaseButton">
         <item name="nb_focusColor">@color/veryDarkGrey</item>
         <item name="nb_borderColor">@color/boringGrey</item>
         <item name="nb_backgroundColor">@color/veryDarkGrey</item>
+    </style>
+
+    <style name="IconButton" parent="BaseButton">
+        <item name="nb_focusColor">@color/veryDarkGrey</item>
+        <item name="nb_borderColor">@color/boringGrey</item>
+        <item name="nb_backgroundColor">@color/veryDarkGrey</item>
+        <item name="nb_borderWidth">1dp</item>
+        <item name="android:paddingBottom">13dp</item>
+        <item name="android:paddingRight">13dp</item>
+        <item name="android:paddingLeft">13dp</item>
+        <item name="android:paddingTop">13dp</item>
+    </style>
+
+    <style name="IconRedButton" parent="IconButton">
+        <item name="nb_focusColor">@color/ourRed</item>
+        <item name="nb_borderColor">@color/boringGrey</item>
+        <item name="nb_backgroundColor">@color/ourRed</item>
     </style>
 
     <style name="PurpleBorderButton" parent="BaseButton">
