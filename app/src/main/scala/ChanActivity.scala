@@ -11,7 +11,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.Colors._
 import wtf.nbd.obw.R
 import com.chauthai.swipereveallayout.{SwipeRevealLayout, ViewBinderHelper}
 import com.google.common.cache.LoadingCache
@@ -280,12 +279,12 @@ class ChanActivity
       baseBar.setProgress(barCanSend)
 
       totalCapacityText.setText(
-        sumOrNothing(capacity.toMilliSatoshi, cardIn).html
+        sumOrNothing(capacity.toMilliSatoshi).html
       )
-      canReceiveText.setText(sumOrNothing(cs.availableForReceive, cardOut).html)
-      canSendText.setText(sumOrNothing(cs.availableForSend, cardIn).html)
-      refundableAmountText.setText(sumOrNothing(refundable, cardIn).html)
-      paymentsInFlightText.setText(sumOrNothing(inFlight, cardIn).html)
+      canReceiveText.setText(sumOrNothing(cs.availableForReceive).html)
+      canSendText.setText(sumOrNothing(cs.availableForSend).html)
+      refundableAmountText.setText(sumOrNothing(refundable).html)
+      paymentsInFlightText.setText(sumOrNothing(inFlight).html)
       this
     }
   }
@@ -351,9 +350,9 @@ class ChanActivity
         val newBalance =
           hc.lastCrossSignedState.initHostedChannel.channelCapacityMsat - hc.overrideProposal.get.localBalanceMsat
         val current =
-          WalletApp.denom.parsedWithSign(hc.availableForSend, cardIn, cardZero)
+          WalletApp.denom.parsedWithSign(hc.availableForSend)
         val overridden =
-          WalletApp.denom.parsedWithSign(newBalance, cardIn, cardZero)
+          WalletApp.denom.parsedWithSign(newBalance)
 
         def proceed(): Unit = chan.acceptOverride() match {
           case Left(err) => chanError(hc.channelId, err, hc.remoteInfo)
@@ -383,10 +382,10 @@ class ChanActivity
       baseBar.setSecondaryProgress(barCanSend + barCanReceive)
       baseBar.setProgress(barCanSend)
 
-      totalCapacityText.setText(sumOrNothing(capacity, cardIn).html)
-      canReceiveText.setText(sumOrNothing(hc.availableForReceive, cardOut).html)
-      canSendText.setText(sumOrNothing(hc.availableForSend, cardIn).html)
-      paymentsInFlightText.setText(sumOrNothing(inFlight, cardIn).html)
+      totalCapacityText.setText(sumOrNothing(capacity).html)
+      canReceiveText.setText(sumOrNothing(hc.availableForReceive).html)
+      canSendText.setText(sumOrNothing(hc.availableForSend).html)
+      paymentsInFlightText.setText(sumOrNothing(inFlight).html)
 
       // Order messages by degree of importance since user can only see a single one
       setVis(
@@ -780,8 +779,8 @@ class ChanActivity
       .toOption
   } yield commits.remoteInfo.nodeId -> brand
 
-  private def sumOrNothing(amt: MilliSatoshi, mainColor: String): String = {
-    if (0L.msat != amt) WalletApp.denom.parsedWithSign(amt, mainColor, cardZero)
+  private def sumOrNothing(amt: MilliSatoshi): String = {
+    if (0L.msat != amt) WalletApp.denom.parsedWithSign(amt)
     else getString(R.string.chan_nothing)
   }
 

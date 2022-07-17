@@ -7,7 +7,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.mig35.carousellayoutmanager._
 import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.Colors._
 import wtf.nbd.obw.R
 import com.ornach.nobobutton.NoboButton
 import fr.acinq.bitcoin.Btc
@@ -52,11 +51,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
         bu.uri foreach { uri =>
           val humanAmountOpt =
             for (requestedAmount <- bu.amount)
-              yield WalletApp.denom.parsedWithSign(
-                requestedAmount,
-                cardIn,
-                totalZero
-              )
+              yield WalletApp.denom.parsedWithSign(requestedAmount)
           val contentToShare =
             if (bu.amount.isDefined || bu.label.isDefined)
               PaymentRequestExt.withoutSlashes(InputParser.bitcoin, uri)
@@ -97,7 +92,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
     val maxMsat = Btc(21000000L).toSatoshi.toMilliSatoshi
     val canReceiveFiatHuman = WalletApp.currentMsatInFiatHuman(maxMsat)
     val canReceiveHuman =
-      WalletApp.denom.parsedWithSign(maxMsat, cardIn, cardZero)
+      WalletApp.denom.parsedWithSign(maxMsat)
     val body = getLayoutInflater
       .inflate(R.layout.frag_input_off_chain, null)
       .asInstanceOf[ViewGroup]

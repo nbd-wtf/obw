@@ -3,7 +3,6 @@ package wtf.nbd.obw
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import wtf.nbd.obw.Colors.{cardIn, cardOut, cardZero}
 import wtf.nbd.obw.R
 import fr.acinq.eclair._
 import immortan.LNParams
@@ -43,9 +42,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               summary.received.toMilliSatoshi,
               0L.msat,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = true
             ),
           R.drawable.border_basic
@@ -56,9 +52,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               0L.msat,
               summary.sent.toMilliSatoshi,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = false
             ),
           R.drawable.border_basic
@@ -69,9 +62,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               0L.msat,
               summary.fees.toMilliSatoshi,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = false
             ),
           R.drawable.border_basic
@@ -92,9 +82,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               summary.received,
               0L.msat,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = true
             ),
           R.drawable.border_basic
@@ -105,9 +92,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               0L.msat,
               summary.sent,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = false
             ),
           R.drawable.border_basic
@@ -118,9 +102,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               0L.msat,
               summary.fees,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = false
             ),
           R.drawable.border_basic
@@ -128,9 +109,6 @@ class StatActivity extends BaseCheckActivity { me =>
         val feesSaved = WalletApp.denom.directedWithSign(
           summary.chainFees - summary.fees,
           0L.msat,
-          cardOut,
-          cardIn,
-          cardZero,
           summary.chainFees > summary.fees
         )
         addFlowChip(
@@ -151,7 +129,7 @@ class StatActivity extends BaseCheckActivity { me =>
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_relayed) format WalletApp.denom
-            .parsedWithSign(summary.relayed, cardIn, cardZero),
+            .parsedWithSign(summary.relayed),
           R.drawable.border_basic
         )
         addFlowChip(
@@ -160,9 +138,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               summary.earned,
               0L.msat,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = true
             ),
           R.drawable.border_basic
@@ -184,9 +159,6 @@ class StatActivity extends BaseCheckActivity { me =>
             .directedWithSign(
               0L.msat,
               summary.fees.toMilliSatoshi,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = false
             ),
           R.drawable.border_basic

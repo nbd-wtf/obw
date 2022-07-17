@@ -6,7 +6,6 @@ import android.view.{View, ViewGroup}
 import android.widget._
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.BuildConfig.{VERSION_CODE, VERSION_NAME}
-import wtf.nbd.obw.Colors._
 import wtf.nbd.obw.R
 import wtf.nbd.obw.sheets.{BaseChoiceBottomSheet, PairingData}
 import wtf.nbd.obw.utils.{LocalBackup, OnListItemClickListener}
@@ -338,7 +337,7 @@ class SettingsActivity
       val options =
         for (unit <- units)
           yield unit
-            .parsedWithSign(MilliSatoshi(526800020L), cardIn, cardZero)
+            .parsedWithSign(MilliSatoshi(526800020L))
             .html
       val list = me selectorList new ArrayAdapter(
         me,
@@ -419,7 +418,7 @@ class SettingsActivity
     addFlowChip(
       links.flow,
       getString(R.string.sources),
-      R.drawable.border_green,
+      R.drawable.border_purple,
       _ => me browse "https://github.com/nbd-wft/obw"
     )
     addFlowChip(
@@ -430,8 +429,8 @@ class SettingsActivity
     )
     addFlowChip(
       links.flow,
-      "&#9825; Rate us",
-      R.drawable.border_red,
+      "Rate us",
+      R.drawable.border_purple,
       _ => me bringRateDialog null
     )
 
@@ -439,7 +438,7 @@ class SettingsActivity
       def exportLog(): Unit =
         me share LNParams.logBag.recent.map(_.asString).mkString("\n\n")
       val errorCount =
-        s"${me getString R.string.error_log} <font color=$cardZero>$count</font>"
+        s"${me getString R.string.error_log} $count"
       addFlowChip(
         links.flow,
         errorCount,

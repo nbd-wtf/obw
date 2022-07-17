@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.{ImageButton, ImageView, RelativeLayout, TextView}
 import androidx.transition.TransitionManager
 import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.Colors._
 import immortan.crypto.Tools._
 import immortan.fsm.IncomingRevealed
 import immortan.utils.{InputParser, PaymentRequestExt}
@@ -57,7 +56,7 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
       setVis(isVisible = false, qrViewHolder.qrEdit)
 
       qrViewHolder.qrLabel setText WalletApp.denom
-        .parsedWithSign(info.received, cardIn, totalZero)
+        .parsedWithSign(info.received)
         .html
       qrViewHolder.qrCopy setOnClickListener onButtonTap(
         WalletApp.app copy info.prExt.raw

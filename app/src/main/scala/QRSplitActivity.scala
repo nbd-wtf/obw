@@ -3,7 +3,6 @@ package wtf.nbd.obw
 import android.os.Bundle
 import android.widget.TextView
 import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.Colors._
 import com.ornach.nobobutton.NoboButton
 import immortan.crypto.Tools.none
 import immortan.utils.InputParser
@@ -32,12 +31,10 @@ class QRSplitActivity
   def showSplitInvoice(sp: SplitParams): Unit = {
     val nextSplitLink = sp.prExt.withNewSplit(sp.cmd.split.myPart)
     val leftHuman = WalletApp.denom.parsedWithSign(
-      sp.prExt.splitLeftover - sp.cmd.split.myPart,
-      cardIn,
-      totalZero
+      sp.prExt.splitLeftover - sp.cmd.split.myPart
     )
     val mySplitHuman =
-      WalletApp.denom.parsedWithSign(sp.cmd.split.myPart, cardIn, totalZero)
+      WalletApp.denom.parsedWithSign(sp.cmd.split.myPart)
     splitQrPay.setText(s"$dialogPay $mySplitHuman")
 
     splitQrPay setOnClickListener onButtonTap {

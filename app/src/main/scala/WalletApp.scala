@@ -662,7 +662,7 @@ class WalletApp extends Application { me =>
     )
     val bodyText = getString(bodyRes).format(
       WalletApp.denom
-        .parsedWithSign(amount, Colors.cardIn, Colors.cardZero)
+        .parsedWithSign(amount)
         .html
     )
     val withBodyAction = withTitle

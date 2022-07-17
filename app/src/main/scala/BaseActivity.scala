@@ -22,7 +22,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.{ContextCompat, FileProvider}
 import androidx.recyclerview.widget.RecyclerView
 import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.Colors._
 import wtf.nbd.obw.R
 import wtf.nbd.obw.sheets.HasUrDecoder
 import com.chauthai.swipereveallayout.SwipeRevealLayout
@@ -75,25 +74,6 @@ object BaseActivity {
     val chainBalances = LNParams.chainWallets.wallets.map(_.info.lastBalance)
     Channel.totalBalance(LNParams.cm.all.values) + chainBalances.sum
   }
-}
-
-object Colors {
-  val cardIn: String =
-    "#" + WalletApp.app.getResources.getString(R.color.ourGreen).substring(3)
-  val cardOut: String =
-    "#" + WalletApp.app.getResources.getString(R.color.ourRed).substring(3)
-  val cardZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.darkerWhite)
-    .substring(3)
-  val totalZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.darkerWhite)
-    .substring(3)
-  val btcCardZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.darkerWhite)
-    .substring(3)
-  val lnCardZero: String = "#" + WalletApp.app.getResources
-    .getString(R.color.darkerWhite)
-    .substring(3)
 }
 
 trait ExternalDataChecker {
@@ -193,7 +173,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     val title = new TitleView(caption)
 
     for (amount <- uri.amount) {
-      val amountHuman = WalletApp.denom.parsedWithSign(amount, cardIn, cardZero)
+      val amountHuman = WalletApp.denom.parsedWithSign(amount)
       val requested =
         getString(R.string.dialog_ln_requested).format(amountHuman)
       addFlowChip(title.flow, requested, R.drawable.border_yellow)
@@ -245,8 +225,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     for (
       mnemonicWord ~ mnemonicIndex <- LNParams.secret.mnemonic.zipWithIndex
     ) {
-      val item =
-        s"<font color=$cardZero>${mnemonicIndex + 1}</font> $mnemonicWord"
+      val item = s"${mnemonicIndex + 1} $mnemonicWord"
       addFlowChip(content.flow, item, R.drawable.border_green)
     }
   }
@@ -674,7 +653,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 
       feeOpt.foreach { fee =>
         val humanFee =
-          WalletApp.denom.parsedWithSign(fee, cardIn, cardZero).html
+          WalletApp.denom.parsedWithSign(fee).html
         fiatFee setText WalletApp.currentMsatInFiatHuman(fee).html
         bitcoinFee setText humanFee
       }
@@ -800,9 +779,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       fromWallet: ElectrumEclairWallet
   ) extends HasHostView {
     val canSend: String = WalletApp.denom.parsedWithSign(
-      fromWallet.info.lastBalance.toMilliSatoshi,
-      cardIn,
-      cardZero
+      fromWallet.info.lastBalance.toMilliSatoshi
     )
     val canSendFiat: String = WalletApp.currentMsatInFiatHuman(
       fromWallet.info.lastBalance.toMilliSatoshi
@@ -904,10 +881,10 @@ trait BaseActivity extends AppCompatActivity { me =>
         me switchToEdit alert
       )
       chainConfirmView.confirmAmount.secondItem setText WalletApp.denom
-        .parsedWithSign(totalAmount, cardIn, cardZero)
+        .parsedWithSign(totalAmount)
         .html
       chainConfirmView.confirmFee.secondItem setText WalletApp.denom
-        .parsedWithSign(fee, cardIn, cardZero)
+        .parsedWithSign(fee)
         .html
       chainConfirmView.confirmFiat.secondItem setText WalletApp
         .currentMsatInFiatHuman(totalAmount)
@@ -1012,9 +989,9 @@ trait BaseActivity extends AppCompatActivity { me =>
 
     case _ if prExt.pr.amountOpt.exists(_ < LNParams.minPayment) =>
       val requestedHuman =
-        WalletApp.denom.parsedWithSign(prExt.pr.amountOpt.get, cardIn, cardZero)
+        WalletApp.denom.parsedWithSign(prExt.pr.amountOpt.get)
       val minHuman =
-        WalletApp.denom.parsedWithSign(LNParams.minPayment, cardIn, cardZero)
+        WalletApp.denom.parsedWithSign(LNParams.minPayment)
       val msg =
         getString(R.string.error_ln_send_small)
           .format(requestedHuman, minHuman)
@@ -1075,9 +1052,7 @@ trait BaseActivity extends AppCompatActivity { me =>
         val reservePlusMinPayment =
           cnc.commits.availableForReceive + LNParams.minPayment
         val reserveHuman = WalletApp.denom.parsedWithSign(
-          -reservePlusMinPayment,
-          cardIn,
-          cardZero
+          -reservePlusMinPayment
         )
         snack(
           container,
@@ -1108,7 +1083,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 
     val canSendFiatHuman: String = WalletApp.currentMsatInFiatHuman(maxSendable)
     val canSendHuman: String =
-      WalletApp.denom.parsedWithSign(maxSendable, cardIn, cardZero)
+      WalletApp.denom.parsedWithSign(maxSendable)
     manager.hintFiatDenom.setText(
       getString(R.string.dialog_up_to).format(canSendFiatHuman).html
     )
@@ -1198,7 +1173,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     val finalMinReceivable: MilliSatoshi =
       initMinReceivable.min(finalMaxReceivable).max(LNParams.minPayment)
     val canReceiveHuman: String =
-      WalletApp.denom.parsedWithSign(finalMaxReceivable, cardIn, cardZero)
+      WalletApp.denom.parsedWithSign(finalMaxReceivable)
     val canReceiveFiatHuman: String =
       WalletApp.currentMsatInFiatHuman(finalMaxReceivable)
 
@@ -1503,11 +1478,7 @@ abstract class ChainWalletCards(host: BaseActivity) { self =>
     def updateView(wallet: ElectrumEclairWallet): Unit = {
       chainBalance.setText(
         WalletApp.denom
-          .parsedWithSign(
-            wallet.info.lastBalance.toMilliSatoshi,
-            cardIn,
-            btcCardZero
-          )
+          .parsedWithSign(wallet.info.lastBalance.toMilliSatoshi)
           .html
       )
       chainBalanceFiat.setText(

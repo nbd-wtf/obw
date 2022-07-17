@@ -19,7 +19,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.Colors._
 import wtf.nbd.obw.HubActivity._
 import wtf.nbd.obw.R
 import wtf.nbd.obw.utils.LocalBackup
@@ -117,9 +116,6 @@ object HubActivity {
   def incoming(amount: MilliSatoshi): String = WalletApp.denom.directedWithSign(
     incoming = amount,
     outgoing = 0L.msat,
-    cardOut,
-    cardIn,
-    cardZero,
     isIncoming = true
   )
   def hasItems: Boolean =
@@ -490,9 +486,7 @@ class HubActivity
         getString(R.string.error_hc_dangerous_state)
           .asColoredView(R.color.ourRed)
       val paymentAmount = WalletApp.denom.parsedWithSign(
-        myFulfills.map(_.theirAdd.amountMsat).sum,
-        cardOut,
-        cardZero
+        myFulfills.map(_.theirAdd.amountMsat).sum
       )
       val closestExpiry = WalletApp.app.plurOrZero(
         myFulfills
@@ -540,9 +534,6 @@ class HubActivity
         val formattedFee = WalletApp.denom.directedWithSign(
           0L.msat,
           response.fee.toMilliSatoshi,
-          cardOut,
-          cardIn,
-          cardZero,
           isIncoming = false
         )
         val msg = getString(R.string.error_hc_revealed_preimage)
@@ -738,17 +729,11 @@ class HubActivity
             val currentAmount = WalletApp.denom.directedWithSign(
               incoming = receivedMsat,
               outgoing = 0L.msat,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = true
             )
             val afterAmount = WalletApp.denom.directedWithSign(
               feeOpt.map(receivedMsat.-).getOrElse(receivedMsat),
               0L.msat,
-              cardOut,
-              cardIn,
-              cardZero,
               isIncoming = true
             )
             updatePopupButton(getPositiveButton(alert), feeOpt.isDefined)
@@ -832,11 +817,8 @@ class HubActivity
       }
 
     def doBoostRBF(fromWallet: ElectrumEclairWallet, info: TxInfo): Unit = {
-      val currentFee = WalletApp.denom.parsedWithSign(
-        info.feeSat.toMilliSatoshi,
-        cardOut,
-        cardIn
-      )
+      val currentFee =
+        WalletApp.denom.parsedWithSign(info.feeSat.toMilliSatoshi)
       val body = getLayoutInflater
         .inflate(R.layout.frag_input_rbf, null)
         .asInstanceOf[ScrollView]
@@ -961,11 +943,8 @@ class HubActivity
       }
 
     def doCancelRBF(fromWallet: ElectrumEclairWallet, info: TxInfo): Unit = {
-      val currentFee = WalletApp.denom.parsedWithSign(
-        info.feeSat.toMilliSatoshi,
-        cardOut,
-        cardIn
-      )
+      val currentFee =
+        WalletApp.denom.parsedWithSign(info.feeSat.toMilliSatoshi)
       val body = getLayoutInflater
         .inflate(R.layout.frag_input_rbf, null)
         .asInstanceOf[ScrollView]
@@ -1127,9 +1106,6 @@ class HubActivity
           val offChainFeePaid = WalletApp.denom.directedWithSign(
             0L.msat,
             liveFeePaid,
-            cardOut,
-            cardIn,
-            cardZero,
             isIncoming = false
           )
           val shouldDisplayFee =
@@ -1177,13 +1153,13 @@ class HubActivity
           addFlowChip(
             extraInfo,
             getString(R.string.popup_fiat)
-              .format(s"<font color=$cardIn>$fiatNow</font>", fiatThen),
+              .format(fiatNow, fiatThen),
             R.drawable.border_basic
           )
           addFlowChip(
             extraInfo,
             getString(R.string.popup_prior_chain_balance) format WalletApp.denom
-              .parsedWithSign(info.balanceSnapshot, cardIn, cardZero),
+              .parsedWithSign(info.balanceSnapshot),
             R.drawable.border_basic
           )
           if (info.isIncoming && info.status == PaymentStatus.PENDING)
@@ -1279,9 +1255,6 @@ class HubActivity
           val fee = WalletApp.denom.directedWithSign(
             0L.msat,
             info.feeSat.toMilliSatoshi,
-            cardOut,
-            cardIn,
-            cardZero,
             isIncoming = false
           )
           val fiatNow = WalletApp.msatInFiatHuman(
@@ -1296,11 +1269,8 @@ class HubActivity
             amount,
             Denomination.formatFiat
           )
-          val balanceSnapshot = WalletApp.denom.parsedWithSign(
-            info.balanceSnapshot,
-            cardIn,
-            cardZero
-          )
+          val balanceSnapshot =
+            WalletApp.denom.parsedWithSign(info.balanceSnapshot)
 
           addFlowChip(
             extraInfo,
@@ -1326,7 +1296,7 @@ class HubActivity
           addFlowChip(
             extraInfo,
             getString(R.string.popup_fiat)
-              .format(s"<font color=$cardIn>$fiatNow</font>", fiatThen),
+              .format(fiatNow, fiatThen),
             R.drawable.border_basic
           )
           if (info.description.cpfpOf.isEmpty && info.description.rbf.isEmpty)
@@ -1370,7 +1340,7 @@ class HubActivity
 
         case info: RelayedPreimageInfo =>
           val relayedHuman =
-            WalletApp.denom.parsedWithSign(info.relayed, cardIn, cardZero)
+            WalletApp.denom.parsedWithSign(info.relayed)
           addFlowChip(
             extraInfo,
             getString(R.string.popup_hash) format info.paymentHashString.short,
@@ -1419,9 +1389,6 @@ class HubActivity
             .directedWithSign(
               info.receivedSat.toMilliSatoshi,
               info.sentSat.toMilliSatoshi,
-              cardOut,
-              cardIn,
-              cardZero,
               info.isIncoming
             )
             .html
@@ -1452,9 +1419,6 @@ class HubActivity
             .directedWithSign(
               info.received,
               info.sent,
-              cardOut,
-              cardIn,
-              cardZero,
               info.isIncoming
             )
             .html
@@ -1842,11 +1806,11 @@ class HubActivity
       )
       totalBalance.setText(
         WalletApp.denom
-          .parsedWithSign(BaseActivity.totalBalance, cardIn, totalZero)
+          .parsedWithSign(BaseActivity.totalBalance)
           .html
       )
       totalLightningBalance.setText(
-        WalletApp.denom.parsedWithSign(lnBalance, lnCardZero, lnCardZero).html
+        WalletApp.denom.parsedWithSign(lnBalance).html
       )
       lnBalanceFiat.setText(WalletApp currentMsatInFiatHuman lnBalance)
       channelIndicator.createIndicators(allChannels.toArray)
@@ -2202,13 +2166,13 @@ class HubActivity
                 addFlowChip(
                   title.flow,
                   getString(R.string.dialog_ln_requested) format WalletApp.denom
-                    .parsedWithSign(origAmount, cardIn, cardZero),
+                    .parsedWithSign(origAmount),
                   R.drawable.border_basic
                 )
                 addFlowChip(
                   title.flow,
                   getString(R.string.dialog_ln_left) format WalletApp.denom
-                    .parsedWithSign(prExt.splitLeftover, cardIn, cardZero),
+                    .parsedWithSign(prExt.splitLeftover),
                   R.drawable.border_basic
                 )
                 mkCheckFormNeutral(
@@ -2244,7 +2208,7 @@ class HubActivity
 
               override val alert: AlertDialog = {
                 val totalHuman =
-                  WalletApp.denom.parsedWithSign(origAmount, cardIn, cardZero)
+                  WalletApp.denom.parsedWithSign(origAmount)
                 val title = new TitleView(
                   getString(R.string.dialog_send_ln) format prExt.brDescription
                 )
@@ -2992,7 +2956,7 @@ class HubActivity
 
     for (address ~ amount <- addressToAmount.values.reverse) {
       val humanAmount =
-        WalletApp.denom.parsedWithSign(amount.toMilliSatoshi, cardIn, cardZero)
+        WalletApp.denom.parsedWithSign(amount.toMilliSatoshi)
       val parent = getLayoutInflater.inflate(R.layout.frag_two_sided_item, null)
       new TwoSidedItem(parent, address.short.html, humanAmount.html)
       sendView.chainEditView.host.addView(parent, 0)
@@ -3157,7 +3121,7 @@ class HubActivity
 
       override def send(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
         val amountHuman = WalletApp.denom
-          .parsedWithSign(manager.resultMsat, cardIn, cardZero)
+          .parsedWithSign(manager.resultMsat)
           .html
         snack(
           contentWindow,
