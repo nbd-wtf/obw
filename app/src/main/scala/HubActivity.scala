@@ -1129,6 +1129,7 @@ class HubActivity
               R.drawable.border_red,
               _ => self warnDangerousHc info
             )
+
           for (txid <- info.description.proofTxid)
             addFlowChip(
               extraInfo,
@@ -1140,13 +1141,14 @@ class HubActivity
                   info
                 ) + "\n\n====\n\n" + txid
             )
+
           if (shouldShowPayee)
             addFlowChip(
               extraInfo,
               getString(
                 R.string.popup_ln_payee
               ) format info.prExt.pr.nodeId.toString.short,
-              R.drawable.border_basic,
+              R.drawable.border_white,
               info.prExt.pr.nodeId.toString.asSome
             )
 
@@ -1154,13 +1156,13 @@ class HubActivity
             extraInfo,
             getString(R.string.popup_fiat)
               .format(fiatNow, fiatThen),
-            R.drawable.border_basic
+            R.drawable.border_white
           )
           addFlowChip(
             extraInfo,
             getString(R.string.popup_prior_chain_balance) format WalletApp.denom
               .parsedWithSign(info.balanceSnapshot),
-            R.drawable.border_basic
+            R.drawable.border_white
           )
           if (info.isIncoming && info.status == PaymentStatus.PENDING)
             addFlowChip(
@@ -1177,7 +1179,7 @@ class HubActivity
                   offChainFeePaid,
                   s"${ratio(amount, liveFeePaid)}$PERCENT"
                 ),
-              R.drawable.border_basic
+              R.drawable.border_white
             )
           if (shouldRetry)
             addFlowChip(
@@ -1228,7 +1230,7 @@ class HubActivity
               addFlowChip(
                 extraInfo,
                 WalletApp.app.plurOrZero(left, expiresInBlocks),
-                R.drawable.border_basic
+                R.drawable.border_white
               )
             case Some(left) if left <= 0 =>
               addFlowChip(
@@ -1289,7 +1291,7 @@ class HubActivity
             addFlowChip(
               extraInfo,
               getString(R.string.popup_ln_node) format nodeId.toString.short,
-              R.drawable.border_basic,
+              R.drawable.border_white,
               nodeId.toString.asSome
             )
 
@@ -1297,7 +1299,7 @@ class HubActivity
             extraInfo,
             getString(R.string.popup_fiat)
               .format(fiatNow, fiatThen),
-            R.drawable.border_basic
+            R.drawable.border_white
           )
           if (info.description.cpfpOf.isEmpty && info.description.rbf.isEmpty)
             addFlowChip(
@@ -1305,7 +1307,7 @@ class HubActivity
               getString(
                 R.string.popup_prior_chain_balance
               ) format balanceSnapshot,
-              R.drawable.border_basic
+              R.drawable.border_white
             )
           if (
             !info.isIncoming || isRbfCancel || info.description.cpfpOf.isDefined
@@ -1313,7 +1315,7 @@ class HubActivity
             addFlowChip(
               extraInfo,
               getString(R.string.popup_chain_fee) format fee,
-              R.drawable.border_basic
+              R.drawable.border_white
             )
 
           if (isFromSigningWallet && canCPFP)
@@ -1349,7 +1351,7 @@ class HubActivity
           addFlowChip(
             extraInfo,
             getString(R.string.stats_item_relayed) format relayedHuman,
-            R.drawable.border_basic
+            R.drawable.border_white
           )
 
         case _ =>
@@ -2167,13 +2169,13 @@ class HubActivity
                   title.flow,
                   getString(R.string.dialog_ln_requested) format WalletApp.denom
                     .parsedWithSign(origAmount),
-                  R.drawable.border_basic
+                  R.drawable.border_white
                 )
                 addFlowChip(
                   title.flow,
                   getString(R.string.dialog_ln_left) format WalletApp.denom
                     .parsedWithSign(prExt.splitLeftover),
-                  R.drawable.border_basic
+                  R.drawable.border_white
                 )
                 mkCheckFormNeutral(
                   send,
@@ -2232,12 +2234,12 @@ class HubActivity
                       title.flow,
                       getString(R.string.dialog_ln_requested)
                         .format(totalHuman),
-                      R.drawable.border_basic
+                      R.drawable.border_white
                     )
                     addFlowChip(
                       title.flow,
                       getString(R.string.dialog_ln_expected_fee).format(value),
-                      R.drawable.border_basic
+                      R.drawable.border_white
                     )
                   }
                 }
