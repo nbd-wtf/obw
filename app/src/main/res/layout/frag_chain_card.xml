@@ -42,7 +42,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/chainWrap"
             style="@style/Card"
-            card_view:strokeWidth="1dp"
+            card_view:strokeWidth="2dp"
             card_view:strokeColor="@color/ourPurple"
             card_view:cardCornerRadius="@dimen/corner_radius">
 

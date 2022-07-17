@@ -176,10 +176,14 @@
     </style>
 
     <!-- dialogs -->
-    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+    <style name="DialogTheme" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:background">@color/veryBlack</item>
         <item name="android:textColor">@color/darkerWhite</item>
         <item name="android:textColorPrimary">@color/darkerWhite</item>
         <item name="android:colorAccent">@color/veryWhite</item>
+    </style>
+
+    <style name="BottomSheetTheme" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>

@@ -127,33 +127,27 @@ class SettingsActivity
       BIP49 -> ("JoinMarket, Eclair Mobile, Pine...", "m/49'/0'/0'/0/n"),
       BIP84 -> (getString(R.string.settings_chain_modern), "m/84'/0'/0'/0/n")
     )
-
     val possibleKeys: List[String] = wallets.keys.toList
-    val hardcodedPosition: Int = possibleKeys.indexOf(BIP84)
 
     view setOnClickListener onButtonTap {
       val options =
-        for (Tuple2(tag, info ~ path) <- wallets)
+        for ((tag, info ~ path) <- wallets)
           yield s"<b>$tag</b> <i>$path</i><br>$info".html
       val adapter = new ArrayAdapter(
         me,
-        android.R.layout.select_dialog_multichoice,
+        R.layout.frag_bottomsheet_multichoice,
         options.toArray
       ) {
         override def isEnabled(itemPosition: Int): Boolean =
-          itemPosition != hardcodedPosition
+          itemPosition != possibleKeys.indexOf(BIP84)
 
         override def getView(
             itemPosition: Int,
             itemConvertedView: View,
             itemParentGroup: ViewGroup
         ): View = {
-          val bgColor =
-            if (itemPosition == hardcodedPosition) R.color.veryBlack
-            else android.R.color.transparent
           val finalView =
             super.getView(itemPosition, itemConvertedView, itemParentGroup)
-          finalView.setBackgroundResource(bgColor)
           finalView
         }
       }
@@ -328,7 +322,7 @@ class SettingsActivity
       }
       val list = me selectorList new ArrayAdapter(
         me,
-        android.R.layout.simple_expandable_list_item_1,
+        R.layout.frag_bottomsheet_item,
         options.toArray
       )
       new sheets.ChoiceBottomSheet(list, CHOICE_FIAT_DENOMINATION_TAG, me)
@@ -348,7 +342,7 @@ class SettingsActivity
             .html
       val list = me selectorList new ArrayAdapter(
         me,
-        android.R.layout.simple_expandable_list_item_1,
+        R.layout.frag_bottomsheet_item,
         options.toArray
       )
       new sheets.ChoiceBottomSheet(list, CHOICE_BTC_DENOMINATON_TAG, me)

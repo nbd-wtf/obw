@@ -62,6 +62,11 @@ trait HasUrDecoder extends HasBarcodeReader {
 abstract class ScannerBottomSheet(host: BaseActivity)
     extends BottomSheetDialogFragment
     with HasBarcodeReader {
+  override def onCreate(savedInstanceState: Bundle): Unit = {
+    super.onCreate(savedInstanceState);
+    setStyle(0, R.style.BottomSheetTheme);
+  }
+
   def resumeBarcodeReader(): Unit =
     runAnd(barcodeReader decodeContinuous this)(barcodeReader.resume)
   def pauseBarcodeReader(): Unit =

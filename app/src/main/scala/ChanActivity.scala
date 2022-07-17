@@ -814,7 +814,7 @@ class ChanActivity
   ): View.OnClickListener = onButtonTap {
     val list = me selectorList new ArrayAdapter(
       me,
-      android.R.layout.simple_expandable_list_item_1,
+      R.layout.frag_bottomsheet_item,
       options
     )
     new sheets.ChoiceBottomSheet(list, cs, me)
