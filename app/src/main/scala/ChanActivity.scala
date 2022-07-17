@@ -591,12 +591,12 @@ class ChanActivity
     updateChanData.run
   }
 
-  def scanNodeQr(): Unit = {
-    def resolveNodeQr(): Unit = InputParser.checkAndMaybeErase {
-      case _: RemoteNodeInfo => me exitTo ClassNames.remotePeerActivityClass
-      case _                 => nothingUsefulTask.run
-    }
+  def resolveNodeQr(): Unit = InputParser.checkAndMaybeErase {
+    case _: RemoteNodeInfo => me exitTo ClassNames.remotePeerActivityClass
+    case _                 => nothingUsefulTask.run
+  }
 
+  def scanNodeQr(): Unit = {
     def onData: Runnable = UITask(resolveNodeQr())
     val sheet =
       new sheets.OnceBottomSheet(
@@ -605,6 +605,35 @@ class ChanActivity
         onData
       )
     callScanner(sheet)
+  }
+
+  def pasteNodeQr(): Unit = {
+    val (container, extraInputLayout, extraInput) = singleInputPopup
+
+    def proceed(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
+      runInFutureProcessOnUI(
+        InputParser.recordValue(extraInput.getText.toString),
+        onFail
+      ) { _ => UITask(resolveNodeQr()).run() }
+    }
+
+    val builder = titleBodyAsViewBuilder(title = null, body = container)
+    def switchToScanner(alert: AlertDialog): Unit =
+      runAnd(alert.dismiss)(me.scanNodeQr())
+
+    mkCheckFormNeutral(
+      proceed,
+      none,
+      switchToScanner,
+      builder,
+      R.string.dialog_ok,
+      R.string.dialog_cancel,
+      R.string.dialog_scan
+    )
+    extraInputLayout.setHint(
+      getString(R.string.chan_open_paste) ++ " (nodeid@host:port)"
+    )
+    showKeys(extraInput)
   }
 
   override def PROCEED(state: Bundle): Unit = {
@@ -629,71 +658,98 @@ class ChanActivity
         _ => scanNodeQr()
       )
 
+      addFlowChip(
+        scanFooter.flow,
+        getString(R.string.chan_open_paste),
+        R.drawable.border_basic,
+        _ => pasteNodeQr()
+      )
+
       if (LNParams.isMainnet) {
         addFlowChip(
           lspFooter.flow,
           "LNBIG.com",
-          R.drawable.border_purple,
+          R.drawable.border_basic,
           _ => me browse "https://lnbig.com/#/open-channel"
         )
         addFlowChip(
           lspFooter.flow,
           "Zero Fee Routing",
-          R.drawable.border_purple,
+          R.drawable.border_basic,
           _ => me browse "https://zerofeerouting.com/mobile-wallets/"
         )
         addFlowChip(
           lspFooter.flow,
           "BlockTank",
-          R.drawable.border_purple,
+          R.drawable.border_basic,
           _ => me browse "https://synonym.to/blocktank/"
         )
         addFlowChip(
           lspFooter.flow,
           "Bitrefill",
-          R.drawable.border_purple,
+          R.drawable.border_basic,
           _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
         )
 
         addFlowChip(
           hcpFooter.flow,
           "Motherbase",
-          R.drawable.border_purple,
-          _ => requestHostedChannel(LNParams.syncParams.motherbase)
+          R.drawable.border_basic,
+          _ =>
+            goToWithValue(
+              ClassNames.remotePeerActivityClass,
+              LNParams.syncParams.motherbase
+            )
         )
 
         addFlowChip(
           hcpFooter.flow,
           "ergvein.net",
-          R.drawable.border_purple,
-          _ => requestHostedChannel(LNParams.syncParams.ergveinNet)
+          R.drawable.border_basic,
+          _ =>
+            goToWithValue(
+              ClassNames.remotePeerActivityClass,
+              LNParams.syncParams.ergveinNet
+            )
         )
 
         addFlowChip(
           hcpFooter.flow,
           "SATM",
-          R.drawable.border_purple,
-          _ => requestHostedChannel(LNParams.syncParams.satm)
+          R.drawable.border_basic,
+          _ =>
+            goToWithValue(
+              ClassNames.remotePeerActivityClass,
+              LNParams.syncParams.satm
+            )
         )
 
         addFlowChip(
           hcpFooter.flow,
           "Jaspion",
-          R.drawable.border_purple,
-          _ => requestHostedChannel(LNParams.syncParams.jaspion)
+          R.drawable.border_basic,
+          _ =>
+            goToWithValue(
+              ClassNames.remotePeerActivityClass,
+              LNParams.syncParams.jaspion
+            )
         )
 
         addFlowChip(
           hcpFooter.flow,
           "Jiraiya",
-          R.drawable.border_purple,
-          _ => requestHostedChannel(LNParams.syncParams.jiraiya)
+          R.drawable.border_basic,
+          _ =>
+            goToWithValue(
+              ClassNames.remotePeerActivityClass,
+              LNParams.syncParams.jiraiya
+            )
         )
       }
 
       getChanList.addFooterView(scanFooter.view)
       getChanList.addFooterView(lspFooter.view)
-      // getChanList.addFooterView(hcpFooter.view)
+      getChanList.addFooterView(hcpFooter.view)
       getChanList.setAdapter(chanAdapter)
       getChanList.setDividerHeight(0)
       getChanList.setDivider(null)
@@ -715,11 +771,6 @@ class ChanActivity
       WalletApp.freePossiblyUsedRuntimeResouces()
       me exitTo ClassNames.mainActivityClass
     }
-  }
-
-  private def requestHostedChannel(from: RemoteNodeInfo): Unit = {
-    HubActivity.requestHostedChannel(from)
-    finish
   }
 
   private def getBrandingInfos = for {

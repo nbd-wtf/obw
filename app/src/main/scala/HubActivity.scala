@@ -376,7 +376,7 @@ class HubActivity
       goToWithValue(ClassNames.qrInvoiceActivityClass, info.prExt)
     def doCallPayLink(info: LNUrlPayLink): Unit = runAnd(InputParser.value =
       info.payLink.get
-    )(me checkExternalData noneRunnable)
+    )(me.checkExternalData(noneRunnable))
 
     def doSetItemLabel(): Unit = {
       val (container, extraInputLayout, extraInput) = singleInputPopup
@@ -1986,7 +1986,7 @@ class HubActivity
   def readNdefMessage(nfcMessage: Message): Unit = runInFutureProcessOnUI(
     InputParser recordValue ndefMessageString(nfcMessage),
     _ => readEmptyNdefMessage
-  )(_ => me checkExternalData noneRunnable)
+  )(_ => me.checkExternalData(noneRunnable))
 
   // Chan exceptions
   override def onException: PartialFunction[Malfunction, Unit] = {
@@ -2633,7 +2633,7 @@ class HubActivity
         ) { _ =>
           def attemptProcessInput(): Unit =
             runAnd(doBringSendInputWithOptionalScan())(nothingUsefulTask.run)
-          me checkExternalData UITask(attemptProcessInput())
+          me.checkExternalData(UITask(attemptProcessInput()))
         }
       }
     }
@@ -2642,7 +2642,7 @@ class HubActivity
   }
 
   def bringScanner(view: View): Unit = {
-    val onScan = UITask(me checkExternalData nothingUsefulTask)
+    val onScan = UITask(me.checkExternalData(nothingUsefulTask))
     val sheet =
       new sheets.OnceBottomSheet(
         me,
