@@ -125,6 +125,7 @@ class RemotePeerActivity
     ): Unit = UITask {
       val theirInitSupports: Feature with InitFeature => Boolean =
         LNParams.isPeerSupports(theirInit)
+
       criticalSupportAvailable = criticalFeatures.forall(theirInitSupports)
 
       featureTextViewMap foreach {
@@ -442,6 +443,7 @@ class RemotePeerActivity
     val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
       .setTitle(R.string.rpa_request_hc)
       .setMessage(getString(R.string.rpa_hc_warn).html)
+
     mkCheckForm(
       doAskHostedChannel,
       none,
