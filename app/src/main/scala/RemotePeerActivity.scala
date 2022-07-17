@@ -153,7 +153,10 @@ class RemotePeerActivity
       }
 
       setVis(isVisible = !criticalSupportAvailable, viewNoFeatureSupport)
-      setVis(isVisible = theirInitSupports(HostedChannels), optionHostedChannel)
+      setVis(
+        isVisible = theirInitSupports(HostedChannels),
+        optionHostedChannel
+      )
       setVis(isVisible = true, featuresList)
     }.run
   }
