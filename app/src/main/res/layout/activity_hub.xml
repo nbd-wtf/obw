@@ -28,6 +28,8 @@
         android:focusable="true"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
         android:layout_alignParentBottom="true"
         android:id="@+id/bottomActionBar"
         android:orientation="horizontal"
@@ -37,8 +39,7 @@
         <com.ornach.nobobutton.NoboButton
             app:nb_text="@string/dialog_send"
             android:onClick="bringSendOptions"
-            android:layout_width="110dp"
-            android:layout_margin="10dp"
+            android:layout_width="106dp"
             android:layout_height="46dp"
             style="@style/PurpleButton"/>
 
@@ -46,13 +47,15 @@
             app:nb_drawableResource="@drawable/outline_qr_code_scanner_32_24"
             android:onClick="bringScanner"
             android:layout_height="46dp"
+            android:layout_width="62dp"
+            android:layout_marginLeft="23dp"
+            android:layout_marginRight="23dp"
             style="@style/PurpleButton"/>
 
         <com.ornach.nobobutton.NoboButton
             app:nb_text="@string/dialog_receive"
             android:onClick="bringReceivePopup"
-            android:layout_width="110dp"
-            android:layout_margin="10dp"
+            android:layout_width="106dp"
             android:layout_height="46dp"
             style="@style/PurpleButton"/>
 
