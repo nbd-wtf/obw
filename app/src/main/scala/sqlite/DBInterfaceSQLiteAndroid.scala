@@ -11,8 +11,12 @@ trait DBInterfaceSQLiteAndroid extends DBInterface {
     prepared.bound(params).executeUpdate()
 
   def select(sql: String, params: Array[String]): RichCursor = {
-    val cursor = base.rawQuery(sql, params)
-    RichCursorSQLiteAndroid(cursor)
+    try {
+      RichCursorSQLiteAndroid(base.rawQuery(sql, params))
+    } catch {
+      case _: java.lang.ClassNotFoundException =>
+        RichCursorSQLiteAndroid(base.rawQuery(sql, params))
+    }
   }
 
   def makePreparedQuery(sql: String): PreparedQuery =
