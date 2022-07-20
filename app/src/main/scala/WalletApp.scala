@@ -3,7 +3,11 @@ package wtf.nbd.obw
 import java.net.InetSocketAddress
 import java.text.{DecimalFormat, SimpleDateFormat}
 import java.util.Date
-
+import scala.jdk.CollectionConverters._
+import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import scala.util.Try
 import android.app.{Application, NotificationChannel, NotificationManager}
 import android.content._
 import android.text.format.DateFormat
@@ -53,16 +57,15 @@ import rx.lang.scala.Observable
 import scodec.bits.BitVector
 import castor.Context.Simple.global
 
-import scala.jdk.CollectionConverters._
-import scala.collection.mutable
-import scala.concurrent.duration._
-import scala.util.Try
-
 object WalletApp {
   var chainWalletBag: SQLiteChainWallet = _
   var extDataBag: SQLiteDataExtended = _
   var lnUrlPayBag: SQLiteLNUrlPay = _
   var txDataBag: SQLiteTx = _
+  var payBag: SQLitePayment = _
+  var chanBag: SQLiteChannel = _
+  var hostedBag: SQLiteNetwork = _
+  var normalBag: SQLiteNetwork = _
   var app: WalletApp = _
 
   val txDescriptions = mutable.Map.empty[ByteVector32, TxDescription]
@@ -149,64 +152,43 @@ object WalletApp {
   }
 
   def makeAlive(): Unit = {
-    // Make application minimally operational (so we can check for seed in db)
     val miscInterface = new DBInterfaceSQLiteAndroidMisc(app, dbFileNameMisc)
+    val essentialInterface =
+      new DBInterfaceSQLiteAndroidEssential(app, dbFileNameEssential)
+    val graphInterface = new DBInterfaceSQLiteAndroidGraph(app, dbFileNameGraph)
 
     miscInterface txWrap {
       txDataBag = new SQLiteTx(miscInterface)
       lnUrlPayBag = new SQLiteLNUrlPay(miscInterface)
       chainWalletBag = new SQLiteChainWallet(miscInterface)
       extDataBag = new SQLiteDataExtended(miscInterface)
-    }
-
-    // In case these are needed early
-    LNParams.logBag = new SQLiteLog(miscInterface)
-    LNParams.chainHash = Block.LivenetGenesisBlock.hash
-    LNParams.routerConf =
-      RouterConf(initRouteMaxLength = 10, LNParams.maxCltvExpiryDelta)
-    LNParams.connectionProvider =
-      if (ensureTor) new TorConnectionProvider(app)
-      else new OkHttpConnectionProvider
-    LNParams.ourInit = LNParams.createInit
-    LNParams.syncParams = new SyncParams
-  }
-
-  def makeOperational(mnemonics: List[String]): Unit = {
-    require(
-      isAlive,
-      "Application is not alive, hence can not become operational"
-    )
-    val essentialInterface =
-      new DBInterfaceSQLiteAndroidEssential(app, dbFileNameEssential)
-    val graphInterface = new DBInterfaceSQLiteAndroidGraph(app, dbFileNameGraph)
-    LNParams.secret = WalletSecret(mnemonics)
-
-    val normalBag = new SQLiteNetwork(
-      graphInterface,
-      NormalChannelUpdateTable,
-      NormalChannelAnnouncementTable,
-      NormalExcludedChannelTable
-    )
-    val hostedBag = new SQLiteNetwork(
-      graphInterface,
-      HostedChannelUpdateTable,
-      HostedChannelAnnouncementTable,
-      HostedExcludedChannelTable
-    )
-    val payBag =
-      new SQLitePayment(extDataBag.db, preimageDb = essentialInterface)
-
-    val chanBag =
-      new SQLiteChannel(essentialInterface, channelTxFeesDb = extDataBag.db) {
-        override def put(data: PersistentChannelData): PersistentChannelData = {
-          backupSaveWorker.replaceWork(true)
-          super.put(data)
+      normalBag = new SQLiteNetwork(
+        graphInterface,
+        NormalChannelUpdateTable,
+        NormalChannelAnnouncementTable,
+        NormalExcludedChannelTable
+      )
+      hostedBag = new SQLiteNetwork(
+        graphInterface,
+        HostedChannelUpdateTable,
+        HostedChannelAnnouncementTable,
+        HostedExcludedChannelTable
+      )
+      chanBag =
+        new SQLiteChannel(essentialInterface, channelTxFeesDb = extDataBag.db) {
+          override def put(
+              data: PersistentChannelData
+          ): PersistentChannelData = {
+            backupSaveWorker.replaceWork(true)
+            super.put(data)
+          }
         }
-      }
+    }
 
     extDataBag.db txWrap {
       LNParams.feeRates = new FeeRates(extDataBag)
       LNParams.fiatRates = new FiatRates(extDataBag)
+      payBag = new SQLitePayment(extDataBag.db, preimageDb = essentialInterface)
     }
 
     val pf = new PathFinder(normalBag, hostedBag) {
@@ -227,6 +209,24 @@ object WalletApp {
     }
 
     LNParams.cm = new ChannelMaster(payBag, chanBag, extDataBag, pf)
+
+    LNParams.logBag = new SQLiteLog(miscInterface)
+    LNParams.chainHash = Block.LivenetGenesisBlock.hash
+    LNParams.routerConf =
+      RouterConf(initRouteMaxLength = 10, LNParams.maxCltvExpiryDelta)
+    LNParams.connectionProvider =
+      if (ensureTor) new TorConnectionProvider(app)
+      else new OkHttpConnectionProvider
+    LNParams.ourInit = LNParams.createInit
+    LNParams.syncParams = new SyncParams
+  }
+
+  def makeOperational(mnemonics: List[String]): Unit = {
+    require(
+      isAlive,
+      "Application is not alive, hence can not become operational"
+    )
+    LNParams.secret = WalletSecret(mnemonics)
 
     val params = WalletParameters(
       extDataBag,
@@ -423,7 +423,7 @@ object WalletApp {
       }
     })
 
-    pf.listeners += LNParams.cm.opm
+    LNParams.cm.pf.listeners += LNParams.cm.opm
     // Get channels and still active FSMs up and running
     LNParams.cm.all = Channel.load(Set(LNParams.cm), chanBag)
     // This inital notification will create all in/routed/out FSMs
@@ -443,9 +443,13 @@ object WalletApp {
       }
 
     LNParams.connectionProvider doWhenReady {
-      pool.initConnect()
+      Future {
+        pool.initConnect()
+      }
+
       // Only schedule periodic resync if Lightning channels are being present
-      if (LNParams.cm.all.nonEmpty) pf process PathFinder.CMDStartPeriodicResync
+      if (LNParams.cm.all.nonEmpty)
+        Future { LNParams.cm.pf.startPeriodicResync() }
 
       val feeratePeriodHours = 6
       val rateRetry = Rx.retry(
@@ -598,36 +602,39 @@ class WalletApp extends Application { me =>
     MultiDex.install(me)
   }
 
-  override def onCreate(): Unit = runAnd(super.onCreate()) {
-    // Currently night theme is the only option, should be set by default
-    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+  override def onCreate(): Unit = {
+    runAnd(super.onCreate()) {
+      // Currently night theme is the only option, should be set by default
+      AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
-    val manager = this getSystemService classOf[NotificationManager]
-    val chan1 = new NotificationChannel(
-      AwaitService.CHANNEL_ID,
-      "Foreground notifications",
-      NotificationManager.IMPORTANCE_LOW
-    )
-    val chan2 = new NotificationChannel(
-      DelayedNotification.CHANNEL_ID,
-      "Scheduled notifications",
-      NotificationManager.IMPORTANCE_LOW
-    )
-    manager.createNotificationChannel(chan1)
-    manager.createNotificationChannel(chan2)
+      val manager = this getSystemService classOf[NotificationManager]
+      val chan1 = new NotificationChannel(
+        AwaitService.CHANNEL_ID,
+        "Foreground notifications",
+        NotificationManager.IMPORTANCE_LOW
+      )
+      val chan2 = new NotificationChannel(
+        DelayedNotification.CHANNEL_ID,
+        "Scheduled notifications",
+        NotificationManager.IMPORTANCE_LOW
+      )
+      manager.createNotificationChannel(chan1)
+      manager.createNotificationChannel(chan2)
 
-    ChannelMaster.inFinalized.foreach { _ =>
-      // Delayed notification is removed when payment gets either failed or fulfilled
-      if (LNParams.cm.inProcessors.isEmpty) stopService(foregroundServiceIntent)
-    }
+      ChannelMaster.inFinalized.foreach { _ =>
+        // Delayed notification is removed when payment gets either failed or fulfilled
+        if (LNParams.cm.inProcessors.isEmpty)
+          stopService(foregroundServiceIntent)
+      }
 
-    Rx.uniqueFirstAndLastWithinWindow(
-      ChannelMaster.stateUpdateStream,
-      500.millis
-    ).foreach { _ =>
-      // This might be the last channel state update which clears all in-flight HTLCs
-      DelayedNotification.cancel(me, DelayedNotification.IN_FLIGHT_HTLC_TAG)
-      if (LNParams.cm.channelsContainHtlc) WalletApp.reScheduleInFlight()
+      Rx.uniqueFirstAndLastWithinWindow(
+        ChannelMaster.stateUpdateStream,
+        500.millis
+      ).foreach { _ =>
+        // This might be the last channel state update which clears all in-flight HTLCs
+        DelayedNotification.cancel(me, DelayedNotification.IN_FLIGHT_HTLC_TAG)
+        if (LNParams.cm.channelsContainHtlc) WalletApp.reScheduleInFlight()
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 package wtf.nbd.obw
 
+import scala.util.{Failure, Success}
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -17,8 +18,6 @@ import immortan.crypto.Tools.{SEPARATOR, none}
 import immortan.wire.ExtCodecs.compressedByteVecCodec
 import immortan.LNParams
 import scodec.bits.{BitVector, ByteVector}
-
-import scala.util.{Failure, Success}
 
 object SetupActivity {
   def fromMnemonics(mnemonics: List[String], host: BaseActivity): Unit = {

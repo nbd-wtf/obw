@@ -93,7 +93,7 @@ trait BaseActivity extends AppCompatActivity { me =>
   val timer: java.util.Timer = new java.util.Timer
 
   val goTo: Class[_] => Any = target => {
-    this startActivity new Intent(me, target)
+    startActivity(new Intent(this, target))
     InputParser.DoNotEraseRecordedValue
   }
 
@@ -104,7 +104,7 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   val exitTo: Class[_] => Any = target => {
-    this startActivity new Intent(me, target)
+    startActivity(new Intent(this, target))
     runAnd(InputParser.DoNotEraseRecordedValue)(finish)
   }
 
@@ -122,7 +122,6 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Helpers
-
   def bringChainWalletChooser(
       title: TitleView
   )(onWalletSelected: ElectrumEclairWallet => Unit): Unit = {
@@ -192,13 +191,13 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def browse(maybeUri: String): Unit =
     try
-      me startActivity new Intent(Intent.ACTION_VIEW, Uri parse maybeUri)
-    catch { case exception: Throwable => me onFail exception }
+      startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(maybeUri)))
+    catch { case exception: Throwable => onFail(exception) }
 
   def bringRateDialog(view: View): Unit = {
     val marketUri = Uri.parse(s"market://details?id=$getPackageName")
     WalletApp.app.prefs.edit.putBoolean(WalletApp.SHOW_RATE_US, false).commit
-    me startActivity new Intent(Intent.ACTION_VIEW, marketUri)
+    startActivity(new Intent(Intent.ACTION_VIEW, marketUri))
     if (null != view) view.setVisibility(View.GONE)
   }
 
@@ -209,7 +208,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def viewRecoveryCode(): Unit = {
     val content = new TitleView(
-      me getString R.string.settings_view_revocery_phrase_ext
+      getString(R.string.settings_view_revocery_phrase_ext)
     )
     getWindow.setFlags(
       WindowManager.LayoutParams.FLAG_SECURE,
@@ -231,7 +230,6 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Snackbar
-
   def snack(parent: View, msg: CharSequence, res: Int): Try[Snackbar] = Try {
     val snack: Snackbar =
       Snackbar.make(parent, msg, BaseTransientBottomBar.LENGTH_INDEFINITE)
@@ -254,7 +252,6 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Listener helpers
-
   def onButtonTap(fun: => Unit): OnClickListener = new OnClickListener {
     def onClick(view: View): Unit = fun
   }
@@ -293,7 +290,7 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def UITask(fun: => Any): java.util.TimerTask = {
     val runnableExec = new Runnable { override def run(): Unit = fun }
-    new java.util.TimerTask { def run(): Unit = me runOnUiThread runnableExec }
+    new java.util.TimerTask { def run(): Unit = runOnUiThread(runnableExec) }
   }
 
   def selectorList(listAdapter: ListAdapter): ListView = {
@@ -305,7 +302,6 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   // Builders
-
   def clickableTextField(view: View): TextView = {
     val field: TextView = view.asInstanceOf[TextView]
     field setMovementMethod LinkMovementMethod.getInstance
@@ -1246,12 +1242,12 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 }
 
-trait BaseCheckActivity extends BaseActivity { me =>
+trait BaseCheckActivity extends BaseActivity {
   def PROCEED(state: Bundle): Unit
 
   override def onResume(): Unit = runAnd(super.onResume) {
-    if (AppLock.isUnlockRequired(me) && WalletApp.useAuth) {
-      val intent: Intent = new Intent(me, ClassNames.unlockActivityClass)
+    if (AppLock.isUnlockRequired(this) && WalletApp.useAuth) {
+      val intent: Intent = new Intent(this, ClassNames.unlockActivityClass)
       startActivityForResult(intent, AppLock.REQUEST_CODE_UNLOCK)
     }
   }
@@ -1262,7 +1258,7 @@ trait BaseCheckActivity extends BaseActivity { me =>
       // The way Android works is we can get some objects nullified when restoring from background
       // when that happens we make sure to free all remaining resources and start from scratch
       WalletApp.freePossiblyUsedRuntimeResouces()
-      me exitTo ClassNames.mainActivityClass
+      exitTo(ClassNames.mainActivityClass)
     }
   }
 }
@@ -1367,14 +1363,17 @@ trait QRActivity extends BaseCheckActivity { me =>
 
     val savedFile = new File(paymentRequestFilePath, "qr.png")
     val fileURI =
-      FileProvider.getUriForFile(me, "wtf.nbd.obw", savedFile)
+      FileProvider.getUriForFile(this, "wtf.nbd.obw", savedFile)
     val share =
-      new Intent setAction Intent.ACTION_SEND setType "text/plain" addFlags Intent.FLAG_GRANT_READ_URI_PERMISSION
+      (new Intent)
+        .setAction(Intent.ACTION_SEND)
+        .setType("text/plain")
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     share
       .putExtra(Intent.EXTRA_TEXT, bech32)
       .putExtra(Intent.EXTRA_STREAM, fileURI)
       .setDataAndType(fileURI, getContentResolver getType fileURI)
-    me startActivity Intent.createChooser(share, "Choose an app")
+    startActivity(Intent.createChooser(share, "Choose an app"))
   }
 
   class QRViewHolder(itemView: View) extends RecyclerView.ViewHolder(itemView) {

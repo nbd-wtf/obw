@@ -3,12 +3,13 @@ package wtf.nbd.obw
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.app.NotificationManagerCompat
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 import com.guardanis.applock.activities.{LockCreationActivity, UnlockActivity}
 import immortan.LNParams
 import immortan.crypto.Tools.runAnd
 import immortan.utils.InputParser
-
-import scala.util.{Failure, Success}
+import io.netty.util.internal.logging.{InternalLoggerFactory, JdkLoggerFactory}
 
 object ClassNames {
   val lockCreationClass: Class[LockCreationActivity] =
@@ -31,7 +32,9 @@ object ClassNames {
   val hubActivityClass: Class[HubActivity] = classOf[HubActivity]
 }
 
-class MainActivity extends BaseActivity { me =>
+class MainActivity extends BaseActivity {
+  InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE)
+
   override def onResume(): Unit = runAnd(super.onResume) {
     val processIntent =
       (getIntent.getFlags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
@@ -47,20 +50,19 @@ class MainActivity extends BaseActivity { me =>
 
   override def START(state: Bundle): Unit = {
     setContentView(R.layout.frag_linear_layout)
-    NotificationManagerCompat.from(me).cancelAll
+    NotificationManagerCompat.from(this).cancelAll
   }
 
   def proceed(empty: Any): Unit = WalletApp.isAlive match {
-    case false => runAnd(WalletApp.makeAlive())(me proceed null)
-
+    case false =>
+      runAnd(WalletApp.makeAlive())(proceed(null))
     case true if LNParams.isOperational =>
-      me exitTo ClassNames.hubActivityClass
-
+      exitTo(ClassNames.hubActivityClass)
     case true =>
       WalletApp.extDataBag.tryGetMnemonics match {
         case Failure(_: android.database.CursorIndexOutOfBoundsException) =>
           // Record is not present at all, this is probaby a fresh wallet
-          me exitTo classOf[SetupActivity]
+          exitTo(classOf[SetupActivity])
 
         case Failure(reason) =>
           // Notify user about it
@@ -68,7 +70,7 @@ class MainActivity extends BaseActivity { me =>
 
         case Success(mnemonics) =>
           WalletApp.makeOperational(mnemonics)
-          me exitTo ClassNames.hubActivityClass
+          exitTo(ClassNames.hubActivityClass)
       }
   }
 }
