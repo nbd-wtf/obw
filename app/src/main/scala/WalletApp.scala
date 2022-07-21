@@ -15,6 +15,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.{EditText, Toast}
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
+import androidx.security.crypto.{EncryptedSharedPreferences, MasterKeys}
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.R
 import wtf.nbd.obw.sqlite._
@@ -114,6 +115,26 @@ object WalletApp {
   def putCheckedButtons(buttons: Set[String] = Set.empty): Unit =
     app.prefs.edit.putStringSet(CHECKED_BUTTONS, buttons.asJava).commit
 
+  def secureStorage(context: Context) = EncryptedSharedPreferences.create(
+    "wallet-seed",
+    MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+    context,
+    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+  )
+
+  def putMnemonics(context: Context, mnemonics: List[String]): Unit = {
+    secureStorage(context)
+      .edit()
+      .putString("mnemonics", mnemonics.mkString(" "))
+      .commit()
+  }
+
+  def getMnemonics(context: Context): Option[List[String]] = {
+    val value = secureStorage(context).getString("mnemonics", "")
+    if (value == "") None else Some(value.split(" ").toList)
+  }
+
   def denom: Denomination = {
     val denom = app.prefs.getString(BTC_DENOM, SatDenomination.sign)
     if (denom == SatDenomination.sign) SatDenomination else BtcDenomination
@@ -123,9 +144,6 @@ object WalletApp {
     val rawAddress = app.prefs.getString(CUSTOM_ELECTRUM_ADDRESS, new String)
     nodeaddress.decode(BitVector fromValidHex rawAddress).require.value
   }
-
-  def isAlive: Boolean =
-    null != txDataBag && null != lnUrlPayBag && null != chainWalletBag && null != extDataBag && null != app
 
   def freePossiblyUsedRuntimeResouces(): Unit = {
     // Drop whatever network connections we still have
@@ -151,7 +169,9 @@ object WalletApp {
     System.exit(0)
   }
 
-  def makeAlive(): Unit = {
+  def makeOperational(mnemonics: List[String]): Unit = {
+    LNParams.secret = WalletSecret(mnemonics)
+
     val miscInterface = new DBInterfaceSQLiteAndroidMisc(app, dbFileNameMisc)
     val essentialInterface =
       new DBInterfaceSQLiteAndroidEssential(app, dbFileNameEssential)
@@ -219,14 +239,6 @@ object WalletApp {
       else new OkHttpConnectionProvider
     LNParams.ourInit = LNParams.createInit
     LNParams.syncParams = new SyncParams
-  }
-
-  def makeOperational(mnemonics: List[String]): Unit = {
-    require(
-      isAlive,
-      "Application is not alive, hence can not become operational"
-    )
-    LNParams.secret = WalletSecret(mnemonics)
 
     val params = WalletParameters(
       extDataBag,

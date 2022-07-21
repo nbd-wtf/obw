@@ -1253,7 +1253,7 @@ trait BaseCheckActivity extends BaseActivity {
   }
 
   override def START(state: Bundle): Unit = {
-    if (WalletApp.isAlive && LNParams.isOperational) PROCEED(state)
+    if (LNParams.isOperational) PROCEED(state)
     else {
       // The way Android works is we can get some objects nullified when restoring from background
       // when that happens we make sure to free all remaining resources and start from scratch

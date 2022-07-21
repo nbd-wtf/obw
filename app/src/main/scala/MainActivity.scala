@@ -3,8 +3,6 @@ package wtf.nbd.obw
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.app.NotificationManagerCompat
-import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 import com.guardanis.applock.activities.{LockCreationActivity, UnlockActivity}
 import immortan.LNParams
 import immortan.crypto.Tools.runAnd
@@ -39,13 +37,14 @@ class MainActivity extends BaseActivity {
     val processIntent =
       (getIntent.getFlags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0
     val dataOpt =
-      Seq(getIntent.getDataString, getIntent getStringExtra Intent.EXTRA_TEXT)
+      Seq(getIntent.getDataString, getIntent.getStringExtra(Intent.EXTRA_TEXT))
         .find(data => null != data)
     if (processIntent)
-      runInFutureProcessOnUI(dataOpt.foreach(InputParser.recordValue), proceed)(
-        proceed
-      )
-    else proceed(null)
+      runInFutureProcessOnUI(
+        dataOpt.foreach(InputParser.recordValue),
+        _ => proceed()
+      )(_ => proceed())
+    else proceed()
   }
 
   override def START(state: Bundle): Unit = {
@@ -53,24 +52,17 @@ class MainActivity extends BaseActivity {
     NotificationManagerCompat.from(this).cancelAll
   }
 
-  def proceed(empty: Any): Unit = WalletApp.isAlive match {
-    case false =>
-      runAnd(WalletApp.makeAlive())(proceed(null))
-    case true if LNParams.isOperational =>
+  def proceed(): Unit =
+    if (LNParams.isOperational)
       exitTo(ClassNames.hubActivityClass)
-    case true =>
-      WalletApp.extDataBag.tryGetMnemonics match {
-        case Failure(_: android.database.CursorIndexOutOfBoundsException) =>
-          // Record is not present at all, this is probaby a fresh wallet
+    else {
+      WalletApp.getMnemonics(this) match {
+        case None =>
+          // record is not present, this is a fresh wallet
           exitTo(classOf[SetupActivity])
-
-        case Failure(reason) =>
-          // Notify user about it
-          throw reason
-
-        case Success(mnemonics) =>
+        case Some(mnemonics) =>
           WalletApp.makeOperational(mnemonics)
           exitTo(ClassNames.hubActivityClass)
       }
-  }
+    }
 }

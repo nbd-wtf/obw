@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.content.Context
 import android.widget.{ArrayAdapter, LinearLayout}
 import androidx.appcompat.app.AlertDialog
 import androidx.documentfile.provider.DocumentFile
@@ -20,7 +21,11 @@ import immortan.LNParams
 import scodec.bits.{BitVector, ByteVector}
 
 object SetupActivity {
-  def fromMnemonics(mnemonics: List[String], host: BaseActivity): Unit = {
+  def fromMnemonics(
+      context: Context,
+      mnemonics: List[String],
+      host: BaseActivity
+  ): Unit = {
     try {
       // Implant graph into db file from resources
       val snapshotName = LocalBackup.getGraphResourceName(LNParams.chainHash)
@@ -35,7 +40,7 @@ object SetupActivity {
       )
     } catch none
 
-    WalletApp.extDataBag.putMnemonics(mnemonics)
+    WalletApp.putMnemonics(context, mnemonics)
     WalletApp.makeOperational(mnemonics)
   }
 }
@@ -76,9 +81,10 @@ class SetupActivity extends BaseActivity { me =>
 
   var proceedWithMnemonics: List[String] => Unit = mnemonics => {
     // Make sure this method can be run at most once (to not set runtime data twice) by replacing it with a noop method right away
-    runInFutureProcessOnUI(SetupActivity.fromMnemonics(mnemonics, me), onFail)(
-      _ => me exitTo ClassNames.hubActivityClass
-    )
+    runInFutureProcessOnUI(
+      SetupActivity.fromMnemonics(this, mnemonics, me),
+      onFail
+    )(_ => me exitTo ClassNames.hubActivityClass)
     TransitionManager.beginDelayedTransition(activitySetupMain)
     activitySetupMain.setVisibility(View.GONE)
     proceedWithMnemonics = none

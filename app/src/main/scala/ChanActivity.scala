@@ -636,7 +636,7 @@ class ChanActivity
   }
 
   override def PROCEED(state: Bundle): Unit = {
-    if (WalletApp.isAlive && LNParams.isOperational) {
+    if (LNParams.isOperational) {
       for (channel <- LNParams.cm.all.values) channel.listeners += me
       setContentView(R.layout.activity_chan)
       updateChanData.run
