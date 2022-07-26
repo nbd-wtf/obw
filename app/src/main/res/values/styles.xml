@@ -34,6 +34,7 @@
         <item name="android:paddingTop">9dp</item>
         <item name="nb_borderWidth">2dp</item>
         <item name="nb_radius">3dp</item>
+        <item name="nb_textSize">18sp</item>
     </style>
 
     <style name="GrayButton" parent="BaseButton">
