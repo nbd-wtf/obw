@@ -164,7 +164,7 @@ case class HWBytesPairingData(urBytes: Array[Byte]) extends PairingData {
     json2String(charBuffer fields "xpub"),
     KeyPath.Root
   )
-  override val masterFingerprint: Option[Long] = fingerprint(masterXPub).asSome
+  override val masterFingerprint: Option[Long] = Some(fingerprint(masterXPub))
 }
 
 case class HWAccountPairingData(urAccount: CryptoAccount) extends PairingData {

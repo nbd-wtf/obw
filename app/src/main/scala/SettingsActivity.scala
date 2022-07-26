@@ -222,7 +222,7 @@ class SettingsActivity
               data.bip84XPub,
               isRemovable = true
             )
-            val label = extraInput.getText.toString.trim.asSome
+            val label = Some(extraInput.getText.toString.trim)
               .filter(_.nonEmpty)
               .getOrElse(EclairWallet.BIP84)
             val wallet = LNParams.chainWallets.makeWatchingWallet84Parts(

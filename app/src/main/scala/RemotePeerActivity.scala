@@ -392,7 +392,7 @@ class RemotePeerActivity
               reason: String,
               responseResult: GenerateTxResponse
           ): Unit = update(
-            feeOpt = responseResult.fee.toMilliSatoshi.asSome,
+            feeOpt = Some(responseResult.fee.toMilliSatoshi),
             showIssue = false
           )
           def work(reason: String): Observable[GenerateTxResponse] =

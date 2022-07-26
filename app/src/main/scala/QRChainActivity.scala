@@ -98,7 +98,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
       .asInstanceOf[ViewGroup]
     lazy val manager = new RateManager(
       body,
-      getString(R.string.dialog_add_description).asSome,
+      Some(getString(R.string.dialog_add_description)),
       R.string.dialog_visibility_sender,
       LNParams.fiatRates.info.rates,
       WalletApp.fiatCode

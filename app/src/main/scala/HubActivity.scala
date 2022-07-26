@@ -200,7 +200,7 @@ class HubActivity
 
   def updAllInfos(): Unit = UITask {
     val exceptRouted = List(txInfos, paymentInfos, lnUrlPayLinks)
-    val dr = LNParams.cm.delayedRefunds.asSome.filter(_.totalAmount > 0L.msat)
+    val dr = Some(LNParams.cm.delayedRefunds).filter(_.totalAmount > 0L.msat)
     val itemsToDisplayMap = Map(
       R.id.bitcoinPayments -> txInfos,
       R.id.lightningPayments -> paymentInfos,
@@ -497,14 +497,16 @@ class HubActivity
 
       def stampProof(tx: Transaction)(alert: AlertDialog): Unit = {
         val txOrder =
-          SemanticOrder(id = info.identity, order = Long.MinValue).asSome
-        val infoOrder = SemanticOrder(
-          id = info.identity,
-          order = -System.currentTimeMillis
-        ).asSome
+          Some(SemanticOrder(id = info.identity, order = Long.MinValue))
+        val infoOrder = Some(
+          SemanticOrder(
+            id = info.identity,
+            order = -System.currentTimeMillis
+          )
+        )
         val infoDesc1 = info.description
           .modify(_.proofTxid)
-          .setTo(tx.txid.toHex.asSome)
+          .setTo(Some(tx.txid.toHex))
           .modify(_.semanticOrder)
           .setTo(infoOrder)
         WalletApp.txDescriptions(tx.txid) = OpReturnTxDescription(
@@ -715,7 +717,7 @@ class HubActivity
               )
             def process(reason: String, response: GenerateTxResponse): Unit =
               update(
-                feeOpt = response.fee.toMilliSatoshi.asSome,
+                feeOpt = Some(response.fee.toMilliSatoshi),
                 showIssue = false
               )
             override def error(exc: Throwable): Unit =
@@ -748,7 +750,7 @@ class HubActivity
           SemanticOrder(info.txid.toHex, System.currentTimeMillis)
         // Only update parent semantic order if it does not already have one, record it BEFORE sending CPFP
         val parentDescWithOrder = info.description.withNewOrderCond(
-          cpfpBumpOrder.copy(order = Long.MinValue).asSome
+          Some(cpfpBumpOrder.copy(order = Long.MinValue))
         )
         WalletApp.txDataBag.updDescription(parentDescWithOrder, info.txid)
         alert.dismiss
@@ -764,9 +766,9 @@ class HubActivity
           bumpDescription = PlainTxDescription(
             chainAddress :: Nil,
             None,
-            cpfpBumpOrder.asSome,
+            Some(cpfpBumpOrder),
             None,
-            cpfpOf = info.txid.asSome
+            cpfpOf = Some(info.txid)
           )
           // Record this description before sending, otherwise we won't be able to know a memo, label and semantic order
           _ = WalletApp.txDescriptions(cpfpResponse.tx.txid) = bumpDescription
@@ -847,7 +849,7 @@ class HubActivity
                 case Left(ElectrumWallet.RBF_DISABLED) =>
                   showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
                 case Right(res) =>
-                  update(res.fee.toMilliSatoshi.asSome, showIssue = false)
+                  update(Some(res.fee.toMilliSatoshi), showIssue = false)
                 case _ => error(new RuntimeException)
               }
 
@@ -892,10 +894,10 @@ class HubActivity
           bumpDescription = PlainTxDescription(
             addresses = Nil,
             None,
-            rbfBumpOrder.asSome,
+            Some(rbfBumpOrder),
             None,
             None,
-            rbfParams.asSome
+            Some(rbfParams)
           )
           // Record this description before sending, otherwise we won't be able to know a memo, label and semantic order
           _ = WalletApp.txDescriptions(rbfBumpResponse.tx.txid) =
@@ -905,7 +907,7 @@ class HubActivity
           if (isSent) {
             val parentLowestOrder = rbfBumpOrder.copy(order = Long.MaxValue)
             val parentDesc =
-              info.description.withNewOrderCond(parentLowestOrder.asSome)
+              info.description.withNewOrderCond(Some(parentLowestOrder))
             WalletApp.txDataBag.updDescription(parentDesc, info.txid)
           } else onFail(me getString R.string.error_btc_broadcast_fail)
       }
@@ -980,7 +982,7 @@ class HubActivity
                 case Left(ElectrumWallet.RBF_DISABLED) =>
                   showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
                 case Right(res) =>
-                  update(res.fee.toMilliSatoshi.asSome, showIssue = false)
+                  update(Some(res.fee.toMilliSatoshi), showIssue = false)
                 case _ => error(new RuntimeException)
               }
 
@@ -1029,10 +1031,10 @@ class HubActivity
           bumpDescription = PlainTxDescription(
             addresses = Nil,
             None,
-            rbfBumpOrder.asSome,
+            Some(rbfBumpOrder),
             None,
             None,
-            rbfParams.asSome
+            Some(rbfParams)
           )
           // Record this description before sending, otherwise we won't be able to know a memo, label and semantic order
           _ = WalletApp.txDescriptions(rbfReroute.tx.txid) = bumpDescription
@@ -1041,9 +1043,9 @@ class HubActivity
           if (isSent) {
             val parentLowestOrder = rbfBumpOrder.copy(order = Long.MaxValue)
             val parentDesc =
-              info.description.withNewOrderCond(parentLowestOrder.asSome)
+              info.description.withNewOrderCond(Some(parentLowestOrder))
             WalletApp.txDataBag.updDescription(parentDesc, info.txid)
-          } else onFail(me getString R.string.error_btc_broadcast_fail)
+          } else onFail(getString(R.string.error_btc_broadcast_fail))
       }
 
       lazy val alert = {
@@ -1120,7 +1122,7 @@ class HubActivity
             extraInfo,
             getString(R.string.popup_hash) format info.paymentHash.toHex.short,
             R.drawable.border_green,
-            info.paymentHash.toHex.asSome
+            Some(info.paymentHash.toHex)
           )
 
           if (info.status == PaymentStatus.SUCCEEDED)
@@ -1130,7 +1132,7 @@ class HubActivity
                 R.string.popup_preimage
               ) format info.preimage.toHex.short,
               R.drawable.border_yellow,
-              info.preimage.toHex.asSome
+              Some(info.preimage.toHex)
             )
 
           if (info.isIncoming && myFulfills.nonEmpty)
@@ -1160,7 +1162,7 @@ class HubActivity
                 R.string.popup_ln_payee
               ) format info.prExt.pr.nodeId.toString.short,
               R.drawable.border_white,
-              info.prExt.pr.nodeId.toString.asSome
+              Some(info.prExt.pr.nodeId.toString)
             )
 
           addFlowChip(
@@ -1289,21 +1291,21 @@ class HubActivity
             extraInfo,
             getString(R.string.popup_txid) format info.txidString.short,
             R.drawable.border_green,
-            info.txidString.asSome
+            Some(info.txidString)
           )
           for (address <- info.description.toAddress)
             addFlowChip(
               extraInfo,
               getString(R.string.popup_to_address) format address.short,
               R.drawable.border_yellow,
-              address.asSome
+              Some(address)
             )
           for (nodeId <- info.description.withNodeId)
             addFlowChip(
               extraInfo,
               getString(R.string.popup_ln_node) format nodeId.toString.short,
               R.drawable.border_white,
-              nodeId.toString.asSome
+              Some(nodeId.toString)
             )
 
           addFlowChip(
@@ -2153,7 +2155,7 @@ class HubActivity
                   .modify(_.split.totalSum)
                   .setTo(origAmount)
                 val pd = PaymentDescription(
-                  cmd.split.asSome,
+                  Some(cmd.split),
                   label = manager.resultExtraInput,
                   semanticOrder = None,
                   invoiceText = prExt.descriptionOpt getOrElse new String
@@ -2537,23 +2539,29 @@ class HubActivity
       .uniqueFirstAndLastWithinWindow(ChannelMaster.stateUpdateStream, window)
       .doOnNext(_ => updateLnCaches())
 
-    stateSubscription = txEvents
-      .merge(paymentEvents)
-      .merge(relayEvents)
-      .merge(marketEvents)
-      .merge(stateEvents)
-      .doOnNext(_ => updAllInfos())
-      .subscribe(_ => paymentAdapterDataChanged.run)
-      .asSome
-    statusSubscription = Rx
-      .uniqueFirstAndLastWithinWindow(ChannelMaster.statusUpdateStream, window)
-      .merge(stateEvents)
-      .subscribe(_ => UITask(walletCards.updateView()).run)
-      .asSome
-    inFinalizedSubscription = ChannelMaster.inFinalized
-      .collect { case _: IncomingRevealed => true }
-      .subscribe(_ => Vibrator.vibrate())
-      .asSome
+    stateSubscription = Some(
+      txEvents
+        .merge(paymentEvents)
+        .merge(relayEvents)
+        .merge(marketEvents)
+        .merge(stateEvents)
+        .doOnNext(_ => updAllInfos())
+        .subscribe(_ => paymentAdapterDataChanged.run)
+    )
+    statusSubscription = Some(
+      Rx
+        .uniqueFirstAndLastWithinWindow(
+          ChannelMaster.statusUpdateStream,
+          window
+        )
+        .merge(stateEvents)
+        .subscribe(_ => UITask(walletCards.updateView()).run)
+    )
+    inFinalizedSubscription = Some(
+      ChannelMaster.inFinalized
+        .collect { case _: IncomingRevealed => true }
+        .subscribe(_ => Vibrator.vibrate())
+    )
 
     timer.scheduleAtFixedRate(paymentAdapterDataChanged, 30000, 30000)
     val backupAllowed = LocalBackup.isAllowed(context = WalletApp.app)
@@ -2636,7 +2644,7 @@ class HubActivity
     val sheet =
       new sheets.OnceBottomSheet(
         me,
-        getString(R.string.typing_hints).asSome,
+        Some(getString(R.string.typing_hints)),
         onScan
       )
     callScanner(sheet)
@@ -2651,7 +2659,7 @@ class HubActivity
         case _ => nothingUsefulTask.run
       }
 
-    val instruction = getString(R.string.scan_btc_address).asSome
+    val instruction = Some(getString(R.string.scan_btc_address))
     def onData: Runnable = UITask(resolveLegacyWalletBtcAddressQr())
     val sheet = new sheets.OnceBottomSheet(me, instruction, onData)
     callScanner(sheet)
@@ -2699,7 +2707,7 @@ class HubActivity
   ): Unit = {
     val sendView = new ChainSendView(
       fromWallet,
-      getString(R.string.dialog_set_label).asSome,
+      Some(getString(R.string.dialog_set_label)),
       R.string.dialog_visibility_private
     )
     val chainPubKeyScript = LNParams.addressToPubKeyScript(uri.address)
@@ -2831,7 +2839,7 @@ class HubActivity
             rate
           )
         def process(reason: String, response: GenerateTxResponse): Unit =
-          update(feeOpt = response.fee.toMilliSatoshi.asSome, showIssue = false)
+          update(feeOpt = Some(response.fee.toMilliSatoshi), showIssue = false)
       }
 
       override def update(
@@ -2951,7 +2959,7 @@ class HubActivity
 
       worker = new ThrottledWork[String, GenerateTxResponse] {
         def process(reason: String, response: GenerateTxResponse): Unit =
-          update(feeOpt = response.fee.toMilliSatoshi.asSome, showIssue = false)
+          update(feeOpt = Some(response.fee.toMilliSatoshi), showIssue = false)
         def work(reason: String): Observable[GenerateTxResponse] =
           Rx fromFutureOnIo fromWallet.makeBatchTx(scriptToAmount, rate)
         override def error(exception: Throwable): Unit =
@@ -2993,7 +3001,7 @@ class HubActivity
       ) {
         override def getManager: RateManager = new RateManager(
           body,
-          getString(R.string.dialog_add_description).asSome,
+          Some(getString(R.string.dialog_add_description)),
           R.string.dialog_visibility_sender,
           LNParams.fiatRates.info.rates,
           WalletApp.fiatCode
@@ -3031,7 +3039,7 @@ class HubActivity
       ) {
         override def getManager: RateManager = new RateManager(
           body,
-          getString(R.string.dialog_set_label).asSome,
+          Some(getString(R.string.dialog_set_label)),
           R.string.dialog_visibility_private,
           LNParams.fiatRates.info.rates,
           WalletApp.fiatCode
@@ -3112,9 +3120,9 @@ class HubActivity
               .modify(_.split.totalSum)
               .setTo(minSendable)
             val pd = PaymentDescription(
-              cmd.split.asSome,
+              Some(cmd.split),
               label = None,
-              semanticOrder = paymentOrder.asSome,
+              semanticOrder = Some(paymentOrder),
               invoiceText = "",
               data.meta.textShort
             )
@@ -3172,7 +3180,7 @@ class HubActivity
             val pd = PaymentDescription(
               split = None,
               label = None,
-              semanticOrder = paymentOrder.asSome,
+              semanticOrder = Some(paymentOrder),
               invoiceText = new String,
               meta = data.meta.textShort
             )
@@ -3195,7 +3203,7 @@ class HubActivity
                     lnUrlPayLinks
                       .find(_.payString == lnurl.request)
                       .flatMap(_.description.label),
-                    linkOrder.asSome,
+                    Some(linkOrder),
                     randKey.value.toHex,
                     pf.prExt.pr.paymentHash,
                     pf.prExt.pr.paymentSecret.get,

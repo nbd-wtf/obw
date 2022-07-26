@@ -350,7 +350,7 @@ object WalletApp {
         }
 
       override def onChainMasterSelected(event: InetSocketAddress): Unit =
-        currentChainNode = event.asSome
+        currentChainNode = Some(event)
 
       override def onChainDisconnected(): Unit = currentChainNode = None
 

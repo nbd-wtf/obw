@@ -711,12 +711,13 @@ trait BaseActivity extends AppCompatActivity { me =>
         QRActivity.get(sourceChunk.toUpperCase, qrSize)
       val updateView: Bitmap => Unit = sourceQrCode =>
         UITask(qrSlideshow setImageBitmap sourceQrCode).run
-      subscription = Observable
-        .interval(0.second, 600.millis)
-        .map(_ => encoder.nextPart)
-        .map(stringToQr)
-        .subscribe(updateView)
-        .asSome
+      subscription = Some(
+        Observable
+          .interval(0.second, 600.millis)
+          .map(_ => encoder.nextPart)
+          .map(stringToQr)
+          .subscribe(updateView)
+      )
     }
   }
 
@@ -1070,7 +1071,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       .asInstanceOf[android.view.ViewGroup]
     lazy val manager = new RateManager(
       body,
-      getString(R.string.dialog_set_label).asSome,
+      Some(getString(R.string.dialog_set_label)),
       R.string.dialog_visibility_private,
       LNParams.fiatRates.info.rates,
       WalletApp.fiatCode
@@ -1138,7 +1139,7 @@ trait BaseActivity extends AppCompatActivity { me =>
         .modify(_.split.totalSum)
         .setTo(origAmount)
       val pd = PaymentDescription(
-        cmd.split.asSome,
+        Some(cmd.split),
         label = manager.resultExtraInput,
         semanticOrder = None,
         invoiceText = prExt.descriptionOpt getOrElse new String

@@ -14,7 +14,7 @@ import scala.jdk.CollectionConverters._
 
 class TorConnectionProvider(context: Context) extends ConnectionProvider {
   override val proxyAddress: Option[InetSocketAddress] =
-    new InetSocketAddress("127.0.0.1", 9050).asSome
+    Some(new InetSocketAddress("127.0.0.1", 9050))
 
   private val proxy =
     new java.net.Proxy(java.net.Proxy.Type.SOCKS, proxyAddress.get)

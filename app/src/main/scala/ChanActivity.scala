@@ -447,7 +447,7 @@ class ChanActivity
           val pubKeyScript =
             LNParams.addressToPubKeyScript(addressResponse.firstAccountAddress)
           for (chan <- me getChanByCommits cs)
-            chan process CMD_CLOSE(pubKeyScript.asSome, force = false)
+            chan process CMD_CLOSE(Some(pubKeyScript), force = false)
       }
     }
   }
@@ -462,7 +462,7 @@ class ChanActivity
           .html
       )
       def proceed(): Unit = for (chan <- me getChanByCommits cs)
-        chan process CMD_CLOSE(pubKeyScript.asSome, force = false)
+        chan process CMD_CLOSE(Some(pubKeyScript), force = false)
       mkCheckForm(
         alert => runAnd(alert.dismiss)(proceed()),
         none,
@@ -485,7 +485,7 @@ class ChanActivity
     val sheet =
       new sheets.OnceBottomSheet(
         me,
-        getString(R.string.scan_btc_address).asSome,
+        Some(getString(R.string.scan_btc_address)),
         onData
       )
     callScanner(sheet)
@@ -515,10 +515,10 @@ class ChanActivity
         val toSend = maxSendable.min(csAndMax.maxReceivable)
         val pd = PaymentDescription(
           split = None,
-          label = getString(R.string.tx_ln_label_reflexive).asSome,
+          label = Some(getString(R.string.tx_ln_label_reflexive)),
           semanticOrder = None,
           invoiceText = new String,
-          toSelfPreimage = preimage.asSome
+          toSelfPreimage = Some(preimage)
         )
         val prExt = LNParams.cm.makePrExt(
           toReceive = toSend,
@@ -561,7 +561,7 @@ class ChanActivity
       ) {
         override def getManager: RateManager = new RateManager(
           body,
-          getString(R.string.dialog_add_description).asSome,
+          Some(getString(R.string.dialog_add_description)),
           R.string.dialog_visibility_sender,
           LNParams.fiatRates.info.rates,
           WalletApp.fiatCode
@@ -600,7 +600,7 @@ class ChanActivity
     val sheet =
       new sheets.OnceBottomSheet(
         me,
-        getString(R.string.chan_open_scan).asSome,
+        Some(getString(R.string.chan_open_scan)),
         onData
       )
     callScanner(sheet)
@@ -751,10 +751,11 @@ class ChanActivity
         ChannelMaster.statusUpdateStream,
         window
       )
-      updateSubscription = stateEvents
-        .merge(statusEvents)
-        .subscribe(_ => updateChanData.run)
-        .asSome
+      updateSubscription = Some(
+        stateEvents
+          .merge(statusEvents)
+          .subscribe(_ => updateChanData.run)
+      )
     } else {
       WalletApp.freePossiblyUsedRuntimeResouces()
       me exitTo ClassNames.mainActivityClass
