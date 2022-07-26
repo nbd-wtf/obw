@@ -5,25 +5,36 @@ import immortan.sqlite.{PreparedQuery, RichCursor}
 import android.database.sqlite.SQLiteStatement
 
 case class PreparedQuerySQLiteAndroid(prepared: SQLiteStatement)
-    extends PreparedQuery {
+    extends PreparedQuery { me =>
 
-  def bound(params: Array[Object]): PreparedQuery = {
-    var i = 1
-    params.foreach { param =>
-      param match {
-        case v: JInt        => prepared.bindLong(i, v.toLong)
-        case v: JDouble     => prepared.bindDouble(i, v)
-        case v: String      => prepared.bindString(i, v)
-        case v: Array[Byte] => prepared.bindBlob(i, v)
-        case v: JLong       => prepared.bindLong(i, v)
-        case _              => throw new RuntimeException
+  def bound(params: Object*): PreparedQuery = {
+    // Mutable, but local and saves one iteration
+    var positionIndex = 1
+
+    for (queryParameter <- params) {
+      queryParameter match {
+        case queryParameter: JInt =>
+          prepared.bindLong(positionIndex, queryParameter.toLong)
+        case queryParameter: JDouble =>
+          prepared.bindDouble(positionIndex, queryParameter)
+        case queryParameter: String =>
+          prepared.bindString(positionIndex, queryParameter)
+        case queryParameter: Array[Byte] =>
+          prepared.bindBlob(positionIndex, queryParameter)
+        case queryParameter: JLong =>
+          prepared.bindLong(positionIndex, queryParameter)
+        case _ => throw new RuntimeException
       }
-      i += 1
+
+      positionIndex += 1
     }
-    this
+
+    me
   }
 
-  def executeQuery(): RichCursor = throw new RuntimeException("Not supported")
+  def executeQuery: RichCursor = throw new RuntimeException("Not supported")
+
   def executeUpdate(): Unit = prepared.executeUpdateDelete
+
   def close(): Unit = prepared.close
 }

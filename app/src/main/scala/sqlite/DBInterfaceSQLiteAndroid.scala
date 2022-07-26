@@ -4,19 +4,18 @@ import immortan.sqlite.{DBInterface, PreparedQuery, RichCursor}
 import android.database.sqlite.SQLiteDatabase
 
 trait DBInterfaceSQLiteAndroid extends DBInterface {
-  def change(sql: String, params: Array[Object]): Unit =
-    base.execSQL(sql, params)
+  def change(sql: String, params: Object*): Unit =
+    base.execSQL(sql, params.toArray)
 
-  override def change(prepared: PreparedQuery, params: Array[Object]): Unit =
-    prepared.bound(params).executeUpdate()
+  def change(prepared: PreparedQuery, params: Object*): Unit =
+    prepared.bound(params: _*).executeUpdate()
 
-  def select(sql: String, params: Array[String]): RichCursor = {
-    try {
-      RichCursorSQLiteAndroid(base.rawQuery(sql, params))
-    } catch {
-      case _: java.lang.ClassNotFoundException =>
-        RichCursorSQLiteAndroid(base.rawQuery(sql, params))
-    }
+  def select(prepared: PreparedQuery, params: String*): RichCursor =
+    throw new RuntimeException("Not supported")
+
+  def select(sql: String, params: String*): RichCursor = {
+    val cursor = base.rawQuery(sql, params.toArray)
+    RichCursorSQLiteAndroid(cursor)
   }
 
   def makePreparedQuery(sql: String): PreparedQuery =
