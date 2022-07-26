@@ -725,17 +725,6 @@ class ChanActivity
 
         addFlowChip(
           hcpFooter.flow,
-          "Jaspion",
-          R.drawable.border_basic,
-          _ =>
-            goToWithValue(
-              ClassNames.remotePeerActivityClass,
-              LNParams.syncParams.jaspion
-            )
-        )
-
-        addFlowChip(
-          hcpFooter.flow,
           "Jiraiya",
           R.drawable.border_basic,
           _ =>
