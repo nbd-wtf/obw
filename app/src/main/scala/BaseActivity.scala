@@ -85,7 +85,7 @@ trait ChoiceReceiver {
   def onChoiceMade(tag: AnyRef, pos: Int): Unit
 }
 
-trait BaseActivity extends AppCompatActivity { me =>
+trait BaseActivity extends AppCompatActivity { self =>
   lazy val qrSize: Int = getResources.getDimensionPixelSize(R.dimen.qr_size)
   val nothingUsefulTask: Runnable = UITask(
     WalletApp.app quickToast R.string.error_nothing_useful
@@ -111,7 +111,7 @@ trait BaseActivity extends AppCompatActivity { me =>
   def START(state: Bundle): Unit
 
   override def onCreate(savedActivityState: Bundle): Unit = {
-    Thread setDefaultUncaughtExceptionHandler new UncaughtHandler(me)
+    Thread setDefaultUncaughtExceptionHandler new UncaughtHandler(this)
     super.onCreate(savedActivityState)
     START(savedActivityState)
   }
@@ -141,7 +141,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       R.drawable.border_yellow
     )
 
-    val chooser: ChainWalletCards = new ChainWalletCards(me) {
+    val chooser: ChainWalletCards = new ChainWalletCards(this) {
       override def onWalletTap(wallet: ElectrumEclairWallet): Unit = {
         onWalletSelected(wallet)
         alert.dismiss
@@ -214,7 +214,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       WindowManager.LayoutParams.FLAG_SECURE,
       WindowManager.LayoutParams.FLAG_SECURE
     )
-    new AlertDialog.Builder(me, R.style.DialogTheme)
+    new AlertDialog.Builder(this, R.style.DialogTheme)
       .setView(content.asDefView)
       .show setOnDismissListener new DialogInterface.OnDismissListener {
       override def onDismiss(dialog: DialogInterface): Unit =
@@ -245,8 +245,8 @@ trait BaseActivity extends AppCompatActivity { me =>
       msg: CharSequence,
       res: Int,
       fun: Snackbar => Unit
-  ): Try[Snackbar] = snack(parent, msg, res) map { snack =>
-    val listener = onButtonTap(fun apply snack)
+  ): Try[Snackbar] = snack(parent, msg, res).map { snack =>
+    val listener = onButtonTap(fun(snack))
     snack.setAction(res, listener).show
     snack
   }
@@ -275,8 +275,8 @@ trait BaseActivity extends AppCompatActivity { me =>
   def runFutureProcessOnUI[T](fun: Future[T], no: Throwable => Unit)(
       ok: T => Unit
   ): Unit = fun onComplete {
-    case Success(result) => UITask(ok apply result).run
-    case Failure(error)  => UITask(no apply error).run
+    case Success(result) => UITask(ok(result)).run
+    case Failure(error)  => UITask(no(error)).run
   }
 
   def setVis(isVisible: Boolean, view: View): Unit = {
@@ -309,7 +309,7 @@ trait BaseActivity extends AppCompatActivity { me =>
   }
 
   def titleBodyAsViewBuilder(title: View, body: View): AlertDialog.Builder =
-    new AlertDialog.Builder(me, R.style.DialogTheme)
+    new AlertDialog.Builder(this, R.style.DialogTheme)
       .setCustomTitle(title)
       .setView(body)
 
@@ -407,12 +407,12 @@ trait BaseActivity extends AppCompatActivity { me =>
 
   def callScanner(sheet: sheets.ScannerBottomSheet): Unit = {
     val allowed = ContextCompat.checkSelfPermission(
-      me,
+      this,
       android.Manifest.permission.CAMERA
     ) == PackageManager.PERMISSION_GRANTED
     if (!allowed)
       ActivityCompat.requestPermissions(
-        me,
+        this,
         Array(android.Manifest.permission.CAMERA),
         scannerRequestCode
       )
@@ -439,7 +439,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     val text = getLayoutInflater
       .inflate(R.layout.frag_chip_text, flow, false)
       .asInstanceOf[TextView]
-    text setOnClickListener onButtonTap(onTap apply text.getText.toString)
+    text.setOnClickListener(onButtonTap(onTap(text.getText.toString)))
     text.setBackgroundResource(backgroundRes)
     flow.setVisibility(View.VISIBLE)
     text.setText(chipText.html)
@@ -475,7 +475,9 @@ trait BaseActivity extends AppCompatActivity { me =>
       view.findViewById(R.id.tipExtraTags).asInstanceOf[FlowLayout]
     val backArrow: ImageView =
       view.findViewById(R.id.backArrow).asInstanceOf[ImageView]
-    val tipTitle: TextView = clickableTextField(view findViewById R.id.tipTitle)
+    val tipTitle: TextView = clickableTextField(
+      view.findViewById(R.id.tipTitle)
+    )
     tipTitle.setText(titleText.html)
 
     def asDefView: LinearLayout = {
@@ -484,7 +486,7 @@ trait BaseActivity extends AppCompatActivity { me =>
     }
 
     def asColoredView(colorRes: Int): LinearLayout = {
-      val resultColor = ContextCompat.getColor(me, colorRes)
+      val resultColor = ContextCompat.getColor(self, colorRes)
       view.setBackgroundColor(resultColor)
       view
     }
@@ -727,12 +729,12 @@ trait BaseActivity extends AppCompatActivity { me =>
 
     def stop(): Unit = runAnd(barcodeReader.pause)(barcodeReader.stopDecoding)
     def start(): Unit =
-      runAnd(barcodeReader decodeContinuous this)(barcodeReader.resume)
+      runAnd(barcodeReader.decodeContinuous(this))(barcodeReader.resume)
     override def barcodeResult(barcodeResult: BarcodeResult): Unit = handleUR(
       barcodeResult.getText
     )
     override def onError(qrParsingError: String): Unit =
-      runAnd(stop())(me onFail qrParsingError)
+      runAnd(stop())(onFail(qrParsingError))
     barcodeReader = host.findViewById(R.id.qrReader).asInstanceOf[BarcodeView]
     instruction = chainButtonsView.chainText
 
@@ -797,7 +799,7 @@ trait BaseActivity extends AppCompatActivity { me =>
       val fromWallet: ElectrumEclairWallet,
       badge: Option[String],
       visibilityRes: Int
-  ) { me =>
+  ) {
     val body: ScrollView = getLayoutInflater
       .inflate(R.layout.frag_input_on_chain, null)
       .asInstanceOf[ScrollView]
@@ -874,32 +876,46 @@ trait BaseActivity extends AppCompatActivity { me =>
       chainConfirmView.chainButtonsView.chainCancelButton setOnClickListener onButtonTap(
         alert.dismiss
       )
-      chainConfirmView.chainButtonsView.chainEditButton setOnClickListener onButtonTap(
-        me switchToEdit alert
+      chainConfirmView.chainButtonsView.chainEditButton.setOnClickListener(
+        onButtonTap(
+          switchToEdit(alert)
+        )
       )
-      chainConfirmView.confirmAmount.secondItem setText WalletApp.denom
-        .parsedWithSign(totalAmount)
-        .html
-      chainConfirmView.confirmFee.secondItem setText WalletApp.denom
-        .parsedWithSign(fee)
-        .html
-      chainConfirmView.confirmFiat.secondItem setText WalletApp
-        .currentMsatInFiatHuman(totalAmount)
-        .html
+      chainConfirmView.confirmAmount.secondItem.setText(
+        WalletApp.denom
+          .parsedWithSign(totalAmount)
+          .html
+      )
+      chainConfirmView.confirmFee.secondItem.setText(
+        WalletApp.denom
+          .parsedWithSign(fee)
+          .html
+      )
+      chainConfirmView.confirmFiat.secondItem.setText(
+        WalletApp
+          .currentMsatInFiatHuman(totalAmount)
+          .html
+      )
       switchButtons(alert, on = false)
       switchTo(chainConfirmView)
       haltProcesses()
     }
 
     def switchToHardwareOutgoing(alert: AlertDialog, psbt: Psbt): Unit = {
-      chainSlideshowView.chainButtonsView.chainNextButton setOnClickListener onButtonTap(
-        me switchToHardwareIncoming alert
+      chainSlideshowView.chainButtonsView.chainNextButton.setOnClickListener(
+        onButtonTap(
+          switchToHardwareIncoming(alert)
+        )
       )
-      chainSlideshowView.chainButtonsView.chainEditButton setOnClickListener onButtonTap(
-        me switchToEdit alert
+      chainSlideshowView.chainButtonsView.chainEditButton.setOnClickListener(
+        onButtonTap(
+          switchToEdit(alert)
+        )
       )
-      chainSlideshowView.chainButtonsView.chainCancelButton setOnClickListener onButtonTap(
-        alert.dismiss
+      chainSlideshowView.chainButtonsView.chainCancelButton.setOnClickListener(
+        onButtonTap(
+          alert.dismiss
+        )
       )
       chainSlideshowView.activate(psbt)
       switchButtons(alert, on = false)
@@ -908,11 +924,15 @@ trait BaseActivity extends AppCompatActivity { me =>
     }
 
     def switchToHardwareIncoming(alert: AlertDialog): Unit = {
-      chainReaderView.chainButtonsView.chainCancelButton setOnClickListener onButtonTap(
-        alert.dismiss
+      chainReaderView.chainButtonsView.chainCancelButton.setOnClickListener(
+        onButtonTap(
+          alert.dismiss
+        )
       )
-      chainReaderView.chainButtonsView.chainEditButton setOnClickListener onButtonTap(
-        me switchToEdit alert
+      chainReaderView.chainButtonsView.chainEditButton.setOnClickListener(
+        onButtonTap(
+          switchToEdit(alert)
+        )
       )
       setVis(
         isVisible = false,
@@ -1246,6 +1266,13 @@ trait BaseActivity extends AppCompatActivity { me =>
 trait BaseCheckActivity extends BaseActivity {
   def PROCEED(state: Bundle): Unit
 
+  override def onCreate(savedActivityState: Bundle): Unit = {
+    if (!LNParams.isOperational)
+      exitTo(ClassNames.mainActivityClass)
+    else
+      super.onCreate(savedActivityState)
+  }
+
   override def onResume(): Unit = runAnd(super.onResume) {
     if (AppLock.isUnlockRequired(this) && WalletApp.useAuth) {
       val intent: Intent = new Intent(this, ClassNames.unlockActivityClass)
@@ -1293,7 +1320,7 @@ trait HasTypicalChainFee {
     )
 }
 
-trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
+trait ChanErrorHandlerActivity extends BaseCheckActivity {
   // Activities extending from this trait process unknown channel errors by default, also can be configured to handle other types of channel-related exceptions
   val channelErrors: Cache[ByteVector32, JInt] = CacheBuilder.newBuilder
     .expireAfterAccess(30, TimeUnit.SECONDS)
@@ -1319,7 +1346,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
         worker.info.nodeId.toString
       )
       .html
-    val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
+    val builder = new AlertDialog.Builder(this, R.style.DialogTheme)
       .setCustomTitle(getString(R.string.error_channel).asDefView)
       .setCancelable(true)
       .setMessage(msg)
@@ -1339,7 +1366,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
     UITask {
       val errorCount =
         Option(channelErrors getIfPresent chanId).getOrElse(default = 0: JInt)
-      val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
+      val builder = new AlertDialog.Builder(this, R.style.DialogTheme)
         .setCustomTitle(getString(R.string.error_channel).asDefView)
         .setMessage(msg.html)
       if (errorCount < MAX_ERROR_COUNT_WITHIN_WINDOW)
@@ -1354,7 +1381,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity { me =>
     }.run
 }
 
-trait QRActivity extends BaseCheckActivity { me =>
+trait QRActivity extends BaseCheckActivity {
   def shareData(bitmap: Bitmap, bech32: String): Unit = {
     val paymentRequestFilePath = new File(getCacheDir, "images")
     if (!paymentRequestFilePath.isFile) paymentRequestFilePath.mkdirs

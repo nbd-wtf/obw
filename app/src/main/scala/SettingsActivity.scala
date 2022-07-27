@@ -46,7 +46,7 @@ abstract class SettingsHolder(host: BaseActivity) {
 class SettingsActivity
     extends BaseCheckActivity
     with HasTypicalChainFee
-    with ChoiceReceiver { me =>
+    with ChoiceReceiver { self =>
   lazy private[this] val settingsContainer = findViewById(
     R.id.settingsContainer
   ).asInstanceOf[LinearLayout]
@@ -85,7 +85,7 @@ class SettingsActivity
     case _ =>
   }
 
-  lazy private[this] val storeLocalBackup = new SettingsHolder(me) {
+  lazy private[this] val storeLocalBackup = new SettingsHolder(this) {
     setVis(isVisible = false, settingsCheck)
 
     def updateView(): Unit = {
@@ -102,7 +102,7 @@ class SettingsActivity
       settingsInfo.setText(info)
     }
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       val intent = (new Intent).setAction(
         android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
       )
@@ -112,10 +112,12 @@ class SettingsActivity
         null
       )
       startActivity(intent1)
-    }
+    })
   }
 
-  lazy private[this] val chainWallets: SettingsHolder = new SettingsHolder(me) {
+  lazy private[this] val chainWallets: SettingsHolder = new SettingsHolder(
+    this
+  ) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
     settingsTitle.setText(R.string.settings_chain_wallets)
     override def updateView(): Unit = none
@@ -128,12 +130,12 @@ class SettingsActivity
     )
     val possibleKeys: List[String] = wallets.keys.toList
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       val options =
         for ((tag, info ~ path) <- wallets)
           yield s"<b>$tag</b> <i>$path</i><br>$info".html
       val adapter = new ArrayAdapter(
-        me,
+        self,
         R.layout.frag_bottomsheet_multichoice,
         options.toArray
       ) {
@@ -186,12 +188,14 @@ class SettingsActivity
           possibleKeys.indexOf(wallet.info.core.walletType),
           true
         )
-    }
+    })
   }
 
-  lazy private[this] val addHardware: SettingsHolder = new SettingsHolder(me) {
+  lazy private[this] val addHardware: SettingsHolder = new SettingsHolder(
+    this
+  ) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
-    view setOnClickListener onButtonTap(callUrScanner())
+    view.setOnClickListener(onButtonTap(callUrScanner()))
     settingsTitle.setText(R.string.settings_hardware_add)
     override def updateView(): Unit = none
 
@@ -237,12 +241,12 @@ class SettingsActivity
         }
       }
 
-      val sheet = new sheets.URBottomSheet(me, onKey)
+      val sheet = new sheets.URBottomSheet(self, onKey)
       callScanner(sheet)
     }
   }
 
-  lazy private[this] val electrum: SettingsHolder = new SettingsHolder(me) {
+  lazy private[this] val electrum: SettingsHolder = new SettingsHolder(this) {
     setVis(isVisible = false, settingsCheck)
 
     override def updateView(): Unit = WalletApp.customElectrumAddress match {
@@ -254,11 +258,11 @@ class SettingsActivity
       case _ =>
         setTexts(
           R.string.settings_custom_electrum_disabled,
-          me getString R.string.settings_custom_electrum_disabled_tip
+          getString(R.string.settings_custom_electrum_disabled_tip)
         )
     }
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       val (container, extraInputLayout, extraInput) = singleInputPopup
       val builder = titleBodyAsViewBuilder(
         getString(R.string.settings_custom_electrum_disabled).asDefView,
@@ -300,7 +304,7 @@ class SettingsActivity
           updateView()
         }
       }
-    }
+    })
 
     def setTexts(titleRes: Int, info: String): Unit = {
       settingsTitle.setText(titleRes)
@@ -308,45 +312,49 @@ class SettingsActivity
     }
   }
 
-  lazy private[this] val setFiat = new SettingsHolder(me) {
+  lazy private[this] val setFiat = new SettingsHolder(this) {
     settingsTitle.setText(R.string.settings_fiat_currency)
     setVis(isVisible = false, settingsCheck)
 
     override def updateView(): Unit =
       settingsInfo.setText(WalletApp.fiatCode.toUpperCase)
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       val options = fiatSymbols.map { case code ~ name =>
         code.toUpperCase + SEPARATOR + name
       }
-      val list = me selectorList new ArrayAdapter(
-        me,
-        R.layout.frag_bottomsheet_item,
-        options.toArray
+      val list = selectorList(
+        new ArrayAdapter(
+          self,
+          R.layout.frag_bottomsheet_item,
+          options.toArray
+        )
       )
-      new sheets.ChoiceBottomSheet(list, CHOICE_FIAT_DENOMINATION_TAG, me)
+      new sheets.ChoiceBottomSheet(list, CHOICE_FIAT_DENOMINATION_TAG, self)
         .show(getSupportFragmentManager, "unused-tag")
-    }
+    })
   }
 
-  lazy private[this] val setBtc = new SettingsHolder(me) {
+  lazy private[this] val setBtc = new SettingsHolder(this) {
     settingsTitle.setText(R.string.settings_btc_unit)
     setVis(isVisible = false, settingsCheck)
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       val options =
         for (unit <- units)
           yield unit
             .parsedWithSign(MilliSatoshi(526800020L))
             .html
-      val list = me selectorList new ArrayAdapter(
-        me,
-        R.layout.frag_bottomsheet_item,
-        options.toArray
+      val list = selectorList(
+        new ArrayAdapter(
+          self,
+          R.layout.frag_bottomsheet_item,
+          options.toArray
+        )
       )
-      new sheets.ChoiceBottomSheet(list, CHOICE_BTC_DENOMINATON_TAG, me)
+      new sheets.ChoiceBottomSheet(list, CHOICE_BTC_DENOMINATON_TAG, self)
         .show(getSupportFragmentManager, "unused-tag")
-    }
+    })
 
     override def updateView(): Unit = {
       val short = WalletApp.denom.sign.toUpperCase
@@ -356,31 +364,33 @@ class SettingsActivity
     }
   }
 
-  lazy private[this] val useBiometric: SettingsHolder = new SettingsHolder(me) {
+  lazy private[this] val useBiometric: SettingsHolder = new SettingsHolder(
+    this
+  ) {
     def updateView(): Unit = settingsCheck.setChecked(WalletApp.useAuth)
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       if (WalletApp.useAuth)
-        runAnd(AppLock.getInstance(me).invalidateEnrollments)(updateView())
+        runAnd(AppLock.getInstance(self).invalidateEnrollments)(updateView())
       else
         startActivityForResult(
-          new Intent(me, ClassNames.lockCreationClass),
+          new Intent(self, ClassNames.lockCreationClass),
           REQUEST_CODE_CREATE_LOCK
         )
-    }
+    })
 
     settingsTitle.setText(R.string.settings_use_auth)
     setVis(isVisible = false, settingsInfo)
   }
 
-  lazy private[this] val enforceTor = new SettingsHolder(me) {
+  lazy private[this] val enforceTor = new SettingsHolder(this) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 
     settingsTitle.setText(R.string.settings_ensure_tor)
     setVis(isVisible = false, settingsInfo)
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)
       def onOk(snack: Snackbar): Unit =
         runAnd(snack.dismiss)(WalletApp.restart())
@@ -390,19 +400,19 @@ class SettingsActivity
         R.string.dialog_ok,
         onOk
       )
-    }
+    })
   }
 
-  lazy private[this] val viewCode = new SettingsHolder(me) {
+  lazy private[this] val viewCode = new SettingsHolder(this) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
-    view setOnClickListener onButtonTap(viewRecoveryCode())
+    view.setOnClickListener(onButtonTap(viewRecoveryCode()))
     settingsTitle.setText(R.string.settings_view_revocery_phrase)
     override def updateView(): Unit = none
   }
 
-  lazy private[this] val viewStat = new SettingsHolder(me) {
+  lazy private[this] val viewStat = new SettingsHolder(this) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
-    view setOnClickListener onButtonTap(me goTo ClassNames.statActivityClass)
+    view.setOnClickListener(onButtonTap(goTo(ClassNames.statActivityClass)))
     settingsTitle.setText(R.string.settings_stats)
     override def updateView(): Unit = none
   }
@@ -411,7 +421,7 @@ class SettingsActivity
     setContentView(R.layout.activity_settings)
 
     val settingsPageitle = new TitleView(s"v$VERSION_NAME-$VERSION_CODE")
-    settingsPageitle.view.setOnClickListener(me onButtonTap finish)
+    settingsPageitle.view.setOnClickListener(onButtonTap(finish))
     settingsPageitle.backArrow.setVisibility(View.VISIBLE)
 
     val links = new TitleView("Useful links")
@@ -419,26 +429,26 @@ class SettingsActivity
       links.flow,
       getString(R.string.sources),
       R.drawable.border_purple,
-      _ => me browse "https://github.com/nbd-wft/obw"
+      _ => browse("https://github.com/nbd-wft/obw")
     )
     addFlowChip(
       links.flow,
       getString(R.string.twitter),
       R.drawable.border_purple,
-      _ => me browse "https://twitter.com/nbd_wtf"
+      _ => browse("https://twitter.com/nbd_wtf")
     )
     addFlowChip(
       links.flow,
       "Rate us",
       R.drawable.border_purple,
-      _ => me bringRateDialog null
+      _ => bringRateDialog(null)
     )
 
     for (count <- LNParams.logBag.count if count > 0) {
       def exportLog(): Unit =
-        me share LNParams.logBag.recent.map(_.asString).mkString("\n\n")
+        share(LNParams.logBag.recent.map(_.asString).mkString("\n\n"))
       val errorCount =
-        s"${me getString R.string.error_log} $count"
+        s"${getString(R.string.error_log)} $count"
       addFlowChip(
         links.flow,
         errorCount,

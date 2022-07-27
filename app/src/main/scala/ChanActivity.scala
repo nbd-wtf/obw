@@ -69,7 +69,7 @@ class ChanActivity
     extends ChanErrorHandlerActivity
     with ChoiceReceiver
     with HasTypicalChainFee
-    with ChannelListener { me =>
+    with ChannelListener {
   private[this] lazy val chanContainer =
     findViewById(R.id.chanContainer).asInstanceOf[LinearLayout]
   private[this] lazy val getChanList =
@@ -206,9 +206,11 @@ class ChanActivity
       if (Channel isWaiting chan) {
         setVis(isVisible = true, extraInfoText)
         extraInfoText.setText(getString(R.string.ln_info_opening).html)
-        channelCard setOnClickListener bringChanOptions(
-          normalChanActions.take(2),
-          cs
+        channelCard.setOnClickListener(
+          bringChanOptions(
+            normalChanActions.take(2),
+            cs
+          )
         )
         visibleExcept(
           R.id.progressBars,
@@ -216,8 +218,8 @@ class ChanActivity
           R.id.canReceive,
           R.id.canSend
         )
-      } else if (Channel isOperational chan) {
-        channelCard setOnClickListener bringChanOptions(normalChanActions, cs)
+      } else if (Channel.isOperational(chan)) {
+        channelCard.setOnClickListener(bringChanOptions(normalChanActions, cs))
         setVis(
           isVisible = cs.updateOpt.isEmpty || tempFeeMismatch,
           extraInfoText
@@ -245,16 +247,18 @@ class ChanActivity
           case _               => R.string.ln_info_shutdown
         }
 
-        channelCard setOnClickListener bringChanOptions(
-          normalChanActions.take(2),
-          cs
+        channelCard.setOnClickListener(
+          bringChanOptions(
+            normalChanActions.take(2),
+            cs
+          )
         )
         visibleExcept(R.id.progressBars, R.id.canReceive, R.id.canSend)
         extraInfoText.setText(getString(closeInfoRes).html)
         setVis(isVisible = true, extraInfoText)
       }
 
-      removeItem setOnClickListener onButtonTap {
+      removeItem.setOnClickListener(onButtonTap {
         def proceed(): Unit = chan process CMD_CLOSE(None, force = true)
         val builder = confirmationBuilder(
           cs,
@@ -267,7 +271,7 @@ class ChanActivity
           R.string.dialog_ok,
           R.string.dialog_cancel
         )
-      }
+      })
 
       setVis(isVisible = false, overrideProposal)
       setVis(isVisible = false, hcBranding)
@@ -309,8 +313,10 @@ class ChanActivity
       val brandOpt = brandingInfos.get(hc.remoteInfo.nodeId)
 
       // Hide image container at start, show it later if bitmap is fine
-      hcInfo setOnClickListener onButtonTap(
-        me browse "https://sbw.app/posts/scaling-ln-with-hosted-channels/"
+      hcInfo.setOnClickListener(
+        onButtonTap(
+          browse("https://sbw.app/posts/scaling-ln-with-hosted-channels/")
+        )
       )
       setVisMany(
         true -> hcBranding,
@@ -321,7 +327,7 @@ class ChanActivity
       for {
         HostedChannelBranding(_, pngIcon, contactInfo) <- brandOpt
         bitmapImage <- Try(pngIcon.get.toArray).map(hcImageMemo.get)
-        _ = hcImage setOnClickListener onButtonTap(me browse contactInfo)
+        _ = hcImage.setOnClickListener(onButtonTap(browse(contactInfo)))
         _ = setVis(isVisible = true, hcImageContainer)
       } hcImage.setImageBitmap(bitmapImage)
 
@@ -335,7 +341,7 @@ class ChanActivity
           )
         else
           mkCheckForm(
-            alert => runAnd(alert.dismiss)(me removeHc hc),
+            alert => runAnd(alert.dismiss)(removeHc(hc)),
             none,
             confirmationBuilder(
               hc,
@@ -399,7 +405,7 @@ class ChanActivity
   }
 
   override def onDestroy(): Unit = {
-    try LNParams.cm.all.values.foreach(_.listeners -= me)
+    try LNParams.cm.all.values.foreach(_.listeners -= this)
     catch none
     updateSubscription.foreach(_.unsubscribe())
     super.onDestroy
@@ -407,13 +413,15 @@ class ChanActivity
 
   override def onChoiceMade(tag: AnyRef, pos: Int): Unit = (tag, pos) match {
     case (cs: NormalCommits, 0) =>
-      me share ChanActivity.getDetails(
-        cs,
-        cs.commitInput.outPoint.txid.toString
+      share(
+        ChanActivity.getDetails(
+          cs,
+          cs.commitInput.outPoint.txid.toString
+        )
       )
     case (nc: HostedCommits, 0) =>
-      me share ChanActivity.getDetails(nc, fundingTxid = "n/a")
-    case (hc: HostedCommits, 1) => me share ChanActivity.getHcState(hc)
+      share(ChanActivity.getDetails(nc, fundingTxid = "n/a"))
+    case (hc: HostedCommits, 1) => share(ChanActivity.getHcState(hc))
     case (cs: NormalCommits, 1) => closeNcToWallet(cs)
 
     case (hc: HostedCommits, 2) =>
@@ -423,7 +431,7 @@ class ChanActivity
           getString(R.string.confirm_ln_hosted_chan_drain).html
         )
       mkCheckForm(
-        alert => runAnd(alert.dismiss)(me drainHc hc),
+        alert => runAnd(alert.dismiss)(drainHc(hc)),
         none,
         builder,
         R.string.dialog_ok,
@@ -446,7 +454,7 @@ class ChanActivity
         addressResponse =>
           val pubKeyScript =
             LNParams.addressToPubKeyScript(addressResponse.firstAccountAddress)
-          for (chan <- me getChanByCommits cs)
+          for (chan <- getChanByCommits(cs))
             chan process CMD_CLOSE(Some(pubKeyScript), force = false)
       }
     }
@@ -461,7 +469,7 @@ class ChanActivity
           .format(bitcoinUri.address.humanFour)
           .html
       )
-      def proceed(): Unit = for (chan <- me getChanByCommits cs)
+      def proceed(): Unit = for (chan <- getChanByCommits(cs))
         chan process CMD_CLOSE(Some(pubKeyScript), force = false)
       mkCheckForm(
         alert => runAnd(alert.dismiss)(proceed()),
@@ -484,7 +492,7 @@ class ChanActivity
     def onData: Runnable = UITask(resolveClosingAddress())
     val sheet =
       new sheets.OnceBottomSheet(
-        me,
+        this,
         Some(getString(R.string.scan_btc_address)),
         onData
       )
@@ -538,7 +546,7 @@ class ChanActivity
           .setTo(toSend)
         WalletApp.app.quickToast(
           getString(R.string.dialog_lnurl_processing)
-            .format(me getString R.string.tx_ln_label_reflexive)
+            .format(getString(R.string.tx_ln_label_reflexive))
             .html
         )
         replaceOutgoingPayment(
@@ -591,7 +599,7 @@ class ChanActivity
   }
 
   def resolveNodeQr(): Unit = InputParser.checkAndMaybeErase {
-    case _: RemoteNodeInfo => me exitTo ClassNames.remotePeerActivityClass
+    case _: RemoteNodeInfo => exitTo(ClassNames.remotePeerActivityClass)
     case _                 => nothingUsefulTask.run
   }
 
@@ -599,7 +607,7 @@ class ChanActivity
     def onData: Runnable = UITask(resolveNodeQr())
     val sheet =
       new sheets.OnceBottomSheet(
-        me,
+        this,
         Some(getString(R.string.chan_open_scan)),
         onData
       )
@@ -618,7 +626,7 @@ class ChanActivity
 
     val builder = titleBodyAsViewBuilder(title = null, body = container)
     def switchToScanner(alert: AlertDialog): Unit =
-      runAnd(alert.dismiss)(me.scanNodeQr())
+      runAnd(alert.dismiss)(scanNodeQr())
 
     mkCheckFormNeutral(
       proceed,
@@ -636,130 +644,125 @@ class ChanActivity
   }
 
   override def PROCEED(state: Bundle): Unit = {
-    if (LNParams.isOperational) {
-      for (channel <- LNParams.cm.all.values) channel.listeners += me
-      setContentView(R.layout.activity_chan)
-      updateChanData.run
+    for (channel <- LNParams.cm.all.values) channel.listeners += this
+    setContentView(R.layout.activity_chan)
+    updateChanData.run
 
-      val scanTitle = new TitleView(me getString R.string.title_chans)
-      scanTitle.view.setOnClickListener(me onButtonTap finish)
-      scanTitle.backArrow.setVisibility(View.VISIBLE)
-      getChanList.addHeaderView(scanTitle.view)
+    val scanTitle = new TitleView(getString(R.string.title_chans))
+    scanTitle.view.setOnClickListener(onButtonTap(finish))
+    scanTitle.backArrow.setVisibility(View.VISIBLE)
+    getChanList.addHeaderView(scanTitle.view)
 
-      val scanFooter = new TitleView(me getString R.string.chan_open)
-      val lspFooter = new TitleView(me getString R.string.chan_lsp_list_title)
-      val hcpFooter = new TitleView(me getString R.string.chan_hcp_list_title)
+    val scanFooter = new TitleView(getString(R.string.chan_open))
+    val lspFooter = new TitleView(getString(R.string.chan_lsp_list_title))
+    val hcpFooter = new TitleView(getString(R.string.chan_hcp_list_title))
 
+    addFlowChip(
+      scanFooter.flow,
+      getString(R.string.chan_open_scan),
+      R.drawable.border_purple,
+      _ => scanNodeQr()
+    )
+
+    addFlowChip(
+      scanFooter.flow,
+      getString(R.string.chan_open_paste),
+      R.drawable.border_basic,
+      _ => pasteNodeQr()
+    )
+
+    if (LNParams.isMainnet) {
       addFlowChip(
-        scanFooter.flow,
-        getString(R.string.chan_open_scan),
-        R.drawable.border_purple,
-        _ => scanNodeQr()
-      )
-
-      addFlowChip(
-        scanFooter.flow,
-        getString(R.string.chan_open_paste),
+        lspFooter.flow,
+        "LNBIG.com",
         R.drawable.border_basic,
-        _ => pasteNodeQr()
+        _ => browse("https://lnbig.com/#/open-channel")
+      )
+      addFlowChip(
+        lspFooter.flow,
+        "Zero Fee Routing",
+        R.drawable.border_basic,
+        _ => browse("https://zerofeerouting.com/mobile-wallets/")
+      )
+      addFlowChip(
+        lspFooter.flow,
+        "BlockTank",
+        R.drawable.border_basic,
+        _ => browse("https://synonym.to/blocktank/")
+      )
+      addFlowChip(
+        lspFooter.flow,
+        "Bitrefill",
+        R.drawable.border_basic,
+        _ => browse("https://www.bitrefill.com/buy/lightning-channel")
       )
 
-      if (LNParams.isMainnet) {
-        addFlowChip(
-          lspFooter.flow,
-          "LNBIG.com",
-          R.drawable.border_basic,
-          _ => me browse "https://lnbig.com/#/open-channel"
-        )
-        addFlowChip(
-          lspFooter.flow,
-          "Zero Fee Routing",
-          R.drawable.border_basic,
-          _ => me browse "https://zerofeerouting.com/mobile-wallets/"
-        )
-        addFlowChip(
-          lspFooter.flow,
-          "BlockTank",
-          R.drawable.border_basic,
-          _ => me browse "https://synonym.to/blocktank/"
-        )
-        addFlowChip(
-          lspFooter.flow,
-          "Bitrefill",
-          R.drawable.border_basic,
-          _ => me browse "https://www.bitrefill.com/buy/lightning-channel"
-        )
-
-        addFlowChip(
-          hcpFooter.flow,
-          "Motherbase",
-          R.drawable.border_basic,
-          _ =>
-            goToWithValue(
-              ClassNames.remotePeerActivityClass,
-              LNParams.syncParams.motherbase
-            )
-        )
-
-        addFlowChip(
-          hcpFooter.flow,
-          "ergvein.net",
-          R.drawable.border_basic,
-          _ =>
-            goToWithValue(
-              ClassNames.remotePeerActivityClass,
-              LNParams.syncParams.ergveinNet
-            )
-        )
-
-        addFlowChip(
-          hcpFooter.flow,
-          "SATM",
-          R.drawable.border_basic,
-          _ =>
-            goToWithValue(
-              ClassNames.remotePeerActivityClass,
-              LNParams.syncParams.satm
-            )
-        )
-
-        addFlowChip(
-          hcpFooter.flow,
-          "Jiraiya",
-          R.drawable.border_basic,
-          _ =>
-            goToWithValue(
-              ClassNames.remotePeerActivityClass,
-              LNParams.syncParams.jiraiya
-            )
-        )
-      }
-
-      getChanList.addFooterView(scanFooter.view)
-      getChanList.addFooterView(lspFooter.view)
-      getChanList.addFooterView(hcpFooter.view)
-      getChanList.setAdapter(chanAdapter)
-      getChanList.setDividerHeight(0)
-      getChanList.setDivider(null)
-
-      val window = 500.millis
-      val stateEvents = Rx.uniqueFirstAndLastWithinWindow(
-        ChannelMaster.stateUpdateStream,
-        window
+      addFlowChip(
+        hcpFooter.flow,
+        "Motherbase",
+        R.drawable.border_basic,
+        _ =>
+          goToWithValue(
+            ClassNames.remotePeerActivityClass,
+            LNParams.syncParams.motherbase
+          )
       )
-      val statusEvents = Rx.uniqueFirstAndLastWithinWindow(
-        ChannelMaster.statusUpdateStream,
-        window
+
+      addFlowChip(
+        hcpFooter.flow,
+        "ergvein.net",
+        R.drawable.border_basic,
+        _ =>
+          goToWithValue(
+            ClassNames.remotePeerActivityClass,
+            LNParams.syncParams.ergveinNet
+          )
       )
-      updateSubscription = Some(
-        stateEvents
-          .merge(statusEvents)
-          .subscribe(_ => updateChanData.run)
+
+      addFlowChip(
+        hcpFooter.flow,
+        "SATM",
+        R.drawable.border_basic,
+        _ =>
+          goToWithValue(
+            ClassNames.remotePeerActivityClass,
+            LNParams.syncParams.satm
+          )
       )
-    } else {
-      WalletApp.freePossiblyUsedRuntimeResouces()
-      me exitTo ClassNames.mainActivityClass
+
+      addFlowChip(
+        hcpFooter.flow,
+        "Jiraiya",
+        R.drawable.border_basic,
+        _ =>
+          goToWithValue(
+            ClassNames.remotePeerActivityClass,
+            LNParams.syncParams.jiraiya
+          )
+      )
     }
+
+    getChanList.addFooterView(scanFooter.view)
+    getChanList.addFooterView(lspFooter.view)
+    getChanList.addFooterView(hcpFooter.view)
+    getChanList.setAdapter(chanAdapter)
+    getChanList.setDividerHeight(0)
+    getChanList.setDivider(null)
+
+    val window = 500.millis
+    val stateEvents = Rx.uniqueFirstAndLastWithinWindow(
+      ChannelMaster.stateUpdateStream,
+      window
+    )
+    val statusEvents = Rx.uniqueFirstAndLastWithinWindow(
+      ChannelMaster.statusUpdateStream,
+      window
+    )
+    updateSubscription = Some(
+      stateEvents
+        .merge(statusEvents)
+        .subscribe(_ => updateChanData.run)
+    )
   }
 
   private def getBrandingInfos = for {
@@ -778,7 +781,7 @@ class ChanActivity
     s"<strong>${info.alias}</strong><br>${info.address.toString}"
 
   private def confirmationBuilder(commits: Commitments, msg: CharSequence) =
-    new AlertDialog.Builder(me, R.style.DialogTheme)
+    new AlertDialog.Builder(this, R.style.DialogTheme)
       .setTitle(commits.remoteInfo.address.toString)
       .setMessage(msg)
 
@@ -801,12 +804,14 @@ class ChanActivity
       options: Array[Spanned],
       cs: Commitments
   ): View.OnClickListener = onButtonTap {
-    val list = me selectorList new ArrayAdapter(
-      me,
-      R.layout.frag_bottomsheet_item,
-      options
+    val list = selectorList(
+      new ArrayAdapter(
+        this,
+        R.layout.frag_bottomsheet_item,
+        options
+      )
     )
-    new sheets.ChoiceBottomSheet(list, cs, me)
+    new sheets.ChoiceBottomSheet(list, cs, this)
       .show(getSupportFragmentManager, "unused-tag")
   }
 }

@@ -12,7 +12,7 @@ case class RichCursorSQLiteAndroid(c: Cursor) extends RichCursor { me =>
   def set[T](transform: RichCursor => T): Set[T] = try map(transform).toSet
   finally c.close
 
-  def headTry[T](fun: RichCursor => T): Try[T] = try Try(fun apply head)
+  def headTry[T](fun: RichCursor => T): Try[T] = try Try(fun(head))
   finally c.close
 
   def bytes(key: String): Array[Byte] = c.getBlob(c getColumnIndex key)

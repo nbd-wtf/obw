@@ -199,7 +199,7 @@ class URBottomSheet(host: BaseActivity, onPairData: PairingData => Unit)
     extends ScannerBottomSheet(host)
     with HasUrDecoder {
   override def barcodeResult(res: BarcodeResult): Unit = if (
-    res.getText.toLowerCase startsWith "zpub"
+    res.getText.toLowerCase.startsWith("zpub")
   ) onZPub(res.getText)
   else handleUR(res.getText)
   override def onError(error: String): Unit = host.onFail(error)
@@ -213,7 +213,7 @@ class URBottomSheet(host: BaseActivity, onPairData: PairingData => Unit)
   }
 
   def onZPub(zPubText: String): Unit = {
-    scala.util.Try(ZPubPairingData apply zPubText) match {
+    scala.util.Try(ZPubPairingData(zPubText)) match {
       case Failure(why)  => onError(why.getMessage)
       case Success(data) => onPairData(data)
     }
@@ -226,7 +226,9 @@ class URBottomSheet(host: BaseActivity, onPairData: PairingData => Unit)
       case urBytes: Array[Byte]     => HWBytesPairingData(urBytes)
       case urAccount: CryptoAccount => HWAccountPairingData(urAccount)
       case _ =>
-        throw new RuntimeException(host getString R.string.error_nothing_useful)
+        throw new RuntimeException(
+          host.getString(R.string.error_nothing_useful)
+        )
     } match {
       case Failure(why)  => onError(why.getMessage)
       case Success(data) => onPairData(data)

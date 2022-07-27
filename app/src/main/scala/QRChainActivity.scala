@@ -19,7 +19,7 @@ import immortan.utils.{BitcoinUri, Denomination, InputParser, PaymentRequestExt}
 
 import scala.util.Success
 
-class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
+class QRChainActivity extends QRActivity with ExternalDataChecker {
   lazy private[this] val chainQrCaption =
     findViewById(R.id.chainQrCaption).asInstanceOf[TextView]
   lazy private[this] val chainQrCodes =
@@ -70,20 +70,24 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
             QRActivity.get(contentToShare, qrSize),
             onFail
           ) { qrBitmap =>
-            holder.qrCopy setOnClickListener onButtonTap(
-              WalletApp.app copy contentToShare
+            holder.qrCopy.setOnClickListener(
+              onButtonTap(
+                WalletApp.app copy contentToShare
+              )
             )
-            holder.qrCode setOnClickListener onButtonTap(
-              WalletApp.app copy contentToShare
+            holder.qrCode.setOnClickListener(
+              onButtonTap(
+                WalletApp.app copy contentToShare
+              )
             )
-            holder.qrEdit setOnClickListener onButtonTap(me editAddress bu)
-            holder.qrShare setOnClickListener onButtonTap({
+            holder.qrEdit.setOnClickListener(onButtonTap(editAddress(bu)))
+            holder.qrShare.setOnClickListener(onButtonTap({
               runInFutureProcessOnUI(
                 shareData(qrBitmap, contentToShare),
                 onFail
               )(none)
-            })
-            holder.qrCode setImageBitmap qrBitmap
+            }))
+            holder.qrCode.setImageBitmap(qrBitmap)
           }
         }
     }
@@ -108,7 +112,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
       none,
       titleBodyAsViewBuilder(
         getString(R.string.dialog_receive_btc).asColoredView(
-          me chainWalletBackground wallet
+          chainWalletBackground(wallet)
         ),
         manager.content
       ),
@@ -173,14 +177,14 @@ class QRChainActivity extends QRActivity with ExternalDataChecker { me =>
         .map(BitcoinUri.fromRaw)
       addresses = allAddresses.take(1)
 
-      chainQrMore setOnClickListener onButtonTap {
+      chainQrMore.setOnClickListener(onButtonTap {
         // Show all remaining QR images right away
         addresses = allAddresses
 
         // Animate list changes and remove a button since it gets useless
         adapter.notifyItemRangeInserted(1, allAddresses.size - 1)
         chainQrMore.setVisibility(View.GONE)
-      }
+      })
 
       chainQrCodes.addOnScrollListener(new CenterScrollListener)
       chainQrCodes.setLayoutManager(layoutManager)

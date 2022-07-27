@@ -362,10 +362,10 @@ class HubActivity
     var currentDetails: TransactionDetails = _
     var lastVisibleIconId: Int = -1
 
-    paymentCardContainer setOnClickListener onButtonTap(ractOnTap())
-    setItemLabel setOnClickListener onButtonTap(doSetItemLabel())
-    removeItem setOnClickListener onButtonTap(doRemoveItem())
-    shareItem setOnClickListener onButtonTap(doShareItem())
+    paymentCardContainer.setOnClickListener(onButtonTap(ractOnTap()))
+    setItemLabel.setOnClickListener(onButtonTap(doSetItemLabel()))
+    removeItem.setOnClickListener(onButtonTap(doRemoveItem()))
+    shareItem.setOnClickListener(onButtonTap(doShareItem()))
 
     // MENU BUTTONS
     def doViewInvoice(info: PaymentInfo): Unit =
@@ -2729,8 +2729,10 @@ class HubActivity
           response.pubKeyScriptToAmount.values.head.toMilliSatoshi
 
         if (fromWallet.isSigning) {
-          finalSendButton setOnClickListener onButtonTap(
-            process apply response.tx
+          finalSendButton.setOnClickListener(
+            onButtonTap(
+              process(response.tx)
+            )
           )
           sendView.switchToConfirm(
             alert,
@@ -2741,8 +2743,10 @@ class HubActivity
           sendView.chainReaderView.onSignedTx = signedTx =>
             UITask {
               if (signedTx.txOut.toSet != response.tx.txOut.toSet) alert.dismiss
-              finalSendButton setOnClickListener onButtonTap(
-                process apply signedTx
+              finalSendButton.setOnClickListener(
+                onButtonTap(
+                  process(signedTx)
+                )
               )
               sendView.switchToConfirm(
                 alert,
@@ -2888,8 +2892,10 @@ class HubActivity
           response.pubKeyScriptToAmount.values.sum.toMilliSatoshi
 
         if (fromWallet.isSigning) {
-          finalSendButton setOnClickListener onButtonTap(
-            process apply response.tx
+          finalSendButton.setOnClickListener(
+            onButtonTap(
+              process(response.tx)
+            )
           )
           sendView.switchToConfirm(
             alert,

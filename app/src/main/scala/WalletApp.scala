@@ -529,7 +529,7 @@ object WalletApp {
   // Fiat conversion
 
   def currentRate(rates: Fiat2Btc, code: String): Try[Double] = Try(
-    rates apply code
+    rates(code)
   )
   def msatInFiat(rates: Fiat2Btc, code: String)(
       msat: MilliSatoshi

@@ -45,7 +45,7 @@ object SetupActivity {
   }
 }
 
-class SetupActivity extends BaseActivity { me =>
+class SetupActivity extends BaseActivity {
   private[this] lazy val activitySetupMain = findViewById(
     R.id.activitySetupMain
   ).asInstanceOf[LinearLayout]
@@ -56,16 +56,16 @@ class SetupActivity extends BaseActivity { me =>
     findViewById(R.id.restoreOptions).asInstanceOf[LinearLayout]
   private[this] final val FILE_REQUEST_CODE = 112
 
-  lazy private[this] val enforceTor = new SettingsHolder(me) {
+  lazy private[this] val enforceTor = new SettingsHolder(this) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 
     settingsTitle.setText(R.string.settings_ensure_tor)
     settingsInfo.setText(R.string.setup_ensure_tor_hint)
 
-    view setOnClickListener onButtonTap {
+    view.setOnClickListener(onButtonTap {
       putBoolAndUpdateView(WalletApp.ENSURE_TOR, !WalletApp.ensureTor)
-    }
+    })
   }
 
   override def START(s: Bundle): Unit = {
@@ -82,9 +82,9 @@ class SetupActivity extends BaseActivity { me =>
   var proceedWithMnemonics: List[String] => Unit = mnemonics => {
     // Make sure this method can be run at most once (to not set runtime data twice) by replacing it with a noop method right away
     runInFutureProcessOnUI(
-      SetupActivity.fromMnemonics(this, mnemonics, me),
+      SetupActivity.fromMnemonics(this, mnemonics, this),
       onFail
-    )(_ => me exitTo ClassNames.hubActivityClass)
+    )(_ => exitTo(ClassNames.hubActivityClass))
     TransitionManager.beginDelayedTransition(activitySetupMain)
     activitySetupMain.setVisibility(View.GONE)
     proceedWithMnemonics = none
@@ -112,12 +112,12 @@ class SetupActivity extends BaseActivity { me =>
           case Success(plainEssentialBytes) =>
             // We were able to decrypt a file, implant it into db location and proceed
             LocalBackup.copyPlainDataToDbLocation(
-              me,
+              this,
               WalletApp.dbFileNameEssential,
               plainEssentialBytes
             )
             // Delete user-selected backup file while we can here and make an app-owned backup shortly
-            DocumentFile.fromSingleUri(me, resultData.getData).delete
+            DocumentFile.fromSingleUri(this, resultData.getData).delete
             WalletApp.backupSaveWorker.replaceWork(true)
             proceedWithMnemonics(mnemonics)
 
@@ -171,12 +171,14 @@ class SetupActivity extends BaseActivity { me =>
       '\n',
       com.hootsuite.nachos.terminator.ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR
     )
-    recoveryPhrase setAdapter new ArrayAdapter(
-      me,
-      android.R.layout.simple_list_item_1,
-      englishWordList
+    recoveryPhrase.setAdapter(
+      new ArrayAdapter(
+        this,
+        android.R.layout.simple_list_item_1,
+        englishWordList
+      )
     )
-    recoveryPhrase setDropDownBackgroundResource R.color.button_material_dark
+    recoveryPhrase.setDropDownBackgroundResource(R.color.button_material_dark)
 
     def getMnemonicList: List[String] = {
       val mnemonic = recoveryPhrase.getText.toString.toLowerCase.trim
