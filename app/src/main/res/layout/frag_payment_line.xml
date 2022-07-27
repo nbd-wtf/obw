@@ -66,22 +66,22 @@
 
                 <!-- BTC to LN -->
                 <RelativeLayout style="@style/Tag" android:id="@+id/btcLn" android:paddingTop="2dp" android:paddingBottom="2dp" android:paddingStart="5dp" android:paddingEnd="5dp">
-                    <ImageView style="@style/BoundedView" android:layout_alignParentTop="true" android:layout_alignParentStart="true" android:background="@drawable/ic_logo_bitcoin_24dp"/>
+                    <ImageView style="@style/BoundedView" android:layout_alignParentTop="true" android:layout_alignParentStart="true" android:background="@drawable/ic_logo_bitcoin" layout_width="24dp"/>
                     <ImageView style="@style/BoundedView" android:layout_centerInParent="true" android:background="@drawable/baseline_arrow_upward_18" android:rotation="135"/>
-                    <ImageView style="@style/BoundedView" android:layout_alignParentEnd="true" android:layout_alignParentBottom="true" android:background="@drawable/ic_logo_lightning_24dp"/>
+                    <ImageView style="@style/BoundedView" android:layout_alignParentEnd="true" android:layout_alignParentBottom="true" android:background="@drawable/ic_logo_lightning" layout_width="24dp"/>
                 </RelativeLayout>
 
                 <!-- LN to BTC -->
                 <RelativeLayout style="@style/Tag" android:id="@+id/lnBtc" android:paddingTop="2dp" android:paddingBottom="2dp" android:paddingStart="5dp" android:paddingEnd="5dp">
-                    <ImageView style="@style/BoundedView" android:layout_alignParentTop="true" android:layout_alignParentStart="true" android:background="@drawable/ic_logo_lightning_24dp"/>
+                    <ImageView style="@style/BoundedView" android:layout_alignParentTop="true" android:layout_alignParentStart="true" android:background="@drawable/ic_logo_lightning" layout_width="24dp"/>
                     <ImageView style="@style/BoundedView" android:layout_centerInParent="true" android:background="@drawable/baseline_arrow_upward_18" android:rotation="135"/>
-                    <ImageView style="@style/BoundedView" android:layout_alignParentEnd="true" android:layout_alignParentBottom="true" android:background="@drawable/ic_logo_bitcoin_24dp"/>
+                    <ImageView style="@style/BoundedView" android:layout_alignParentEnd="true" android:layout_alignParentBottom="true" android:background="@drawable/ic_logo_bitcoin" layout_width="24dp"/>
                 </RelativeLayout>
 
                 <!-- BTC incoming -->
                 <LinearLayout style="@style/Tag" android:gravity="center" android:orientation="horizontal" android:id="@+id/btcIncoming">
                     <ImageView style="@style/BoundedView" android:background="@drawable/baseline_arrow_downward_18"/>
-                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_bitcoin_24dp"/>
+                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_bitcoin" layout_width="24dp"/>
                 </LinearLayout>
 
                 <!-- BTC incoming boosted -->
@@ -103,26 +103,26 @@
 
                 <!-- BTC outgoing -->
                 <LinearLayout style="@style/Tag" android:gravity="center" android:orientation="horizontal" android:id="@+id/btcOutgoing">
-                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_bitcoin_24dp"/>
+                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_bitcoin" layout_width="24dp"/>
                     <ImageView style="@style/BoundedView" android:background="@drawable/baseline_arrow_upward_18"/>
                 </LinearLayout>
 
                 <!-- LN incoming -->
                 <LinearLayout style="@style/Tag" android:gravity="center" android:orientation="horizontal" android:id="@+id/lnIncoming">
                     <ImageView style="@style/BoundedView" android:background="@drawable/baseline_arrow_downward_18"/>
-                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_lightning_24dp"/>
+                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_lightning" layout_width="24dp"/>
                 </LinearLayout>
 
                 <!-- LN outgoing -->
                 <LinearLayout style="@style/Tag" android:gravity="center" android:orientation="horizontal" android:id="@+id/lnOutgoing">
-                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_lightning_24dp"/>
+                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_lightning" layout_width="24dp"/>
                     <ImageView style="@style/BoundedView" android:background="@drawable/baseline_arrow_upward_18"/>
                 </LinearLayout>
 
                 <!-- LN routed -->
                 <LinearLayout style="@style/Tag" android:gravity="center" android:orientation="horizontal" android:id="@+id/lnRouted">
                     <ImageView style="@style/BoundedView" android:background="@drawable/baseline_swap_horiz_18"/>
-                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_lightning_24dp"/>
+                    <ImageView style="@style/BoundedView" android:background="@drawable/ic_logo_lightning" layout_width="24dp"/>
                 </LinearLayout>
 
                 <!-- Content -->
