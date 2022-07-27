@@ -1802,7 +1802,7 @@ class HubActivity
           case _ => None
         }
         .map { case (color, sign, pct) =>
-          s"<font color=#${getResources.getColor(color)}><small>$sign</small> ${Denomination.formatFiat
+          s"<font color=#${getString(color)}><small>$sign</small> ${Denomination.formatFiat
               .format(pct)}%</font>"
         }
         .map(_ + "<br>")
