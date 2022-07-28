@@ -72,14 +72,16 @@
         android:layout_marginStart="8dp"
         android:text="@string/popup_identity"
         android:id="@+id/attachIdentity"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:buttonTint="@color/ourPurple"/>
 
     <CheckBox
         style="@style/FillingView"
         android:layout_marginTop="25dp"
         android:layout_marginStart="8dp"
         android:id="@+id/holdPayment"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:buttonTint="@color/ourPurple"/>
 
     <View
         android:layout_marginTop="25dp"
