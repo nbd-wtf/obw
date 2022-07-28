@@ -26,37 +26,43 @@
     <LinearLayout
         android:clickable="true"
         android:focusable="true"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="20dp"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="24dp"
         android:layout_alignParentBottom="true"
         android:id="@+id/bottomActionBar"
         android:orientation="horizontal"
-        style="@style/FillingView"
-        android:gravity="center">
+        android:gravity="fill_horizontal"
+        android:weightSum="320"
+        style="@style/FillingView">
 
         <com.ornach.nobobutton.NoboButton
             app:nb_text="@string/dialog_send"
             android:onClick="bringSendOptions"
-            android:layout_width="106dp"
+            android:layout_width="0dp"
             android:layout_height="46dp"
+            android:layout_weight="106"
             style="@style/PurpleButton"/>
+
+        <Space android:layout_width="0dp" android:layout_height="46dp" android:layout_weight="23" />
 
         <com.ornach.nobobutton.NoboButton
             app:nb_drawableResource="@drawable/outline_qr_code_scanner_32_24"
             android:onClick="bringScanner"
+            android:layout_width="0dp"
             android:layout_height="46dp"
-            android:layout_width="62dp"
-            android:layout_marginLeft="23dp"
-            android:layout_marginRight="23dp"
+            android:layout_weight="62"
             style="@style/PurpleButton"/>
+
+        <Space android:layout_width="0dp" android:layout_height="46dp" android:layout_weight="23" />
 
         <com.ornach.nobobutton.NoboButton
             app:nb_text="@string/dialog_receive"
             android:onClick="bringReceivePopup"
-            android:layout_width="106dp"
+            android:layout_width="0dp"
             android:layout_height="46dp"
+            android:layout_weight="106"
             style="@style/PurpleButton"/>
 
     </LinearLayout>
