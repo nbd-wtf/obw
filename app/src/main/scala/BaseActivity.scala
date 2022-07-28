@@ -539,10 +539,9 @@ trait BaseActivity extends AppCompatActivity { self =>
 
     def updateText(value: MilliSatoshi): Unit = {
       val amount = WalletApp.denom.fromMsat(value).toString
-      runAnd(inputAmount.requestFocus)(inputAmount setText amount)
+      runAnd(inputAmount.requestFocus)(inputAmount.setText(amount))
       updateFiatInput()
     }
-
     def bigDecimalFrom(input: CurrencyEditText): BigDecimal = BigDecimal(
       input.getNumericValueBigDecimal
     )
@@ -556,7 +555,7 @@ trait BaseActivity extends AppCompatActivity { self =>
         .msatInFiat(rates, fiatCode)(resultMsat)
         .filter(0.001d <= _)
         .map(_.toString)
-        .getOrElse("0.00")
+        .getOrElse("")
 
     def updatedBtcFromFiat: String =
       WalletApp
@@ -566,16 +565,16 @@ trait BaseActivity extends AppCompatActivity { self =>
         .map(Denomination.btcBigDecimal2MSat)
         .map(WalletApp.denom.fromMsat)
         .map(_.toString)
-        .getOrElse("0.00")
+        .getOrElse("")
 
     def updateFiatInput(): Unit = {
-      fiatInputAmount setText updatedFiatFromBtc
-      fiatInputAmount setMaxNumberOfDecimalDigits 2
+      fiatInputAmount.setText(updatedFiatFromBtc)
+      fiatInputAmount.setMaxNumberOfDecimalDigits(2)
     }
 
     def updateBtcInput(): Unit = {
-      inputAmount setText updatedBtcFromFiat
-      inputAmount setMaxNumberOfDecimalDigits 8
+      inputAmount.setText(updatedBtcFromFiat)
+      inputAmount.setMaxNumberOfDecimalDigits(8)
     }
 
     extraText match {
@@ -597,16 +596,16 @@ trait BaseActivity extends AppCompatActivity { self =>
         extraInputVisibility.setVisibility(View.GONE)
     }
 
-    fiatInputAmount addTextChangedListener onTextChange { _ =>
+    fiatInputAmount.addTextChangedListener(onTextChange { _ =>
       if (fiatInputAmount.hasFocus) updateBtcInput()
-    }
-    inputAmount addTextChangedListener onTextChange { _ =>
+    })
+    inputAmount.addTextChangedListener(onTextChange { _ =>
       if (inputAmount.hasFocus) updateFiatInput()
-    }
-    inputAmountHint setText WalletApp.denom.sign.toUpperCase
-    fiatInputAmountHint setText fiatCode.toUpperCase
-    fiatInputAmount setLocale Denomination.locale
-    inputAmount setLocale Denomination.locale
+    })
+    inputAmountHint.setText(WalletApp.denom.sign.toUpperCase)
+    fiatInputAmountHint.setText(fiatCode.toUpperCase)
+    fiatInputAmount.setLocale(Denomination.locale)
+    inputAmount.setLocale(Denomination.locale)
   }
 
   class TwoSidedItem(

@@ -4,6 +4,27 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Bitcoin and hint -->
+    <FrameLayout style="@style/FillingView">
+        <com.cottacush.android.currencyedittext.CurrencyEditText
+            style="@style/XSmallMarginFillingView"
+            app:maxNumberOfDecimalDigits="8"
+            android:imeOptions="actionDone"
+            android:id="@+id/inputAmount"
+            android:textStyle="bold"
+            android:textSize="24sp"/>
+
+        <TextView
+            style="@style/InputHintView"
+            android:layout_marginEnd="15dp"
+            android:id="@+id/inputAmountHint"/>
+
+    </FrameLayout>
+
+    <TextView
+        style="@style/XMarginFillingView"
+        android:id="@+id/hintDenom"/>
+
     <!-- Fiat and hint -->
     <FrameLayout style="@style/FillingView">
         <com.cottacush.android.currencyedittext.CurrencyEditText
@@ -28,27 +49,6 @@
         android:layout_marginBottom="25dp"
         android:layout_width="fill_parent"
         android:id="@+id/hintFiatDenom"/>
-
-    <!-- Bitcoin and hint -->
-    <FrameLayout style="@style/FillingView">
-        <com.cottacush.android.currencyedittext.CurrencyEditText
-            style="@style/XSmallMarginFillingView"
-            app:maxNumberOfDecimalDigits="8"
-            android:imeOptions="actionDone"
-            android:id="@+id/inputAmount"
-            android:textStyle="bold"
-            android:textSize="24sp"/>
-
-        <TextView
-            style="@style/InputHintView"
-            android:layout_marginEnd="15dp"
-            android:id="@+id/inputAmountHint"/>
-
-    </FrameLayout>
-
-    <TextView
-        style="@style/XMarginFillingView"
-        android:id="@+id/hintDenom"/>
 
     <!-- Extra input -->
     <include
