@@ -41,7 +41,6 @@
             <TextView style="@style/ChipTextBasic" android:id="@+id/BasicMultiPartPayment"/>
             <TextView style="@style/ChipTextBasic" android:id="@+id/StaticRemoteKey"/>
             <TextView style="@style/ChipTextBasic" android:id="@+id/HostedChannels"/>
-            <TextView style="@style/ChipTextBasic" android:id="@+id/ChainSwap"/>
             <TextView style="@style/ChipTextBasic" android:id="@+id/Wumbo"/>
         </org.apmem.tools.layouts.FlowLayout>
 

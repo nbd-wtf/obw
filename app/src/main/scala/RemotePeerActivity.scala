@@ -83,7 +83,6 @@ class RemotePeerActivity
     StaticRemoteKey -> findViewById(R.id.StaticRemoteKey)
       .asInstanceOf[TextView],
     HostedChannels -> findViewById(R.id.HostedChannels).asInstanceOf[TextView],
-    ChainSwap -> findViewById(R.id.ChainSwap).asInstanceOf[TextView],
     Wumbo -> findViewById(R.id.Wumbo).asInstanceOf[TextView]
   )
 
