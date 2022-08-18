@@ -151,7 +151,7 @@ dependencies {
     implementation 'org.scala-lang:scala-library:2.13.8'
 
     // Related to Immortan
-    implementation 'com.fiatjaf:immortan_2.13:0.8.0-SNAPSHOT'
+    implementation 'com.fiatjaf:immortan_2.13:0.7.6-SNAPSHOT'
     implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.6.4'
 
     // Built-in Tor

@@ -699,6 +699,17 @@ class ChanActivity
 
       addFlowChip(
         hcpFooter.flow,
+        "ZEBEDEE",
+        R.drawable.border_basic,
+        _ =>
+          goToWithValue(
+            ClassNames.remotePeerActivityClass,
+            LNParams.syncParams.zebedee
+          )
+      )
+
+      addFlowChip(
+        hcpFooter.flow,
         "Motherbase",
         R.drawable.border_basic,
         _ =>
