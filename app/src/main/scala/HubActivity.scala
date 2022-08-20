@@ -81,20 +81,17 @@ object HubActivity {
   var allInfos: Seq[TransactionDetails] = Nil
   var instance: HubActivity = _
 
-  def requestHostedChannel(from: RemoteNodeInfo): Unit = {
-    val localParams =
-      LNParams.makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
-    def implant(cs: Commitments, channel: ChannelHosted): Unit =
-      RemotePeerActivity.implantNewChannel(cs, channel)
+  def quicklyRequestHostedChannel(from: RemoteNodeInfo): Unit = {
     new HCOpenHandler(
       from,
       randomBytes32,
-      localParams.defaultFinalScriptPubKey,
+      LNParams
+        .makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
+        .defaultFinalScriptPubKey,
       LNParams.cm
     ) {
-      // Stop automatic HC opening attempts on getting any kind of local/remote error, this won't be triggered on disconnect
       def onEstablished(cs: Commitments, channel: ChannelHosted): Unit =
-        implant(cs, channel)
+        RemotePeerActivity.implantNewChannel(cs, channel)
       def onFailure(reason: Throwable): Unit = none
     }
   }
@@ -2464,12 +2461,7 @@ class HubActivity
 
     // setup free hosted channel offer
     walletCards.hostedChannelOffer.setOnClickListener(
-      onButtonTap(
-        goToWithValue(
-          ClassNames.remotePeerActivityClass,
-          LNParams.syncParams.zebedee
-        )
-      )
+      onButtonTap(quicklyRequestHostedChannel(LNParams.syncParams.zebedee))
     )
     walletCards.hostedChannelOffer.setText(
       getString(R.string.hosted_channel_offer)
