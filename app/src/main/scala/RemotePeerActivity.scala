@@ -439,44 +439,54 @@ class RemotePeerActivity
   def requestHostedChannel(view: View): Unit = askHostedChannel(randomBytes32)
 
   def askHostedChannel(secret: ByteVector32): Unit = {
-    val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
-      .setTitle(R.string.rpa_request_hc)
-      .setMessage(getString(R.string.rpa_hc_warn).html)
+    if (hasInfo.remoteInfo == LNParams.syncParams.zebedee) {
+      // open the channel directly
+      doAskHostedChannel(secret)
+    } else {
+      // show warning exit-scam warning
+      val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
+        .setTitle(R.string.rpa_request_hc)
+        .setMessage(getString(R.string.rpa_hc_warn).html)
 
-    mkCheckForm(
-      doAskHostedChannel,
-      none,
-      builder,
-      R.string.dialog_ok,
-      R.string.dialog_cancel
-    )
+      mkCheckForm(
+        confirmedAcceptAskHostedChannel,
+        none,
+        builder,
+        R.string.dialog_ok,
+        R.string.dialog_cancel
+      )
+    }
 
-    def doAskHostedChannel(alert: AlertDialog): Unit = {
-      // Switch view first since HC may throw immediately
-      setVis(isVisible = false, viewYesFeatureSupport)
-      stopAcceptingIncomingOffers()
+    def confirmedAcceptAskHostedChannel(alert: AlertDialog): Unit = {
       alert.dismiss
+      doAskHostedChannel(secret)
+    }
+  }
 
-      // We only need local params to extract defaultFinalScriptPubKey
-      val params =
-        LNParams.makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
-      new HCOpenHandler(
-        hasInfo.remoteInfo,
-        secret,
-        params.defaultFinalScriptPubKey,
-        LNParams.cm
-      ) {
-        def onEstablished(cs: Commitments, channel: ChannelHosted): Unit =
-          implant(cs, channel)
+  def doAskHostedChannel(secret: ByteVector32): Unit = {
+    // Switch view first since HC may throw immediately
+    setVis(isVisible = false, viewYesFeatureSupport)
+    stopAcceptingIncomingOffers()
 
-        def onFailure(reason: Throwable): Unit = UITask {
-          // We need to disconnect instead of just showing an error because of HC specifics
-          // remote peer awaits for our response and won't react to another HC open request
-          WalletApp.app.quickToast(reason.getMessage)
-          disconnectListenersAndFinish()
-          whenBackPressed.run
-        }.run
-      }
+    // We only need local params to extract defaultFinalScriptPubKey
+    val params =
+      LNParams.makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
+    new HCOpenHandler(
+      hasInfo.remoteInfo,
+      secret,
+      params.defaultFinalScriptPubKey,
+      LNParams.cm
+    ) {
+      def onEstablished(cs: Commitments, channel: ChannelHosted): Unit =
+        implant(cs, channel)
+
+      def onFailure(reason: Throwable): Unit = UITask {
+        // We need to disconnect instead of just showing an error because of HC specifics
+        // remote peer awaits for our response and won't react to another HC open request
+        WalletApp.app.quickToast(reason.getMessage)
+        disconnectListenersAndFinish()
+        whenBackPressed.run
+      }.run
     }
   }
 
