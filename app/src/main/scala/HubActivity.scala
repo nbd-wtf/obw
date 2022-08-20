@@ -2066,7 +2066,7 @@ class HubActivity
   override def process(reply: Any): Unit = reply match {
     case na: NodeAnnouncement =>
       LNParams.cm.all.values.foreach(_ process na.toRemoteInfo)
-    case PathFinder.NormalSyncDone =>
+    case PathFinder.CMDResync =>
       walletCards.updateLnSyncProgress(total = 1000, left = 1000)
     case prd: PureRoutingData =>
       walletCards.updateLnSyncProgress(prd.queriesTotal, prd.queriesLeft)

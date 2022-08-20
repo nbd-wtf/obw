@@ -38,7 +38,7 @@ object RemotePeerActivity {
     // At this point channel has saved itself in the database
     WalletApp.backupSaveWorker.replaceWork(false)
 
-    LNParams.cm.pf.startPeriodicResync()
+    LNParams.cm.pf.process(PathFinder.CMDStartPeriodicResync)
     LNParams.cm.all += Tuple2(cs.channelId, freshChannel)
     // This removes all previous channel listeners
     freshChannel.listeners = Set(LNParams.cm)

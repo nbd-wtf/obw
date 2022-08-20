@@ -461,7 +461,7 @@ object WalletApp {
 
       // Only schedule periodic resync if Lightning channels are being present
       if (LNParams.cm.all.nonEmpty)
-        Future { LNParams.cm.pf.startPeriodicResync() }
+        LNParams.cm.pf.process(PathFinder.CMDStartPeriodicResync)
 
       val feeratePeriodHours = 6
       val rateRetry = Rx.retry(
