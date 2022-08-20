@@ -1646,6 +1646,8 @@ class HubActivity
       .asInstanceOf[LinearLayout]
     val recoveryPhrase: TextView =
       view.findViewById(R.id.recoveryPhraseWarning).asInstanceOf[TextView]
+    val hostedChannelOffer: TextView =
+      view.findViewById(R.id.firstHostedChannelOffer).asInstanceOf[TextView]
     val defaultHeader: LinearLayout =
       view.findViewById(R.id.defaultHeader).asInstanceOf[LinearLayout]
 
@@ -1833,7 +1835,8 @@ class HubActivity
       setVisMany(
         allChannels.nonEmpty -> channelStateIndicators,
         allChannels.nonEmpty -> totalLightningBalance,
-        allChannels.isEmpty -> addChannelTip
+        allChannels.isEmpty -> addChannelTip,
+        allChannels.isEmpty -> walletCards.hostedChannelOffer
       )
       // We have updated chain wallet balances at this point because listener in WalletApp gets called first
       chainCards.update(LNParams.chainWallets.wallets)
@@ -2454,24 +2457,43 @@ class HubActivity
       if checkedButtonTags.contains(buttonTag)
     } walletCards.toggleGroup.check(itemId)
 
-    walletCards.recoveryPhrase setOnClickListener onButtonTap(
-      viewRecoveryCode()
+    // setup recovery phrase listener
+    walletCards.recoveryPhrase.setOnClickListener(
+      onButtonTap(viewRecoveryCode())
     )
-    walletCards.toggleGroup addOnButtonCheckedListener new OnButtonCheckedListener {
-      def onButtonChecked(
-          group: MaterialButtonToggleGroup,
-          checkId: Int,
-          isChecked: Boolean
-      ): Unit = {
-        WalletApp.putCheckedButtons(
-          itemsToTags.view
-            .filterKeys(group.getCheckedButtonIds.contains)
-            .values
-            .toSet
+
+    // setup free hosted channel offer
+    walletCards.hostedChannelOffer.setOnClickListener(
+      onButtonTap(
+        goToWithValue(
+          ClassNames.remotePeerActivityClass,
+          LNParams.syncParams.zebedee
         )
-        runAnd(updAllInfos())(paymentAdapterDataChanged.run)
+      )
+    )
+    walletCards.hostedChannelOffer.setText(
+      getString(R.string.hosted_channel_offer)
+        .format(LNParams.syncParams.zebedee.alias)
+    )
+
+    //
+    walletCards.toggleGroup.addOnButtonCheckedListener(
+      new OnButtonCheckedListener {
+        def onButtonChecked(
+            group: MaterialButtonToggleGroup,
+            checkId: Int,
+            isChecked: Boolean
+        ): Unit = {
+          WalletApp.putCheckedButtons(
+            itemsToTags.view
+              .filterKeys(group.getCheckedButtonIds.contains)
+              .values
+              .toSet
+          )
+          runAnd(updAllInfos())(paymentAdapterDataChanged.run)
+        }
       }
-    }
+    )
 
     // LIST
     itemsList.addHeaderView(walletCards.view)
