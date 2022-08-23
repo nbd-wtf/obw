@@ -563,6 +563,10 @@ trait BaseActivity extends AppCompatActivity { self =>
         .map(perBtc => bigDecimalFrom(fiatInputAmount) / perBtc)
         .filter(0.000000001d <= _)
         .map(Denomination.btcBigDecimal2MSat)
+        .map(msat =>
+          // round so the final result doesn't have millisatoshi units
+          MilliSatoshi((msat.underlying.toDouble / 1000).round * 1000)
+        )
         .map(WalletApp.denom.fromMsat)
         .map(_.toString)
         .getOrElse("")
