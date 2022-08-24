@@ -115,8 +115,8 @@ object HubActivity {
     outgoing = 0L.msat,
     isIncoming = true
   )
-  def hasItems: Boolean =
-    txInfos.nonEmpty || paymentInfos.nonEmpty || lnUrlPayLinks.nonEmpty || relayedPreimageInfos.nonEmpty
+  def itemsLength: Int =
+    txInfos.size + paymentInfos.size + lnUrlPayLinks.size + relayedPreimageInfos.size
 }
 
 class HubActivity
@@ -3289,8 +3289,8 @@ class HubActivity
       walletCards.relayedPayments
     )
     setVis(isVisible = lnUrlPayLinks.nonEmpty, walletCards.payMarketLinks)
-    setVis(isVisible = hasItems && !isSearchOn, walletCards.listCaption)
-    setVis(isVisible = !hasItems, walletCards.recoveryPhrase)
+    setVis(isVisible = itemsLength > 3 && !isSearchOn, walletCards.listCaption)
+    setVis(isVisible = itemsLength < 4, walletCards.recoveryPhrase)
     paymentsAdapter.notifyDataSetChanged
   }
 
