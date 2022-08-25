@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lang">rus</string>
-    <string name="app_name">Obi-Wan</string>
     <string name="sources">Исходный код</string>
     <string name="twitter">Наш твиттер</string>
     <string name="manual">Читать инструкцию</string>

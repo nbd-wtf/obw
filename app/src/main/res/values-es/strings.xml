@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lang">esp</string>
-    <string name="app_name">Obi-Wan</string>
     <string name="sources">Ver código fuente</string>
     <string name="twitter">Síguenos en Twitter</string>
     <string name="manual">Leer manual</string>
