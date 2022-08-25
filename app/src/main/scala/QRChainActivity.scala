@@ -2,7 +2,7 @@ package wtf.nbd.obw
 
 import android.os.Bundle
 import android.view.{View, ViewGroup}
-import android.widget.TextView
+import android.widget.{LinearLayout, TextView}
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.mig35.carousellayoutmanager._
@@ -11,7 +11,6 @@ import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.R
 import fr.acinq.bitcoin.Btc
 import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.EclairWallet.MAX_RECEIVE_ADDRESSES
 import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet
 import immortan.LNParams
 import immortan.crypto.Tools._
@@ -25,7 +24,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
   private[this] lazy val chainQrCodes =
     findViewById(R.id.chainQrCodes).asInstanceOf[RecyclerView]
   private[this] lazy val chainQrMore =
-    findViewById(R.id.chainQrMore).asInstanceOf[TextView]
+    findViewById(R.id.chainQrMore).asInstanceOf[NoboButton]
 
   private[this] var wallet: ElectrumEclairWallet = _
   private[this] var allAddresses: List[BitcoinUri] = Nil
@@ -179,31 +178,32 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
               .html
           )
 
-          val layoutManager =
+          val lm =
             new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false)
-          layoutManager.setPostLayoutListener(
-            new CarouselZoomPostLayoutListener
-          )
-          layoutManager.setMaxVisibleItems(MAX_RECEIVE_ADDRESSES)
+          lm.setPostLayoutListener(new CarouselZoomPostLayoutListener)
+          lm.setMaxVisibleItems(5)
 
-          // Allow MAX_RECEIVE_ADDRESSES - 6 (first 4 addresses) to be seen to not make it crowded
           allAddresses = response.keys
-            .dropRight(6)
             .map(response.ewt.textAddress)
             .map(BitcoinUri.fromRaw)
+
+          // start with 1
           addresses = allAddresses.take(1)
 
           chainQrMore.setOnClickListener(onButtonTap {
-            // Show all remaining QR images right away
-            addresses = allAddresses
+            // show 2 more
+            addresses = allAddresses.take(addresses.size + 2).take(10)
 
-            // Animate list changes and remove a button since it gets useless
+            // animate list changes
             adapter.notifyItemRangeInserted(1, allAddresses.size - 1)
-            chainQrMore.setVisibility(View.GONE)
+
+            // remove a button once it gets useless
+            if (addresses.size == 10)
+              chainQrMore.setVisibility(View.GONE)
           })
 
           chainQrCodes.addOnScrollListener(new CenterScrollListener)
-          chainQrCodes.setLayoutManager(layoutManager)
+          chainQrCodes.setLayoutManager(lm)
           chainQrCodes.setHasFixedSize(true)
           chainQrCodes.setAdapter(adapter)
         }

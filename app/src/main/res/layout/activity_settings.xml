@@ -4,15 +4,15 @@
     style="@style/StandardLinearLayout">
 
     <include layout="@layout/frag_title_back"
-      android:id="@+id/titleFrag"/>
+        android:id="@+id/titleFrag"/>
 
     <ScrollView
-      style="@style/StandardLinearLayout"
-      android:layout_toEndOf="@+id/titleFrag">
+        style="@style/StandardLinearLayout"
+        android:layout_toEndOf="@+id/titleFrag">
 
-      <LinearLayout
-          style="@style/StandardLinearLayout"
-          android:id="@+id/settingsContainer"/>
+        <LinearLayout
+            style="@style/StandardLinearLayout"
+            android:id="@+id/settingsContainer"/>
 
     </ScrollView>
 

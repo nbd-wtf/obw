@@ -51,11 +51,13 @@ object RemotePeerActivity {
 
 class RemotePeerActivity
     extends ChanErrorHandlerActivity
-    with ExternalDataChecker { me =>
+    with ExternalDataChecker {
   private[this] lazy val peerNodeKey =
     findViewById(R.id.peerNodeKey).asInstanceOf[TextView]
   private[this] lazy val peerIpAddress =
     findViewById(R.id.peerIpAddress).asInstanceOf[TextView]
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
 
   private[this] lazy val featuresList =
     findViewById(R.id.featuresList).asInstanceOf[FlowLayout]
@@ -181,18 +183,18 @@ class RemotePeerActivity
   override def checkExternalData(whenNone: Runnable): Unit =
     InputParser.checkAndMaybeErase {
       case remoteInfo: RemoteNodeInfo =>
-        me activateInfo HasRemoteInfoWrap(remoteInfo)
-      case hasRemoteInfo: HasRemoteInfo => me activateInfo hasRemoteInfo
+        activateInfo(HasRemoteInfoWrap(remoteInfo))
+      case hasRemoteInfo: HasRemoteInfo => activateInfo(hasRemoteInfo)
       case _                            => whenNone.run
     }
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_remote_peer)
     checkExternalData(whenBackPressed)
+    titleText.setText(getString(R.string.rpa_title))
   }
 
   // BUTTON ACTIONS
-
   def acceptIncomingChannel(theirOpen: OpenChannel): Unit = {
     new NCFundeeOpenHandler(hasInfo.remoteInfo, theirOpen, LNParams.cm) {
       override def onEstablished(cs: Commitments, chan: ChannelNormal): Unit =
@@ -251,7 +253,7 @@ class RemotePeerActivity
 
     def attempt(alert: AlertDialog): Unit = {
       def revertInformDismiss(reason: Throwable): Unit =
-        runAnd(alert.dismiss)(me revertAndInform reason)
+        runAnd(alert.dismiss)(revertAndInform(reason))
       runFutureProcessOnUI(
         makeFakeFunding(
           sendView.manager.resultMsat.truncateToSatoshi,
@@ -355,9 +357,9 @@ class RemotePeerActivity
     }
 
     lazy val alert = {
-      val fundTitle = new TitleView(me getString R.string.rpa_open_nc)
+      val fundTitle = new TitleView(getString(R.string.rpa_open_nc))
       val builder = titleBodyAsViewBuilder(
-        fundTitle.asColoredView(me chainWalletBackground fromWallet),
+        fundTitle.asColoredView(chainWalletBackground(fromWallet)),
         sendView.manager.content
       )
       addFlowChip(
@@ -426,7 +428,7 @@ class RemotePeerActivity
       // We have a single built-in wallet, no need to choose
       doFundNewChannel(LNParams.chainWallets.lnWallet)
     } else
-      bringChainWalletChooser(me getString R.string.rpa_open_nc) { wallet =>
+      bringChainWalletChooser(getString(R.string.rpa_open_nc)) { wallet =>
         // We have wallet candidates to spend from here
         doFundNewChannel(wallet)
       }
@@ -444,7 +446,7 @@ class RemotePeerActivity
       doAskHostedChannel(secret)
     } else {
       // show warning exit-scam warning
-      val builder = new AlertDialog.Builder(me, R.style.DialogTheme)
+      val builder = new AlertDialog.Builder(this, R.style.DialogTheme)
         .setTitle(R.string.rpa_request_hc)
         .setMessage(getString(R.string.rpa_hc_warn).html)
 

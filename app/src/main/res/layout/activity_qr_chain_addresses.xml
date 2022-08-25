@@ -1,22 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     style="@style/StandardLinearLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <include layout="@layout/frag_title_back"/>
+    <include
+        layout="@layout/frag_title_back"
+        android:id="@+id/titleFrag"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_height="match_parent"
+    <RelativeLayout
+        android:layout_height="500dp"
         android:layout_width="match_parent"
-        android:id="@+id/chainQrCodes"/>
+        android:layout_centerInParent="true">
 
-    <com.ornach.nobobutton.NoboButton
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:paddingHorizontal="16dp"
+            android:layout_centerHorizontal="true">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:id="@+id/chainQrCodes"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         android:layout_marginBottom="25dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        app:nb_text="@string/add_address"
-        android:id="@+id/chainQrMore"
-        style="@style/PurpleBorderButton"/>
+        android:layout_alignParentBottom="true">
 
-</RelativeLayout>
+        <com.ornach.nobobutton.NoboButton
+            android:layout_centerHorizontal="true"
+            app:nb_text="@string/add_address"
+            android:id="@+id/chainQrMore"
+            style="@style/PurpleBorderButton"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
