@@ -58,7 +58,7 @@ class SettingsActivity
 
   override def onResume(): Unit = {
     storeLocalBackup.updateView()
-    chainWallets.updateView()
+    if (LNParams.chainWallets.wallets.size > 1) chainWallets.updateView()
     electrum.updateView()
     setFiat.updateView()
     setBtc.updateView()
@@ -459,7 +459,8 @@ class SettingsActivity
 
     settingsContainer.addView(settingsPageitle.view)
     settingsContainer.addView(storeLocalBackup.view)
-    settingsContainer.addView(chainWallets.view)
+    if (LNParams.chainWallets.wallets.size > 1)
+      settingsContainer.addView(chainWallets.view)
     settingsContainer.addView(addHardware.view)
     settingsContainer.addView(electrum.view)
     settingsContainer.addView(setFiat.view)
