@@ -6,9 +6,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.mig35.carousellayoutmanager._
+import com.ornach.nobobutton.NoboButton
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.R
-import com.ornach.nobobutton.NoboButton
 import fr.acinq.bitcoin.Btc
 import fr.acinq.eclair._
 import fr.acinq.eclair.blockchain.EclairWallet.MAX_RECEIVE_ADDRESSES
@@ -25,7 +25,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
   private[this] lazy val chainQrCodes =
     findViewById(R.id.chainQrCodes).asInstanceOf[RecyclerView]
   private[this] lazy val chainQrMore =
-    findViewById(R.id.chainQrMore).asInstanceOf[NoboButton]
+    findViewById(R.id.chainQrMore).asInstanceOf[TextView]
 
   private[this] var wallet: ElectrumEclairWallet = _
   private[this] var allAddresses: List[BitcoinUri] = Nil
@@ -163,50 +163,51 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
     checkExternalData(noneRunnable)
   }
 
-  def showCode(): Unit = {
-    titleText.setText(
-      chainWalletNotice(wallet)
-        .map(textRes =>
-          getString(R.string.dialog_receive_btc) + "<br>" + getString(textRes)
-        )
-        .getOrElse(getString(R.string.dialog_receive_btc))
-        .html
-    )
-
-    runFutureProcessOnUI(wallet.getReceiveAddresses, onFail) { response =>
-      val layoutManager =
-        new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false)
-      layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener)
-      layoutManager.setMaxVisibleItems(MAX_RECEIVE_ADDRESSES)
-
-      // Allow MAX_RECEIVE_ADDRESSES - 6 (first 4 addresses) to be seen to not make it crowded
-      allAddresses = response.keys
-        .dropRight(6)
-        .map(response.ewt.textAddress)
-        .map(BitcoinUri.fromRaw)
-      addresses = allAddresses.take(1)
-
-      chainQrMore.setOnClickListener(onButtonTap {
-        // Show all remaining QR images right away
-        addresses = allAddresses
-
-        // Animate list changes and remove a button since it gets useless
-        adapter.notifyItemRangeInserted(1, allAddresses.size - 1)
-        chainQrMore.setVisibility(View.GONE)
-      })
-
-      chainQrCodes.addOnScrollListener(new CenterScrollListener)
-      chainQrCodes.setLayoutManager(layoutManager)
-      chainQrCodes.setHasFixedSize(true)
-      chainQrCodes.setAdapter(adapter)
-    }
-  }
-
   override def checkExternalData(whenNone: Runnable): Unit =
     InputParser.checkAndMaybeErase {
-      case chainWallet: ElectrumEclairWallet =>
+      case chainWallet: ElectrumEclairWallet => {
         wallet = chainWallet
-        showCode()
+        runFutureProcessOnUI(wallet.getReceiveAddresses, onFail) { response =>
+          titleText.setText(
+            chainWalletNotice(wallet)
+              .map(textRes =>
+                getString(R.string.dialog_receive_btc) + "<br>" + getString(
+                  textRes
+                )
+              )
+              .getOrElse(getString(R.string.dialog_receive_btc))
+              .html
+          )
+
+          val layoutManager =
+            new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false)
+          layoutManager.setPostLayoutListener(
+            new CarouselZoomPostLayoutListener
+          )
+          layoutManager.setMaxVisibleItems(MAX_RECEIVE_ADDRESSES)
+
+          // Allow MAX_RECEIVE_ADDRESSES - 6 (first 4 addresses) to be seen to not make it crowded
+          allAddresses = response.keys
+            .dropRight(6)
+            .map(response.ewt.textAddress)
+            .map(BitcoinUri.fromRaw)
+          addresses = allAddresses.take(1)
+
+          chainQrMore.setOnClickListener(onButtonTap {
+            // Show all remaining QR images right away
+            addresses = allAddresses
+
+            // Animate list changes and remove a button since it gets useless
+            adapter.notifyItemRangeInserted(1, allAddresses.size - 1)
+            chainQrMore.setVisibility(View.GONE)
+          })
+
+          chainQrCodes.addOnScrollListener(new CenterScrollListener)
+          chainQrCodes.setLayoutManager(layoutManager)
+          chainQrCodes.setHasFixedSize(true)
+          chainQrCodes.setAdapter(adapter)
+        }
+      }
       case _ => finish
     }
 }

@@ -17,6 +17,6 @@
         android:layout_centerHorizontal="true"
         app:nb_text="@string/add_address"
         android:id="@+id/chainQrMore"
-        style="@style/GrayButton"/>
+        style="@style/PurpleBorderButton"/>
 
 </RelativeLayout>
