@@ -11,20 +11,21 @@ import immortan.{LNParams, SplitParams}
 class QRSplitActivity
     extends QRActivity
     with ExternalDataChecker
-    with HasTypicalChainFee { me =>
-  lazy private[this] val splitQrCaption =
-    findViewById(R.id.splitQrCaption).asInstanceOf[TextView]
-  lazy private[this] val splitQrPay =
+    with HasTypicalChainFee {
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
+  private[this] lazy val splitQrPay =
     findViewById(R.id.splitQrPay).asInstanceOf[NoboButton]
-  lazy private[this] val qrViewHolder = new QRViewHolder(
-    me findViewById R.id.splitQr
+  private[this] lazy val qrViewHolder = new QRViewHolder(
+    findViewById(R.id.splitQr)
   )
-  lazy private[this] val dialogPay = getString(R.string.dialog_ok)
+  private[this] lazy val dialogPay = getString(R.string.dialog_ok)
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_qr_split_invoice)
-    val splitCaption = getString(R.string.dialog_split_ln)
-    splitQrCaption setText splitCaption.format(new String).html
+    titleText.setText(
+      getString(R.string.dialog_split_ln).format(new String).html
+    )
     checkExternalData(noneRunnable)
   }
 

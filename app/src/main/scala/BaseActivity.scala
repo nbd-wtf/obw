@@ -92,6 +92,8 @@ trait BaseActivity extends AppCompatActivity { self =>
   )
   val timer: java.util.Timer = new java.util.Timer
 
+  def goBack(view: View): Unit = finish
+
   val goTo: Class[_] => Any = target => {
     startActivity(new Intent(this, target))
     InputParser.DoNotEraseRecordedValue
@@ -274,7 +276,7 @@ trait BaseActivity extends AppCompatActivity { self =>
 
   def runFutureProcessOnUI[T](fun: Future[T], no: Throwable => Unit)(
       ok: T => Unit
-  ): Unit = fun onComplete {
+  ): Unit = fun.onComplete {
     case Success(result) => UITask(ok(result)).run
     case Failure(error)  => UITask(no(error)).run
   }
@@ -466,15 +468,12 @@ trait BaseActivity extends AppCompatActivity { self =>
   }
 
   // Rich popup title
-
   implicit class TitleView(titleText: String) {
     val view: LinearLayout = getLayoutInflater
       .inflate(R.layout.frag_top_tip, null)
       .asInstanceOf[LinearLayout]
     val flow: FlowLayout =
       view.findViewById(R.id.tipExtraTags).asInstanceOf[FlowLayout]
-    val backArrow: ImageView =
-      view.findViewById(R.id.backArrow).asInstanceOf[ImageView]
     val tipTitle: TextView = clickableTextField(
       view.findViewById(R.id.tipTitle)
     )

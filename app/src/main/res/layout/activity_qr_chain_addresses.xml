@@ -4,13 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:gravity="center"
-        android:layout_marginTop="40dp"
-        android:id="@+id/chainQrCaption"
-        android:layout_alignParentTop="true"
-        android:textSize="@dimen/header_size"
-        style="@style/FillingView"/>
+    <include layout="@layout/frag_title_back"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_height="match_parent"

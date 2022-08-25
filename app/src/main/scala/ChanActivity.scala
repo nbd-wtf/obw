@@ -74,6 +74,8 @@ class ChanActivity
     findViewById(R.id.chanContainer).asInstanceOf[LinearLayout]
   private[this] lazy val getChanList =
     findViewById(R.id.getChanList).asInstanceOf[ListView]
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
 
   private[this] lazy val brandingInfos =
     WalletApp.txDataBag.db.txWrap(getBrandingInfos.toMap)
@@ -203,7 +205,7 @@ class ChanActivity
       val refundable: MilliSatoshi =
         cs.latestReducedRemoteSpec.toRemote + inFlight
 
-      if (Channel isWaiting chan) {
+      if (Channel.isWaiting(chan)) {
         setVis(isVisible = true, extraInfoText)
         extraInfoText.setText(getString(R.string.ln_info_opening).html)
         channelCard.setOnClickListener(
@@ -648,10 +650,7 @@ class ChanActivity
     setContentView(R.layout.activity_chan)
     updateChanData.run
 
-    val scanTitle = new TitleView(getString(R.string.title_chans))
-    scanTitle.view.setOnClickListener(onButtonTap(finish))
-    scanTitle.backArrow.setVisibility(View.VISIBLE)
-    getChanList.addHeaderView(scanTitle.view)
+    titleText.setText(getString(R.string.title_chans))
 
     val scanFooter = new TitleView(getString(R.string.chan_open))
     val lspFooter = new TitleView(getString(R.string.chan_lsp_list_title))
@@ -674,21 +673,21 @@ class ChanActivity
     if (LNParams.isMainnet) {
       addFlowChip(
         lspFooter.flow,
-        "LNBIG.com",
+        "lnbig.com",
         R.drawable.border_basic,
         _ => browse("https://lnbig.com/#/open-channel")
-      )
-      addFlowChip(
-        lspFooter.flow,
-        "Zero Fee Routing",
-        R.drawable.border_basic,
-        _ => browse("https://zerofeerouting.com/mobile-wallets/")
       )
       addFlowChip(
         lspFooter.flow,
         "BlockTank",
         R.drawable.border_basic,
         _ => browse("https://synonym.to/blocktank/")
+      )
+      addFlowChip(
+        lspFooter.flow,
+        "Zero Fee Routing",
+        R.drawable.border_basic,
+        _ => browse("https://zerofeerouting.com/mobile-wallets/")
       )
       addFlowChip(
         lspFooter.flow,

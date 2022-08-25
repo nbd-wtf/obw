@@ -4,13 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/activityQRInvoiceMain">
 
-    <TextView
-        android:gravity="center"
-        android:layout_marginTop="40dp"
-        android:id="@+id/invoiceQrCaption"
-        android:layout_alignParentTop="true"
-        android:textSize="@dimen/header_size"
-        style="@style/FillingView"/>
+    <include layout="@layout/frag_title_back"/>
 
     <include
         android:id="@+id/invoiceQr"

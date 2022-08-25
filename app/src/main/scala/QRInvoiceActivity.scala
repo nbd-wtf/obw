@@ -10,18 +10,18 @@ import immortan.utils.{InputParser, PaymentRequestExt}
 import immortan.{ChannelMaster, LNParams, PaymentInfo}
 import rx.lang.scala.Subscription
 
-class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
-  lazy private[this] val activityQRInvoiceMain = findViewById(
+class QRInvoiceActivity extends QRActivity with ExternalDataChecker {
+  private[this] lazy val activityQRInvoiceMain = findViewById(
     R.id.activityQRInvoiceMain
   ).asInstanceOf[RelativeLayout]
-  lazy private[this] val invoiceQrCaption =
-    findViewById(R.id.invoiceQrCaption).asInstanceOf[TextView]
-  lazy private[this] val invoiceHolding =
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
+  private[this] lazy val invoiceHolding =
     findViewById(R.id.invoiceHolding).asInstanceOf[ImageButton]
-  lazy private[this] val invoiceSuccess =
+  private[this] lazy val invoiceSuccess =
     findViewById(R.id.invoiceSuccess).asInstanceOf[ImageView]
-  lazy private[this] val qrViewHolder = new QRViewHolder(
-    me findViewById R.id.invoiceQr
+  private[this] lazy val qrViewHolder = new QRViewHolder(
+    findViewById(R.id.invoiceQr)
   )
 
   private var fulfillSubscription: Subscription = _
@@ -39,8 +39,8 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_qr_lightning_invoice)
-    invoiceQrCaption setText getString(R.string.dialog_receive_ln).html
-    invoiceHolding setOnClickListener onButtonTap(finish)
+    titleText.setText(getString(R.string.dialog_receive_ln).html)
+    invoiceHolding.setOnClickListener(onButtonTap(finish))
     checkExternalData(noneRunnable)
   }
 
@@ -55,17 +55,21 @@ class QRInvoiceActivity extends QRActivity with ExternalDataChecker { me =>
       )(none)
       setVis(isVisible = false, qrViewHolder.qrEdit)
 
-      qrViewHolder.qrLabel setText WalletApp.denom
-        .parsedWithSign(info.received)
-        .html
-      qrViewHolder.qrCopy setOnClickListener onButtonTap(
-        WalletApp.app copy info.prExt.raw
+      qrViewHolder.qrLabel.setText(
+        WalletApp.denom
+          .parsedWithSign(info.received)
+          .html
       )
-      qrViewHolder.qrCode setOnClickListener onButtonTap(
-        WalletApp.app copy info.prExt.raw
+      qrViewHolder.qrCopy.setOnClickListener(
+        onButtonTap(WalletApp.app.copy(info.prExt.raw))
       )
-      qrViewHolder.qrShare setOnClickListener onButtonTap(share())
-      qrViewHolder.qrCode setImageBitmap qrBitmap
+      qrViewHolder.qrCode.setOnClickListener(
+        onButtonTap(
+          WalletApp.app.copy(info.prExt.raw)
+        )
+      )
+      qrViewHolder.qrShare.setOnClickListener(onButtonTap(share()))
+      qrViewHolder.qrCode.setImageBitmap(qrBitmap)
 
       fulfillSubscription = ChannelMaster.inFinalized
         .collect { case revealed: IncomingRevealed => revealed }

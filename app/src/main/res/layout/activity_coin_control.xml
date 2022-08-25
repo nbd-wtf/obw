@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     style="@style/StandardLinearLayout"
-    android:id="@+id/coinControlContainer"
     xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <include layout="@layout/frag_title_back"/>
 
     <LinearLayout
         style="@style/FillingView"

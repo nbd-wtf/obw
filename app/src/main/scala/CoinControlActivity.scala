@@ -18,12 +18,10 @@ import immortan.utils.{Haiku, InputParser, WalletEventsListener}
 import immortan.{LNParams, TxDescription}
 
 class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
-  me =>
-  lazy private[this] val coinControlContainer = findViewById(
-    R.id.coinControlContainer
-  ).asInstanceOf[LinearLayout]
-  lazy private[this] val utxoList =
+  private[this] lazy val utxoList =
     findViewById(R.id.utxoList).asInstanceOf[ListView]
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
 
   trait UtxoListItem
   case class TransactionLine(txid: String) extends UtxoListItem
@@ -132,6 +130,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_coin_control)
+    titleText.setText(getString(R.string.coin_control))
     checkExternalData(noneRunnable)
   }
 
@@ -142,12 +141,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
   }
 
   def showWalletInfo(wallet: ElectrumEclairWallet): Unit = {
-    val title = new TitleView(me getString R.string.coin_control)
-    title.view.setOnClickListener(me onButtonTap finish)
-    title.backArrow.setVisibility(View.VISIBLE)
-    coinControlContainer.addView(title.view, 0)
-
-    chooser = new ChainWalletCards(me) {
+    chooser = new ChainWalletCards(this) {
       override def onLabelTap(wallet: ElectrumEclairWallet): Unit = none
       override def onWalletTap(wallet: ElectrumEclairWallet): Unit = none
       override def onRemoveTap(wallet: ElectrumEclairWallet): Unit = none

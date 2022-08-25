@@ -25,14 +25,14 @@ import immortan.{ChannelMaster, LNParams}
 import scala.util.Success
 
 abstract class SettingsHolder(host: BaseActivity) {
-  val view: RelativeLayout = host.getLayoutInflater
+  lazy val view: RelativeLayout = host.getLayoutInflater
     .inflate(R.layout.frag_switch, null, false)
     .asInstanceOf[RelativeLayout]
-  val settingsCheck: CheckBox =
+  lazy val settingsCheck: CheckBox =
     view.findViewById(R.id.settingsCheck).asInstanceOf[CheckBox]
-  val settingsTitle: TextView =
+  lazy val settingsTitle: TextView =
     view.findViewById(R.id.settingsTitle).asInstanceOf[TextView]
-  val settingsInfo: TextView =
+  lazy val settingsInfo: TextView =
     view.findViewById(R.id.settingsInfo).asInstanceOf[TextView]
   val REQUEST_CODE_CREATE_LOCK: Int = 103
   def updateView(): Unit
@@ -47,9 +47,12 @@ class SettingsActivity
     extends BaseCheckActivity
     with HasTypicalChainFee
     with ChoiceReceiver { self =>
-  lazy private[this] val settingsContainer = findViewById(
+  private[this] lazy val settingsContainer = findViewById(
     R.id.settingsContainer
   ).asInstanceOf[LinearLayout]
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
+
   private[this] val fiatSymbols =
     LNParams.fiatRates.universallySupportedSymbols.toList.sorted
   private[this] val CHOICE_FIAT_DENOMINATION_TAG = "choiceFiatDenominationTag"
@@ -85,7 +88,7 @@ class SettingsActivity
     case _ =>
   }
 
-  lazy private[this] val storeLocalBackup = new SettingsHolder(this) {
+  private[this] lazy val storeLocalBackup = new SettingsHolder(this) {
     setVis(isVisible = false, settingsCheck)
 
     def updateView(): Unit = {
@@ -115,7 +118,7 @@ class SettingsActivity
     })
   }
 
-  lazy private[this] val chainWallets: SettingsHolder = new SettingsHolder(
+  private[this] lazy val chainWallets: SettingsHolder = new SettingsHolder(
     this
   ) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
@@ -166,7 +169,7 @@ class SettingsActivity
               label = core.walletType
             )
             HubActivity.instance.walletCards.resetChainCards(
-              LNParams.chainWallets withFreshWallet wallet
+              LNParams.chainWallets.withFreshWallet(wallet)
             )
           } else {
             val affectedWallet = LNParams.chainWallets.wallets.find(wallet =>
@@ -191,7 +194,7 @@ class SettingsActivity
     })
   }
 
-  lazy private[this] val addHardware: SettingsHolder = new SettingsHolder(
+  private[this] lazy val addHardware: SettingsHolder = new SettingsHolder(
     this
   ) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
@@ -246,7 +249,7 @@ class SettingsActivity
     }
   }
 
-  lazy private[this] val electrum: SettingsHolder = new SettingsHolder(this) {
+  private[this] lazy val electrum: SettingsHolder = new SettingsHolder(this) {
     setVis(isVisible = false, settingsCheck)
 
     override def updateView(): Unit = WalletApp.customElectrumAddress match {
@@ -312,7 +315,7 @@ class SettingsActivity
     }
   }
 
-  lazy private[this] val setFiat = new SettingsHolder(this) {
+  private[this] lazy val setFiat = new SettingsHolder(this) {
     settingsTitle.setText(R.string.settings_fiat_currency)
     setVis(isVisible = false, settingsCheck)
 
@@ -335,7 +338,7 @@ class SettingsActivity
     })
   }
 
-  lazy private[this] val setBtc = new SettingsHolder(this) {
+  private[this] lazy val setBtc = new SettingsHolder(this) {
     settingsTitle.setText(R.string.settings_btc_unit)
     setVis(isVisible = false, settingsCheck)
 
@@ -364,7 +367,7 @@ class SettingsActivity
     }
   }
 
-  lazy private[this] val useBiometric: SettingsHolder = new SettingsHolder(
+  private[this] lazy val useBiometric: SettingsHolder = new SettingsHolder(
     this
   ) {
     def updateView(): Unit = settingsCheck.setChecked(WalletApp.useAuth)
@@ -383,7 +386,7 @@ class SettingsActivity
     setVis(isVisible = false, settingsInfo)
   }
 
-  lazy private[this] val enforceTor = new SettingsHolder(this) {
+  private[this] lazy val enforceTor = new SettingsHolder(this) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 
@@ -403,14 +406,14 @@ class SettingsActivity
     })
   }
 
-  lazy private[this] val viewCode = new SettingsHolder(this) {
+  private[this] lazy val viewCode = new SettingsHolder(this) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
     view.setOnClickListener(onButtonTap(viewRecoveryCode()))
     settingsTitle.setText(R.string.settings_view_revocery_phrase)
     override def updateView(): Unit = none
   }
 
-  lazy private[this] val viewStat = new SettingsHolder(this) {
+  private[this] lazy val viewStat = new SettingsHolder(this) {
     setVisMany(false -> settingsCheck, false -> settingsInfo)
     view.setOnClickListener(onButtonTap(goTo(ClassNames.statActivityClass)))
     settingsTitle.setText(R.string.settings_stats)
@@ -419,10 +422,7 @@ class SettingsActivity
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_settings)
-
-    val settingsPageitle = new TitleView(s"v$VERSION_NAME-$VERSION_CODE")
-    settingsPageitle.view.setOnClickListener(onButtonTap(finish))
-    settingsPageitle.backArrow.setVisibility(View.VISIBLE)
+    titleText.setText(s"v$VERSION_NAME-$VERSION_CODE")
 
     val links = new TitleView("Useful links")
     addFlowChip(
@@ -457,7 +457,6 @@ class SettingsActivity
       )
     }
 
-    settingsContainer.addView(settingsPageitle.view)
     settingsContainer.addView(storeLocalBackup.view)
     if (LNParams.chainWallets.wallets.size > 1)
       settingsContainer.addView(chainWallets.view)

@@ -3,18 +3,10 @@
     style="@style/StandardLinearLayout"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:maxLines="1"
-        android:gravity="center"
-        android:layout_marginTop="40dp"
-        android:id="@+id/splitQrCaption"
-        android:layout_alignParentTop="true"
-        android:textSize="@dimen/header_size"
-        style="@style/FillingView"/>
+    <include layout="@layout/frag_title_back"/>
 
     <LinearLayout
         android:gravity="center"
-        android:layout_below="@id/splitQrCaption"
         android:layout_above="@id/spltQrTip"
         style="@style/FillingView">
 

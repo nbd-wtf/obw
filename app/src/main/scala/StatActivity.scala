@@ -1,27 +1,24 @@
 package wtf.nbd.obw
 
 import android.os.Bundle
-import android.view.View
-import android.widget.LinearLayout
+import android.widget.{TextView, LinearLayout}
 import wtf.nbd.obw.R
 import fr.acinq.eclair._
 import immortan.LNParams
 
-class StatActivity extends BaseCheckActivity { me =>
-  lazy private[this] val statContainer =
+class StatActivity extends BaseCheckActivity {
+  private [this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
+  private [this] lazy val statContainer =
     findViewById(R.id.settingsContainer).asInstanceOf[LinearLayout]
 
   override def PROCEED(state: Bundle): Unit = {
     setContentView(R.layout.activity_settings)
+    titleText.setText(getString(R.string.settings_stats))
     updateView()
   }
 
   def updateView(): Unit = {
-    val title = new TitleView(me getString R.string.settings_stats)
-    title.view.setOnClickListener(me onButtonTap finish)
-    title.backArrow.setVisibility(View.VISIBLE)
-    statContainer.addView(title.view)
-
     WalletApp.txDataBag.db.txWrap {
       val txSummary = WalletApp.txDataBag.txSummary.filter(_.count > 0)
       val relaySummary = LNParams.cm.payBag.relaySummary.filter(_.count > 0)
@@ -30,7 +27,7 @@ class StatActivity extends BaseCheckActivity { me =>
         LNParams.cm.chanBag.channelTxFeesSummary.filter(_.count > 0)
 
       for (summary <- txSummary) {
-        val slotTitle = new TitleView(me getString R.string.stats_title_chain)
+        val slotTitle = new TitleView(getString(R.string.stats_title_chain))
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_transactions).format(summary.count),
@@ -38,39 +35,45 @@ class StatActivity extends BaseCheckActivity { me =>
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_received) format WalletApp.denom
-            .directedWithSign(
-              summary.received.toMilliSatoshi,
-              0L.msat,
-              isIncoming = true
-            ),
+          getString(R.string.stats_item_received).format(
+            WalletApp.denom
+              .directedWithSign(
+                summary.received.toMilliSatoshi,
+                0L.msat,
+                isIncoming = true
+              )
+          ),
           R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_sent) format WalletApp.denom
-            .directedWithSign(
-              0L.msat,
-              summary.sent.toMilliSatoshi,
-              isIncoming = false
-            ),
+          getString(R.string.stats_item_sent).format(
+            WalletApp.denom
+              .directedWithSign(
+                0L.msat,
+                summary.sent.toMilliSatoshi,
+                isIncoming = false
+              )
+          ),
           R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_fees) format WalletApp.denom
-            .directedWithSign(
-              0L.msat,
-              summary.fees.toMilliSatoshi,
-              isIncoming = false
-            ),
+          getString(R.string.stats_item_fees).format(
+            WalletApp.denom
+              .directedWithSign(
+                0L.msat,
+                summary.fees.toMilliSatoshi,
+                isIncoming = false
+              )
+          ),
           R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
       }
 
       for (summary <- paymentSummary) {
-        val slotTitle = new TitleView(me getString R.string.stats_title_ln)
+        val slotTitle = new TitleView(getString(R.string.stats_title_ln))
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_payments).format(summary.count),
@@ -78,32 +81,38 @@ class StatActivity extends BaseCheckActivity { me =>
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_received) format WalletApp.denom
-            .directedWithSign(
-              summary.received,
-              0L.msat,
-              isIncoming = true
-            ),
+          getString(R.string.stats_item_received).format(
+            WalletApp.denom
+              .directedWithSign(
+                summary.received,
+                0L.msat,
+                isIncoming = true
+              )
+          ),
           R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_sent) format WalletApp.denom
-            .directedWithSign(
-              0L.msat,
-              summary.sent,
-              isIncoming = false
-            ),
+          getString(R.string.stats_item_sent).format(
+            WalletApp.denom
+              .directedWithSign(
+                0L.msat,
+                summary.sent,
+                isIncoming = false
+              )
+          ),
           R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_fees) format WalletApp.denom
-            .directedWithSign(
-              0L.msat,
-              summary.fees,
-              isIncoming = false
-            ),
+          getString(R.string.stats_item_fees).format(
+            WalletApp.denom
+              .directedWithSign(
+                0L.msat,
+                summary.fees,
+                isIncoming = false
+              )
+          ),
           R.drawable.border_basic
         )
         val feesSaved = WalletApp.denom.directedWithSign(
@@ -113,14 +122,14 @@ class StatActivity extends BaseCheckActivity { me =>
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_fees_saved) format feesSaved,
+          getString(R.string.stats_item_fees_saved).format(feesSaved),
           R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
       }
 
       for (summary <- relaySummary) {
-        val slotTitle = new TitleView(me getString R.string.stats_title_relays)
+        val slotTitle = new TitleView(getString(R.string.stats_title_relays))
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_relays).format(summary.count),
@@ -128,18 +137,22 @@ class StatActivity extends BaseCheckActivity { me =>
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_relayed) format WalletApp.denom
-            .parsedWithSign(summary.relayed),
+          getString(R.string.stats_item_relayed).format(
+            WalletApp.denom
+              .parsedWithSign(summary.relayed)
+          ),
           R.drawable.border_basic
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_earned) format WalletApp.denom
-            .directedWithSign(
-              summary.earned,
-              0L.msat,
-              isIncoming = true
-            ),
+          getString(R.string.stats_item_earned).format(
+            WalletApp.denom
+              .directedWithSign(
+                summary.earned,
+                0L.msat,
+                isIncoming = true
+              )
+          ),
           R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)
@@ -147,7 +160,7 @@ class StatActivity extends BaseCheckActivity { me =>
 
       for (summary <- channelTxFeesSummary) {
         val slotTitle =
-          new TitleView(me getString R.string.stats_title_chan_loss)
+          new TitleView(getString(R.string.stats_title_chan_loss))
         addFlowChip(
           slotTitle.flow,
           getString(R.string.stats_item_transactions).format(summary.count),
@@ -155,12 +168,14 @@ class StatActivity extends BaseCheckActivity { me =>
         )
         addFlowChip(
           slotTitle.flow,
-          getString(R.string.stats_item_fees) format WalletApp.denom
-            .directedWithSign(
-              0L.msat,
-              summary.fees.toMilliSatoshi,
-              isIncoming = false
-            ),
+          getString(R.string.stats_item_fees).format(
+            WalletApp.denom
+              .directedWithSign(
+                0L.msat,
+                summary.fees.toMilliSatoshi,
+                isIncoming = false
+              )
+          ),
           R.drawable.border_basic
         )
         statContainer.addView(slotTitle.view)

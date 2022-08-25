@@ -20,11 +20,11 @@ import immortan.utils.{BitcoinUri, Denomination, InputParser, PaymentRequestExt}
 import scala.util.Success
 
 class QRChainActivity extends QRActivity with ExternalDataChecker {
-  lazy private[this] val chainQrCaption =
-    findViewById(R.id.chainQrCaption).asInstanceOf[TextView]
-  lazy private[this] val chainQrCodes =
+  private[this] lazy val titleText =
+    findViewById(R.id.titleText).asInstanceOf[TextView]
+  private[this] lazy val chainQrCodes =
     findViewById(R.id.chainQrCodes).asInstanceOf[RecyclerView]
-  lazy private[this] val chainQrMore =
+  private[this] lazy val chainQrMore =
     findViewById(R.id.chainQrMore).asInstanceOf[NoboButton]
 
   private[this] var wallet: ElectrumEclairWallet = _
@@ -65,7 +65,7 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
             case _                   => bu.address.short
           }
 
-          holder.qrLabel setText visibleText.html
+          holder.qrLabel.setText(visibleText.html)
           runInFutureProcessOnUI(
             QRActivity.get(contentToShare, qrSize),
             onFail
@@ -164,6 +164,15 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
   }
 
   def showCode(): Unit = {
+    titleText.setText(
+      chainWalletNotice(wallet)
+        .map(textRes =>
+          getString(R.string.dialog_receive_btc) + "<br>" + getString(textRes)
+        )
+        .getOrElse(getString(R.string.dialog_receive_btc))
+        .html
+    )
+
     runFutureProcessOnUI(wallet.getReceiveAddresses, onFail) { response =>
       val layoutManager =
         new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false)
@@ -191,19 +200,13 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
       chainQrCodes.setHasFixedSize(true)
       chainQrCodes.setAdapter(adapter)
     }
-
-    val text = chainWalletNotice(wallet)
-      .map(textRes =>
-        getString(R.string.dialog_receive_btc) + "<br>" + getString(textRes)
-      )
-      .getOrElse(getString(R.string.dialog_receive_btc))
-    chainQrCaption.setText(text.html)
   }
 
   override def checkExternalData(whenNone: Runnable): Unit =
     InputParser.checkAndMaybeErase {
       case chainWallet: ElectrumEclairWallet =>
-        runAnd({ wallet = chainWallet })(showCode())
+        wallet = chainWallet
+        showCode()
       case _ => finish
     }
 }

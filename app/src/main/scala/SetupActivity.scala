@@ -56,7 +56,7 @@ class SetupActivity extends BaseActivity {
     findViewById(R.id.restoreOptions).asInstanceOf[LinearLayout]
   private[this] final val FILE_REQUEST_CODE = 112
 
-  lazy private[this] val enforceTor = new SettingsHolder(this) {
+  private [this] lazy val enforceTor = new SettingsHolder(this) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 

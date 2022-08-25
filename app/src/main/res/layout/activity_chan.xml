@@ -4,6 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/chanContainer">
 
+    <include layout="@layout/frag_title_back"/>
+
     <ListView
         android:scrollbars="none"
         android:id="@+id/getChanList"
