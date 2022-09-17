@@ -2,7 +2,7 @@ package wtf.nbd.obw
 
 import android.os.Bundle
 import android.view.{View, ViewGroup}
-import android.widget.{LinearLayout, TextView}
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.mig35.carousellayoutmanager._

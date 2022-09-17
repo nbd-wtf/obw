@@ -1,6 +1,5 @@
 package wtf.nbd.obw
 
-import java.net.InetSocketAddress
 import java.text.{DecimalFormat, SimpleDateFormat}
 import java.util.Date
 import scala.jdk.CollectionConverters._
@@ -29,8 +28,6 @@ import com.guardanis.applock.AppLock
 import com.softwaremill.quicklens._
 import fr.acinq.bitcoin.{Block, ByteVector32, Satoshi, SatoshiLong}
 import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.electrum.ElectrumClient.SSL
-import fr.acinq.eclair.blockchain.electrum.ElectrumClientPool.ElectrumServerAddress
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
   TransactionReceived,
   WalletReady
@@ -41,7 +38,7 @@ import fr.acinq.eclair.blockchain.electrum.db.{
   SigningWallet,
   WatchingWallet
 }
-import fr.acinq.eclair.blockchain.{CurrentBlockCount, EclairWallet}
+import fr.acinq.eclair.blockchain.EclairWallet
 import fr.acinq.eclair.channel.{
   CMD_CHECK_FEERATE,
   NormalCommits,
@@ -70,7 +67,7 @@ object WalletApp {
   var app: WalletApp = _
 
   val txDescriptions = mutable.Map.empty[ByteVector32, TxDescription]
-  var currentChainNode: Option[InetSocketAddress] = None
+  var isConnected: Boolean = false
 
   final val dbFileNameMisc = "misc.db"
   final val dbFileNameGraph = "graph.db"
@@ -141,8 +138,8 @@ object WalletApp {
   }
 
   def customElectrumAddress: Try[NodeAddress] = Try {
-    val rawAddress = app.prefs.getString(CUSTOM_ELECTRUM_ADDRESS, new String)
-    nodeaddress.decode(BitVector fromValidHex rawAddress).require.value
+    val rawAddress = app.prefs.getString(CUSTOM_ELECTRUM_ADDRESS, "")
+    nodeaddress.decode(BitVector.fromValidHex(rawAddress)).require.value
   }
 
   def freePossiblyUsedRuntimeResouces(): Unit = {
@@ -246,18 +243,12 @@ object WalletApp {
       txDataBag,
       dustLimit = 546L.sat
     )
+
     val pool = new ElectrumClientPool(
       LNParams.blockCount,
       LNParams.chainHash,
       ensureTor,
-      customElectrumAddress
-        .map(current =>
-          ElectrumServerAddress(
-            current.socketAddress,
-            SSL.DECIDE
-          )
-        )
-        .toOption
+      customElectrumAddress.toOption
     )
     val sync = new ElectrumChainSync(
       pool,
@@ -287,7 +278,7 @@ object WalletApp {
             ) =>
           val signingWallet =
             ext.makeSigningWalletParts(core, lastBalance, label)
-          signingWallet.wallet.send(persistentSigningWalletData)
+          signingWallet.wallet.load(persistentSigningWalletData)
           ext.copy(wallets = signingWallet :: ext.wallets)
 
         case ext ~ CompleteChainWalletInfo(
@@ -299,7 +290,7 @@ object WalletApp {
             ) =>
           val watchingWallet =
             ext.makeWatchingWallet84Parts(core, lastBalance, label)
-          watchingWallet.wallet.send(persistentWatchingWalletData)
+          watchingWallet.wallet.load(persistentWatchingWalletData)
           ext.copy(wallets = watchingWallet :: ext.wallets)
 
         case ext ~ _ => ext
@@ -349,10 +340,10 @@ object WalletApp {
           }
         }
 
-      override def onChainMasterSelected(event: InetSocketAddress): Unit =
-        currentChainNode = Some(event)
+      override def onChainConnected(): Unit =
+        isConnected = true
 
-      override def onChainDisconnected(): Unit = currentChainNode = None
+      override def onChainDisconnected(): Unit = isConnected = false
 
       override def onTransactionReceived(event: TransactionReceived): Unit = {
         def addChainTx(
@@ -396,7 +387,9 @@ object WalletApp {
             description,
             isIncoming,
             totalBalance,
-            LNParams.fiatRates.info.rates,
+            LNParams.fiatRates.info.rates.filter { case (k, _) =>
+              k == WalletApp.fiatCode
+            },
             event.stamp
           )
           txDataBag.addSearchableTransaction(
@@ -552,7 +545,7 @@ object WalletApp {
   ): String = {
     val fiatAmount: String = msatInFiat(rates, code)(msat)
       .map(decimalFormat.format)
-      .getOrElse(default = "?")
+      .getOrElse("-")
     val formatted = LNParams.fiatRates.customFiatSymbols
       .get(code)
       .map(symbol => s"$symbol$fiatAmount")
@@ -691,7 +684,7 @@ class WalletApp extends Application { me =>
       .startForegroundService(me, withBodyAction)
   }
 
-  def quickToast(code: Int): Unit = quickToast(me getString code)
+  def quickToast(code: Int): Unit = quickToast(getString(code))
   def quickToast(msg: CharSequence): Unit =
     Toast.makeText(me, msg, Toast.LENGTH_LONG).show
   def plurOrZero(num: Long, opts: Array[String] = Array.empty): String =

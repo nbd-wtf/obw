@@ -71,7 +71,7 @@ object BaseActivity {
   }
 
   def totalBalance: MilliSatoshi = {
-    val chainBalances = LNParams.chainWallets.wallets.map(_.info.lastBalance)
+    val chainBalances = LNParams.chainWallets.wallets.map(_.getData.balance)
     Channel.totalBalance(LNParams.cm.all.values) + chainBalances.sum
   }
 }
@@ -88,7 +88,7 @@ trait ChoiceReceiver {
 trait BaseActivity extends AppCompatActivity { self =>
   lazy val qrSize: Int = getResources.getDimensionPixelSize(R.dimen.qr_size)
   val nothingUsefulTask: Runnable = UITask(
-    WalletApp.app quickToast R.string.error_nothing_useful
+    WalletApp.app.quickToast(R.string.error_nothing_useful)
   )
   val timer: java.util.Timer = new java.util.Timer
 
@@ -654,8 +654,8 @@ trait BaseActivity extends AppCompatActivity { self =>
       feeOpt.foreach { fee =>
         val humanFee =
           WalletApp.denom.parsedWithSign(fee).html
-        fiatFee setText WalletApp.currentMsatInFiatHuman(fee).html
-        bitcoinFee setText humanFee
+        fiatFee.setText(WalletApp.currentMsatInFiatHuman(fee).html)
+        bitcoinFee.setText(humanFee)
       }
     }
 
@@ -665,14 +665,14 @@ trait BaseActivity extends AppCompatActivity { self =>
       customFeerate.setValueTo((currentFeerate * 10).toFloat)
       customFeerate.setValue(currentFeerate.toFloat)
 
-      customFeerateOption setVisibility View.GONE
-      customFeerate setVisibility View.VISIBLE
+      customFeerateOption.setVisibility(View.GONE)
+      customFeerate.setVisibility(View.VISIBLE)
     }
 
     customFeerateOption.setOnClickListener(revealSlider)
     feeRate.setOnClickListener(revealSlider)
 
-    customFeerate addOnChangeListener new Slider.OnChangeListener {
+    customFeerate.addOnChangeListener(new Slider.OnChangeListener {
       override def onValueChange(
           slider: Slider,
           value: Float,
@@ -680,13 +680,12 @@ trait BaseActivity extends AppCompatActivity { self =>
       ): Unit = {
         val feeratePerByte = FeeratePerByte(value.toLong.sat)
         rate = FeeratePerKw(feeratePerByte)
-        worker addWork "SLIDER-CHANGE"
+        worker.addWork("SLIDER-CHANGE")
       }
-    }
+    })
   }
 
   // Chan TX popup for signing and hardware wallets
-
   class ChainButtonsView(host: View) {
     val chainText: TextView =
       host.findViewById(R.id.chainText).asInstanceOf[TextView]
@@ -780,10 +779,10 @@ trait BaseActivity extends AppCompatActivity { self =>
       fromWallet: ElectrumEclairWallet
   ) extends HasHostView {
     val canSend: String = WalletApp.denom.parsedWithSign(
-      fromWallet.info.lastBalance.toMilliSatoshi
+      fromWallet.getData.balance.toMilliSatoshi
     )
     val canSendFiat: String = WalletApp.currentMsatInFiatHuman(
-      fromWallet.info.lastBalance.toMilliSatoshi
+      fromWallet.getData.balance.toMilliSatoshi
     )
     val inputChain: LinearLayout =
       host.findViewById(R.id.inputChain).asInstanceOf[LinearLayout]
@@ -1211,7 +1210,9 @@ trait BaseActivity extends AppCompatActivity { self =>
         preimage,
         description,
         BaseActivity.totalBalance,
-        LNParams.fiatRates.info.rates
+        LNParams.fiatRates.info.rates.filter { case (k, _) =>
+          k == WalletApp.fiatCode
+        }
       )
       WalletApp.app.showStickyNotification(
         R.string.incoming_notify_title,
@@ -1316,7 +1317,9 @@ trait HasTypicalChainFee {
       action,
       sentAmount,
       BaseActivity.totalBalance,
-      LNParams.fiatRates.info.rates,
+      LNParams.fiatRates.info.rates.filter { case (k, _) =>
+        k == WalletApp.fiatCode
+      },
       typicalChainTxFee,
       seenAt
     )
@@ -1507,14 +1510,14 @@ abstract class ChainWalletCards(host: BaseActivity) { self =>
     def updateView(wallet: ElectrumEclairWallet): Unit = {
       chainBalance.setText(
         WalletApp.denom
-          .parsedWithSign(wallet.info.lastBalance.toMilliSatoshi)
+          .parsedWithSign(wallet.getData.balance.toMilliSatoshi)
           .html
       )
       chainBalanceFiat.setText(
-        WalletApp currentMsatInFiatHuman wallet.info.lastBalance.toMilliSatoshi
+        WalletApp.currentMsatInFiatHuman(wallet.getData.balance.toMilliSatoshi)
       )
 
-      val chainBalanceVisible = wallet.info.lastBalance > 0L.sat
+      val chainBalanceVisible = wallet.getData.balance > 0L.sat
       val plusTipVisible =
         (wallet.isBuiltIn || !wallet.isSigning) && !chainBalanceVisible
       val menuTipVisible =

@@ -1,6 +1,5 @@
 package wtf.nbd.obw
 
-import java.net.InetSocketAddress
 import java.util.TimerTask
 import scala.util.chaining._
 import scala.jdk.CollectionConverters._
@@ -176,16 +175,16 @@ class HubActivity
 
   // PAYMENT LIST
   def reloadTxInfos(): Unit = txInfos =
-    WalletApp.txDataBag.listRecentTxs(20).map(WalletApp.txDataBag.toTxInfo)
+    WalletApp.txDataBag.listRecentTxs(25).map(WalletApp.txDataBag.toTxInfo)
   def reloadPaymentInfos(): Unit = paymentInfos = LNParams.cm.payBag
-    .listRecentPayments(20)
+    .listRecentPayments(25)
     .map(LNParams.cm.payBag.toPaymentInfo)
   def reloadRelayedPreimageInfos(): Unit = relayedPreimageInfos =
     LNParams.cm.payBag
-      .listRecentRelays(20)
+      .listRecentRelays(25)
       .map(LNParams.cm.payBag.toRelayedPreimageInfo)
   def reloadPayMarketInfos(): Unit = lnUrlPayLinks = WalletApp.lnUrlPayBag
-    .listRecentLinks(20)
+    .listRecentLinks(25)
     .map(WalletApp.lnUrlPayBag.toLinkInfo)
 
   def isImportantItem: PartialFunction[TransactionDetails, Boolean] = {
@@ -273,7 +272,7 @@ class HubActivity
         val holder =
           if (null == view.getTag) new PaymentLineViewHolder(view)
           else view.getTag.asInstanceOf[PaymentLineViewHolder]
-        if (openListItems contains item.identity) holder.expand(item)
+        if (openListItems.contains(item.identity)) holder.expand(item)
         else holder.collapse(item)
         setVisMany(
           item.isExpandedItem -> holder.spacer,
@@ -520,7 +519,7 @@ class HubActivity
           case true =>
             LNParams.cm.payBag.updDescription(infoDesc1, info.paymentHash)
           case false =>
-            onFail(error = me getString R.string.error_btc_broadcast_fail)
+            onFail(error = getString(R.string.error_btc_broadcast_fail))
         }
       }
 
@@ -1168,12 +1167,13 @@ class HubActivity
               .format(fiatNow, fiatThen),
             R.drawable.border_white
           )
-          addFlowChip(
-            extraInfo,
-            getString(R.string.popup_prior_chain_balance) format WalletApp.denom
-              .parsedWithSign(info.balanceSnapshot),
-            R.drawable.border_white
-          )
+          // remove this "prior balance" thing until we understand and fix it
+          // addFlowChip(
+          //   extraInfo,
+          //   getString(R.string.popup_prior_chain_balance) format WalletApp.denom
+          //     .parsedWithSign(info.balanceSnapshot),
+          //   R.drawable.border_white
+          // )
           if (info.isIncoming && info.status == PaymentStatus.PENDING)
             addFlowChip(
               extraInfo,
@@ -1387,8 +1387,8 @@ class HubActivity
         swipeWrap.setLockDrag(true)
 
       case info: TxInfo =>
-        statusIcon setImageResource txStatusIcon(info)
-        nonLinkContainer setBackgroundResource R.drawable.border_basic
+        statusIcon.setImageResource(txStatusIcon(info))
+        nonLinkContainer.setBackgroundResource(R.drawable.border_basic)
         setVisMany(
           info.description.label.isDefined -> labelIcon,
           true -> detailsAndStatus,
@@ -1558,16 +1558,20 @@ class HubActivity
 
     def setTxMeta(info: TxInfo): Unit = {
       if (info.isDoubleSpent)
-        meta setText getString(R.string.tx_state_double_spent).html
+        meta.setText(getString(R.string.tx_state_double_spent).html)
       else if (info.isConfirmed)
-        meta setText WalletApp.app
-          .when(info.date, WalletApp.app.dateFormat)
-          .html
+        meta.setText(
+          WalletApp.app
+            .when(info.date, WalletApp.app.dateFormat)
+            .html
+        )
       else if (info.depth > 0)
-        meta setText getString(R.string.tx_state_confs)
-          .format(info.depth, LNParams.minDepthBlocks)
-          .html
-      else meta setText pctCollected.head
+        meta.setText(
+          getString(R.string.tx_state_confs)
+            .format(info.depth, LNParams.minDepthBlocks)
+            .html
+        )
+      else meta.setText(pctCollected.head)
     }
 
     // LN helpers
@@ -1584,19 +1588,27 @@ class HubActivity
       val fsmOpt = LNParams.cm.inProcessors.get(info.fullTag)
       val fsmReceiving =
         fsmOpt.exists(_.state == IncomingPaymentProcessor.Receiving)
-      if (fsmOpt exists info.isActivelyHolding)
-        meta setText s"<b>${fsmOpt.get.secondsLeft}</b> sec".html // Show how many seconds left until cancel
+      if (fsmOpt.exists(info.isActivelyHolding))
+        // Show how many seconds left until cancel
+        meta.setText(s"<b>${fsmOpt.get.secondsLeft}</b> sec".html)
       else if (fsmOpt.isDefined && PaymentStatus.SUCCEEDED == info.status)
-        meta setText pctCollected.last.html // Preimage is revealed but we are not done yet
+        // Preimage is revealed but we are not done yet
+        meta.setText(pctCollected.last.html)
       else if (fsmOpt.isEmpty && PaymentStatus.SUCCEEDED == info.status)
-        meta setText WalletApp.app
-          .when(info.date, WalletApp.app.dateFormat)
-          .html // Payment has been cleared
+        // Payment has been cleared
+        meta.setText(
+          WalletApp.app
+            .when(info.date, WalletApp.app.dateFormat)
+            .html
+        )
       else if (fsmReceiving && PaymentStatus.PENDING == info.status)
-        meta setText WalletApp.app
-          .plurOrZero(info.ratio(fsmOpt.get), pctCollected)
-          .html // Actively collecting parts
-      else meta setText pctCollected.head
+        // Actively collecting parts
+        meta.setText(
+          WalletApp.app
+            .plurOrZero(info.ratio(fsmOpt.get), pctCollected)
+            .html
+        )
+      else meta.setText(pctCollected.head)
     }
 
     def setOutgoingPaymentMeta(info: PaymentInfo): Unit = {
@@ -1661,6 +1673,8 @@ class HubActivity
       view.findViewById(R.id.offlineIndicator).asInstanceOf[TextView]
     val chainSyncIndicator: TextView =
       view.findViewById(R.id.chainSyncIndicator).asInstanceOf[TextView]
+    val walletSyncIndicator: TextView =
+      view.findViewById(R.id.walletSyncIndicator).asInstanceOf[TextView]
     val lnSyncIndicator: InvertedTextProgressbar = view
       .findViewById(R.id.lnSyncIndicator)
       .asInstanceOf[InvertedTextProgressbar]
@@ -1826,7 +1840,7 @@ class HubActivity
       totalLightningBalance.setText(
         WalletApp.denom.parsedWithSign(lnBalance).html
       )
-      lnBalanceFiat.setText(WalletApp currentMsatInFiatHuman lnBalance)
+      lnBalanceFiat.setText(WalletApp.currentMsatInFiatHuman(lnBalance))
       channelIndicator.createIndicators(allChannels.toArray)
 
       setVisMany(
@@ -1862,7 +1876,7 @@ class HubActivity
   private var inFinalizedSubscription = Option.empty[Subscription]
 
   private val chainListener = new WalletEventsListener {
-    override def onChainMasterSelected(event: InetSocketAddress): Unit =
+    override def onChainConnected(): Unit =
       UITask {
         TransitionManager.beginDelayedTransition(walletCards.defaultHeader)
         setVis(isVisible = false, walletCards.offlineIndicator)
@@ -1882,6 +1896,14 @@ class HubActivity
 
     override def onChainSyncEnded(localTip: Long): Unit = UITask {
       setVis(isVisible = false, walletCards.chainSyncIndicator)
+    }.run
+
+    override def onWalletSyncStarted(): Unit = UITask {
+      setVis(true, walletCards.walletSyncIndicator)
+    }.run
+
+    override def onWalletSyncEnded(): Unit = UITask {
+      setVis(false, walletCards.walletSyncIndicator)
     }.run
 
     override def onWalletReady(event: WalletReady): Unit = {
@@ -2502,16 +2524,18 @@ class HubActivity
       setVis(
         WalletApp.showRateUs && paymentInfos.forall(
           _.status == PaymentStatus.SUCCEEDED
-        ) && allInfos.size > 4 && allInfos.size < 8,
+        ) && allInfos.size > 8 && allInfos.size < 12,
         walletCards.rateTeaser
       )
       // User may kill an activity but not an app and on getting back there won't be a chain listener event, so check connectivity once again here
       setVisMany(
         WalletApp.ensureTor -> walletCards.torIndicator,
-        WalletApp.currentChainNode.isEmpty -> walletCards.offlineIndicator
+        !WalletApp.isConnected -> walletCards.offlineIndicator
       )
-      walletCards.searchField addTextChangedListener onTextChange(
-        searchWorker.addWork
+      walletCards.searchField.addTextChangedListener(
+        onTextChange(
+          searchWorker.addWork
+        )
       )
       runAnd(updateLnCaches())(paymentAdapterDataChanged.run)
       markAsFailedOnce
@@ -3007,7 +3031,7 @@ class HubActivity
     setVis(isVisible = false, sendView.chainEditView.inputChain)
     alert.setOnDismissListener(sendView.onDismissListener)
     feeView.update(feeOpt = None, showIssue = false)
-    feeView.worker addWork "MULTI-SEND-INIT-CALL"
+    feeView.worker.addWork("MULTI-SEND-INIT-CALL")
   }
 
   def bringReceivePopup(view: View): Unit =
@@ -3359,7 +3383,7 @@ class HubActivity
       fromWallet: ElectrumEclairWallet,
       tx: Transaction
   ): Future[Boolean] = {
-    UITask(WalletApp.app quickToast pctCollected.head).run
+    UITask(WalletApp.app.quickToast(partsInFlight.head)).run
     fromWallet.broadcast(tx)
   }
 }

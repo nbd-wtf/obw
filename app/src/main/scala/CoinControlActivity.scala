@@ -34,9 +34,9 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
   private[this] var items: List[UtxoListItem] = List.empty
 
   private val chainListener = new WalletEventsListener {
-    override def onWalletReady(event: WalletReady): Unit = UITask {
-      excludedOutPoints = event.excludedOutPoints.toSet
-      updateItems(event.unExcludedUtxos)
+    override def onWalletReady(wr: WalletReady): Unit = UITask {
+      excludedOutPoints = wr.excludedOutPoints.toSet
+      updateItems(wr.unExcludedUtxos)
       chanAdapter.notifyDataSetChanged
       updateWallet()
     }.run
@@ -95,15 +95,15 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
       val isExcluded = excludedOutPoints.contains(item.utxo.item.outPoint)
       val utxoName = Haiku.name(item.utxo.key.publickeybytes)
 
-      utxoCardContainer setOnClickListener onButtonTap {
-        val excludedOutPoints1 =
+      utxoCardContainer.setOnClickListener(onButtonTap {
+        val toExclude =
           if (utxoIncluded.isChecked)
             excludedOutPoints + item.utxo.item.outPoint
           else excludedOutPoints - item.utxo.item.outPoint
         LNParams.chainWallets
           .findByPubKey(walletPubKey)
-          .foreach(_ provideExcludedOutpoints excludedOutPoints1.toList)
-      }
+          .foreach(_.provideExcludedOutpoints(toExclude.toList))
+      })
 
       utxoAmount.setText(humanAmount.html)
       utxoIncluded.setChecked(!isExcluded)
@@ -160,11 +160,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
     utxoList.setDividerHeight(0)
     utxoList.setDivider(null)
 
-    runFutureProcessOnUI(wallet.getData, onFail) { ed =>
-      for (walletReady <- ed.data.lastReadyMessage) {
-        chainListener.onWalletReady(walletReady)
-      }
-    }
+    chainListener.onWalletReady(wallet.getData.readyMessage)
   }
 
   override def checkExternalData(whenNone: Runnable): Unit =

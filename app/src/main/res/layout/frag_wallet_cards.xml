@@ -49,26 +49,38 @@
                 style="@style/ChipTextGray"
                 android:textSize="12sp"
                 android:background="@drawable/border_yellow"
-                android:layout_toStartOf="@id/lnSyncIndicator"
+                android:layout_toStartOf="@id/walletSyncIndicator"
                 android:layout_centerVertical="true"
                 android:id="@+id/chainSyncIndicator"
                 android:layout_marginEnd="6dp"
                 android:visibility="gone"
-                android:text="SYNC"/>
+                android:text="HEADERS"/>
+
+            <TextView
+                style="@style/ChipTextGray"
+                android:textSize="12sp"
+                android:background="@drawable/border_yellow"
+                android:layout_toStartOf="@id/lnSyncIndicator"
+                android:layout_centerVertical="true"
+                android:id="@+id/walletSyncIndicator"
+                android:layout_marginEnd="6dp"
+                android:visibility="gone"
+                android:text="WALLET"/>
 
             <com.danilomendes.progressbar.InvertedTextProgressbar
                 card_view:text_inverted_color="@android:color/black"
-                android:layout_toStartOf="@id/torIndicator"
                 card_view:text_color="@android:color/white"
+                card_view:text_size="10sp"
+                card_view:text="CHANNELS"
+                android:layout_toStartOf="@id/torIndicator"
                 android:background="@drawable/border_purple"
                 android:src="@color/ourPurple"
                 android:layout_centerVertical="true"
                 android:id="@+id/lnSyncIndicator"
                 android:layout_marginEnd="6dp"
-                android:layout_height="24sp"
+                android:layout_height="26sp"
                 android:layout_width="65sp"
                 android:visibility="gone"
-                card_view:text="LN SYNC"
                 android:padding="1dp"/>
 
             <TextView
