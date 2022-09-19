@@ -242,9 +242,9 @@
     <string name="settings_use_auth">Use PIN authentication</string>
     <string name="settings_ensure_tor">Aplicar conexão Tor</string>
 
-    <string name="ln_fee_expensive_omitted">Payment failed because expensive routes were omitted, would you like to retry with increased fee limits?</string>
-    <string name="ln_sync_not_complete">LN SYNC is not finished yet, please wait a bit while keeping an app open and then try again.</string>
-    <string name="ln_payee_likely_offline">It is likely that payee wallet is offline right now</string>
+    <string name="ln_fee_expensive_omitted">O pagamento falhou porque as rotas mais caras foram descartadas. Gostaria de tentar novamente pagando mais em taxas?</string>
+    <string name="ln_sync_not_complete">A sincronização de canais ainda não terminou, por favor agüarde um pouco mais com o aplicativo aberto.</string>
+    <string name="ln_payee_likely_offline">Parece que o recipiente deste pagamento está offline agora</string>
 
     <string name="settings_btc_unit">Unidade de bitcoin</string>
     <string name="settings_fiat_currency">Moeda fiduciária</string>

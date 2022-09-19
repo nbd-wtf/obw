@@ -1482,7 +1482,7 @@ class HubActivity
     }
 
     def setVisibleIcon(id: Int): Unit = if (lastVisibleIconId != id) {
-      iconMap.get(lastVisibleIconId).foreach(_ setVisibility View.GONE)
+      iconMap.get(lastVisibleIconId).foreach(_.setVisibility(View.GONE))
       iconMap.get(id).foreach(_ setVisibility View.VISIBLE)
       lastVisibleIconId = id
     }
@@ -1671,10 +1671,14 @@ class HubActivity
       view.findViewById(R.id.rateTeaser).asInstanceOf[TextView]
     val offlineIndicator: TextView =
       view.findViewById(R.id.offlineIndicator).asInstanceOf[TextView]
-    val chainSyncIndicator: TextView =
-      view.findViewById(R.id.chainSyncIndicator).asInstanceOf[TextView]
-    val walletSyncIndicator: TextView =
-      view.findViewById(R.id.walletSyncIndicator).asInstanceOf[TextView]
+    val chainSyncIndicator: InvertedTextProgressbar =
+      view
+        .findViewById(R.id.chainSyncIndicator)
+        .asInstanceOf[InvertedTextProgressbar]
+    val walletSyncIndicator: InvertedTextProgressbar =
+      view
+        .findViewById(R.id.walletSyncIndicator)
+        .asInstanceOf[InvertedTextProgressbar]
     val lnSyncIndicator: InvertedTextProgressbar = view
       .findViewById(R.id.lnSyncIndicator)
       .asInstanceOf[InvertedTextProgressbar]
@@ -1889,9 +1893,16 @@ class HubActivity
     override def onChainSyncStarted(localTip: Long, remoteTip: Long): Unit =
       UITask {
         setVis(
-          isVisible = remoteTip - localTip > 2016 * 4,
+          isVisible = remoteTip > localTip,
           walletCards.chainSyncIndicator
         )
+      }.run
+
+    override def onChainSyncProgress(localTip: Long, remoteTip: Long): Unit =
+      UITask {
+        walletCards.chainSyncIndicator.setMaxProgress(remoteTip.toInt)
+        walletCards.chainSyncIndicator.setMinProgress(0)
+        walletCards.chainSyncIndicator.setProgress(localTip.toInt)
       }.run
 
     override def onChainSyncEnded(localTip: Long): Unit = UITask {
@@ -1901,6 +1912,18 @@ class HubActivity
     override def onWalletSyncStarted(): Unit = UITask {
       setVis(true, walletCards.walletSyncIndicator)
     }.run
+
+    override def onWalletSyncProgress(
+        maxChangedScriptHashes: Int,
+        leftFetching: Int
+    ): Unit =
+      UITask {
+        walletCards.walletSyncIndicator.setMaxProgress(maxChangedScriptHashes)
+        walletCards.walletSyncIndicator.setMinProgress(0)
+        walletCards.walletSyncIndicator.setProgress(
+          maxChangedScriptHashes - leftFetching
+        )
+      }.run
 
     override def onWalletSyncEnded(): Unit = UITask {
       setVis(false, walletCards.walletSyncIndicator)

@@ -376,7 +376,7 @@ object WalletApp {
             description: TxDescription,
             isIncoming: Long,
             totalBalance: MilliSatoshi
-        ): Unit = txDataBag.db txWrap {
+        ): Unit = {
           txDataBag.addTx(
             event.tx,
             event.depth,

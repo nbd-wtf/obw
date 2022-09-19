@@ -120,7 +120,10 @@ class ChanActivity
         case _ => throw new RuntimeException
       }
 
-      viewBinderHelper.bind(cardView.swipeWrap, position.toString)
+      viewBinderHelper.bind(
+        cardView.swipeWrap,
+        getItem(position).commits.channelId.toHex
+      )
       card.setTag(cardView)
       card
     }
@@ -382,7 +385,7 @@ class ChanActivity
         )
       }
 
-      channelCard setOnClickListener bringChanOptions(hostedChanActions, hc)
+      channelCard.setOnClickListener(bringChanOptions(hostedChanActions, hc))
 
       visibleExcept(R.id.refundableAmount)
       ChannelIndicatorLine.setView(chanState, chan)
@@ -506,7 +509,11 @@ class ChanActivity
     val maxSendable = LNParams.cm.maxSendable(relatedHc)
     val preimage = randomBytes32
 
-    maxNormalReceivable match {
+    LNParams.cm.maxReceivable(
+      LNParams.cm.sortedReceivable(
+        LNParams.cm.all.filter(_._1 != hc.channelId).values
+      )
+    ) match {
       case _ if maxSendable < LNParams.minPayment =>
         snack(
           chanContainer,
@@ -514,7 +521,7 @@ class ChanActivity
           R.string.dialog_ok,
           _.dismiss
         )
-      case ncOpt if ncOpt.forall(_.maxReceivable < LNParams.minPayment) =>
+      case Some(csAndMax) if csAndMax.maxReceivable < LNParams.minPayment =>
         snack(
           chanContainer,
           getString(R.string.ln_hosted_chan_drain_impossible_no_chans).html,
@@ -799,10 +806,6 @@ class ChanActivity
     csToDisplay.collectFirst {
       case cnc if cnc.commits.channelId == commits.channelId => cnc.chan
     }
-
-  private def maxNormalReceivable = LNParams.cm.maxReceivable(
-    LNParams.cm sortedReceivable LNParams.cm.allNormal
-  )
 
   private def updateChanData: TimerTask = UITask {
     csToDisplay =

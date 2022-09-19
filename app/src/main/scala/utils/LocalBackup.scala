@@ -14,7 +14,7 @@ import immortan.crypto.Tools
 import scala.util.Try
 import java.io.File
 
-object LocalBackup { me =>
+object LocalBackup {
   final val BACKUP_NAME = "encrypted.channels"
   final val GRAPH_NAME = "graph.snapshot"
   final val BACKUP_EXTENSION = ".bin"
@@ -28,7 +28,7 @@ object LocalBackup { me =>
 
   def getBackupFileUnsafe(chainHash: ByteVector32, seed: ByteVector): File = {
     val specifics =
-      s"${me getNetwork chainHash}-${Crypto.hash160(seed).take(4).toHex}"
+      s"${getNetwork(chainHash)}-${Crypto.hash160(seed).take(4).toHex}"
     new File(downloadsDir, s"$BACKUP_NAME-$specifics$BACKUP_EXTENSION")
   }
 
@@ -84,9 +84,9 @@ object LocalBackup { me =>
 
   // Separate method because we save the same file both in Downloads and in local assets folders
   def getGraphResourceName(chainHash: ByteVector32): String =
-    s"$GRAPH_NAME-${me getNetwork chainHash}$GRAPH_EXTENSION"
+    s"$GRAPH_NAME-${getNetwork(chainHash)}$GRAPH_EXTENSION"
   def getGraphFileUnsafe(chainHash: ByteVector32): File =
-    new File(downloadsDir, me getGraphResourceName chainHash)
+    new File(downloadsDir, getGraphResourceName(chainHash))
 
   // Utils
 

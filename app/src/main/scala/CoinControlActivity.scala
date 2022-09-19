@@ -84,8 +84,8 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
     def setTxView(item: TransactionLine): Unit = {
       setVisMany(true -> txLabelOrId, false -> utxoWrap)
       val labelOpt = txLabels.get(item.txid).flatMap(_.label)
-      txLabelOrId setOnClickListener onButtonTap(WalletApp.app copy item.txid)
-      txLabelOrId setText labelOpt.getOrElse(s"TXID ${item.txid.short}".html)
+      txLabelOrId.setOnClickListener(onButtonTap(WalletApp.app.copy(item.txid)))
+      txLabelOrId.setText(labelOpt.getOrElse(s"TXID ${item.txid.short}".html))
     }
 
     def setUtxoView(item: UnspentOutputLine): Unit = {
@@ -111,7 +111,7 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
     }
   }
 
-  def updateItems(unExcludedUtxos: Seq[Utxo] = Nil): Unit = {
+  def updateItems(unExcludedUtxos: Seq[Utxo] = Nil): Unit =
     items = unExcludedUtxos
       .groupBy(_.item.outPoint.txid.toString)
       .flatMap { case (txid, unspents) =>
@@ -120,7 +120,6 @@ class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
         TransactionLine(txid) +: outPointsLine
       }
       .toList
-  }
 
   override def onDestroy(): Unit = {
     try LNParams.chainWallets.catcher.remove(chainListener)

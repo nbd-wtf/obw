@@ -45,32 +45,42 @@
                 android:visibility="gone"
                 android:text="OFFLINE"/>
 
-            <TextView
-                style="@style/ChipTextGray"
-                android:textSize="12sp"
-                android:background="@drawable/border_yellow"
+            <com.danilomendes.progressbar.InvertedTextProgressbar
+                card_view:text_inverted_color="@android:color/black"
+                card_view:text_color="@android:color/white"
+                card_view:text_size="12sp"
+                card_view:text="CHAIN"
                 android:layout_toStartOf="@id/walletSyncIndicator"
+                android:background="@drawable/border_yellow"
+                android:src="@color/yellow"
                 android:layout_centerVertical="true"
                 android:id="@+id/chainSyncIndicator"
                 android:layout_marginEnd="6dp"
+                android:layout_height="26sp"
+                android:layout_width="65sp"
                 android:visibility="gone"
-                android:text="HEADERS"/>
-
-            <TextView
-                style="@style/ChipTextGray"
-                android:textSize="12sp"
-                android:background="@drawable/border_yellow"
-                android:layout_toStartOf="@id/lnSyncIndicator"
-                android:layout_centerVertical="true"
-                android:id="@+id/walletSyncIndicator"
-                android:layout_marginEnd="6dp"
-                android:visibility="gone"
-                android:text="WALLET"/>
+                android:padding="1dp"/>
 
             <com.danilomendes.progressbar.InvertedTextProgressbar
                 card_view:text_inverted_color="@android:color/black"
                 card_view:text_color="@android:color/white"
-                card_view:text_size="10sp"
+                card_view:text_size="12sp"
+                card_view:text="WALLET"
+                android:layout_toStartOf="@id/lnSyncIndicator"
+                android:background="@drawable/border_yellow"
+                android:src="@color/yellow"
+                android:layout_centerVertical="true"
+                android:id="@+id/walletSyncIndicator"
+                android:layout_marginEnd="6dp"
+                android:layout_height="26sp"
+                android:layout_width="65sp"
+                android:visibility="gone"
+                android:padding="1dp"/>
+
+            <com.danilomendes.progressbar.InvertedTextProgressbar
+                card_view:text_inverted_color="@android:color/black"
+                card_view:text_color="@android:color/white"
+                card_view:text_size="12sp"
                 card_view:text="CHANNELS"
                 android:layout_toStartOf="@id/torIndicator"
                 android:background="@drawable/border_purple"
