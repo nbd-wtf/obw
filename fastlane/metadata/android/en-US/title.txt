@@ -1,1 +1,1 @@
-Simple Bitcoin Wallet
+Open Bitcoin Wallet

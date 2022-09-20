@@ -9,4 +9,8 @@ local.properties
 .metals
 .bloop
 build
-release.keystore
+*.keystore
+*.pepk
+Gemfile*
+fastlane/report.xml
+fastlane/Appfile
