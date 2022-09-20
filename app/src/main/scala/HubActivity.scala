@@ -1311,14 +1311,15 @@ class HubActivity
               .format(fiatNow, fiatThen),
             R.drawable.border_white
           )
-          if (info.description.cpfpOf.isEmpty && info.description.rbf.isEmpty)
-            addFlowChip(
-              extraInfo,
-              getString(
-                R.string.popup_prior_chain_balance
-              ) format balanceSnapshot,
-              R.drawable.border_white
-            )
+          // remove this "prior balance" thing until we understand and fix it
+          // if (info.description.cpfpOf.isEmpty && info.description.rbf.isEmpty)
+          //   addFlowChip(
+          //     extraInfo,
+          //     getString(
+          //       R.string.popup_prior_chain_balance
+          //     ) format balanceSnapshot,
+          //     R.drawable.border_white
+          //   )
           if (
             !info.isIncoming || isRbfCancel || info.description.cpfpOf.isDefined
           )
