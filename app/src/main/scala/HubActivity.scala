@@ -1381,14 +1381,14 @@ class HubActivity
         meta.setText(
           WalletApp.app.when(info.date, WalletApp.app.dateFormat).html
         )
-        nonLinkContainer setBackgroundResource paymentBackground(info.fullTag)
+        nonLinkContainer.setBackgroundResource(R.drawable.border_none)
         amount.setText(incoming(info.earned).html)
         setVisibleIcon(id = R.id.lnRouted)
         swipeWrap.setLockDrag(true)
 
       case info: TxInfo =>
         statusIcon.setImageResource(txStatusIcon(info))
-        nonLinkContainer.setBackgroundResource(R.drawable.border_basic)
+        nonLinkContainer.setBackgroundResource(R.drawable.border_none)
         setVisMany(
           info.description.label.isDefined -> labelIcon,
           true -> detailsAndStatus,
@@ -1413,8 +1413,8 @@ class HubActivity
         setTxMeta(info)
 
       case info: PaymentInfo =>
-        statusIcon setImageResource paymentStatusIcon(info)
-        nonLinkContainer setBackgroundResource paymentBackground(info.fullTag)
+        statusIcon.setImageResource(paymentStatusIcon(info))
+        nonLinkContainer.setBackgroundResource(R.drawable.border_none)
         if (info.isIncoming) setIncomingPaymentMeta(info)
         else setOutgoingPaymentMeta(info)
         if (info.isIncoming) setVisibleIcon(R.id.lnIncoming)
@@ -1445,8 +1445,8 @@ class HubActivity
           true -> nonLinkContainer,
           false -> linkContainer
         )
-        nonLinkContainer setBackgroundResource R.drawable.border_basic
-        statusIcon setImageResource R.drawable.baseline_feedback_24
+        nonLinkContainer.setBackgroundResource(R.drawable.border_none)
+        statusIcon.setImageResource(R.drawable.baseline_feedback_24)
         amount.setText(incoming(info.totalAmount).html)
         meta.setText(getString(R.string.delayed_pending).html)
         description.setText(R.string.delayed_refunding)
@@ -1471,9 +1471,7 @@ class HubActivity
           false -> nonLinkContainer,
           true -> removeItem
         )
-        linkContainer setBackgroundResource paymentBackground(
-          info.description.fullTag
-        )
+        linkContainer.setBackgroundResource(R.drawable.border_none)
         info.imageBytes
           .map(payLinkImageMemo.get)
           .foreach(linkImage.setImageBitmap)
@@ -1635,16 +1633,17 @@ class HubActivity
       else R.drawable.baseline_hourglass_empty_24
     }
 
+    // this is not used anywhere, some piece of legacy that might be useful in the future
+    // (i.e. if we ever want to change styles based on payment tag etc)
     def paymentBackground(fullTag: FullPaymentTag): Int = {
-      R.drawable.border_none
-      // if (dangerousHCRevealed(fullTag).nonEmpty) R.drawable.border_red
-      // else if (LNParams.cm.opm.data.paymentSenders contains fullTag)
-      //   R.drawable.border_purple // An active outgoing FSM is present for this tag
-      // else if (LNParams.cm.inProcessors contains fullTag)
-      //   R.drawable.border_purple // An active incoming FSM is present for this tag
-      // else if (lastInChannelOutgoing contains fullTag)
-      //   R.drawable.border_purple // Payments in channel are present for this tag
-      // else R.drawable.border_basic
+      if (dangerousHCRevealed(fullTag).nonEmpty) R.drawable.border_red
+      else if (LNParams.cm.opm.data.paymentSenders contains fullTag)
+        R.drawable.border_purple // An active outgoing FSM is present for this tag
+      else if (LNParams.cm.inProcessors contains fullTag)
+        R.drawable.border_purple // An active incoming FSM is present for this tag
+      else if (lastInChannelOutgoing contains fullTag)
+        R.drawable.border_purple // Payments in channel are present for this tag
+      else R.drawable.border_basic
     }
   }
 
