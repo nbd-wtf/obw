@@ -2388,12 +2388,21 @@ class HubActivity
       getString(R.string.dialog_lnurl_processing).format(lnurl.warnUri).html,
       R.string.dialog_cancel
     ) foreach { snack =>
-      def onErrorFromVendor(error: Throwable): Unit =
-        onFail(s"Error from vendor:<br><br><tt>${error.toString}</tt>")
+      def onErrorFromVendor(err: Throwable): Unit = err match {
+        case LNUrl.ErrorFromVendor(msg) =>
+          onFail(s"Error from vendor:<br><br><tt>${msg}</tt>")
+        case LNUrl.InvalidJsonFromVendor =>
+          onFail(s"Got an invalid JSON response")
+        case _ =>
+          onFail(s"Unexpected failure:<br><br><tt>${err.toString}</tt>")
+      }
+
       val level1Sub = lnurl.level1DataResponse
         .doOnUnsubscribe(snack.dismiss)
         .doOnTerminate(snack.dismiss)
+
       val level2Sub = level1Sub.subscribe(resolve, onErrorFromVendor)
+
       val listener = onButtonTap(level2Sub.unsubscribe())
       snack.setAction(R.string.dialog_cancel, listener).show
     }
