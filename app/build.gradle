@@ -9,7 +9,7 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         applicationId 'wtf.nbd.obw'
         multiDexEnabled true
-        targetSdkVersion 29
+        targetSdkVersion 31
         minSdkVersion 26
 
         versionName '0.1.0'

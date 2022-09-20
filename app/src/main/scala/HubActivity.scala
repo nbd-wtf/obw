@@ -2453,7 +2453,7 @@ class HubActivity
           .doOnUnsubscribe(snack.dismiss)
           .doOnTerminate(snack.dismiss)
         val level2Sub = level2Obs.subscribe(
-          _ => UITask(WalletApp.app quickToast successResource).run,
+          _ => UITask(WalletApp.app.quickToast(successResource)).run,
           onFail
         )
         val listener = onButtonTap(level2Sub.unsubscribe())
