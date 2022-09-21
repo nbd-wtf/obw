@@ -1667,8 +1667,6 @@ class HubActivity
     val fiatUnitPriceAndChange: TextView =
       view.findViewById(R.id.fiatUnitPriceAndChange).asInstanceOf[TextView]
 
-    val rateTeaser: TextView =
-      view.findViewById(R.id.rateTeaser).asInstanceOf[TextView]
     val offlineIndicator: TextView =
       view.findViewById(R.id.offlineIndicator).asInstanceOf[TextView]
     val chainSyncIndicator: InvertedTextProgressbar =
@@ -2552,13 +2550,6 @@ class HubActivity
     walletCards.updateView()
 
     runInFutureProcessOnUI(loadRecent(), none) { _ =>
-      // We suggest user to rate us if: no rate attempt has been made before, LN payments were successful, user has been using an app for certain period
-      setVis(
-        WalletApp.showRateUs && paymentInfos.forall(
-          _.status == PaymentStatus.SUCCEEDED
-        ) && allInfos.size > 8 && allInfos.size < 12,
-        walletCards.rateTeaser
-      )
       // User may kill an activity but not an app and on getting back there won't be a chain listener event, so check connectivity once again here
       setVisMany(
         WalletApp.ensureTor -> walletCards.torIndicator,

@@ -437,12 +437,6 @@ class SettingsActivity
       R.drawable.border_purple,
       _ => browse("https://twitter.com/nbd_wtf")
     )
-    addFlowChip(
-      links.flow,
-      "Rate us",
-      R.drawable.border_purple,
-      _ => bringRateDialog(null)
-    )
 
     for (count <- LNParams.logBag.count if count > 0) {
       def exportLog(): Unit =

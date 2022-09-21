@@ -196,13 +196,6 @@ trait BaseActivity extends AppCompatActivity { self =>
       startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(maybeUri)))
     catch { case exception: Throwable => onFail(exception) }
 
-  def bringRateDialog(view: View): Unit = {
-    val marketUri = Uri.parse(s"market://details?id=$getPackageName")
-    WalletApp.app.prefs.edit.putBoolean(WalletApp.SHOW_RATE_US, false).commit
-    startActivity(new Intent(Intent.ACTION_VIEW, marketUri))
-    if (null != view) view.setVisibility(View.GONE)
-  }
-
   def share(text: CharSequence): Unit = startActivity {
     val shareAction = (new Intent).setAction(Intent.ACTION_SEND)
     shareAction.setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)

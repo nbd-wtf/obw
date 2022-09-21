@@ -22,20 +22,6 @@
                 style="@style/FillingView"/>
 
             <TextView
-                android:clickable="true"
-                android:focusable="true"
-                style="@style/ChipTextGray"
-                android:onClick="bringRateDialog"
-                android:textSize="12sp"
-                android:background="@drawable/border_green"
-                android:layout_toStartOf="@id/offlineIndicator"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="6dp"
-                android:text="&#9825; Rate us"
-                android:id="@+id/rateTeaser"
-                android:visibility="gone"/>
-
-            <TextView
                 style="@style/ChipTextGray"
                 android:layout_toStartOf="@id/chainSyncIndicator"
                 android:textSize="12sp"
