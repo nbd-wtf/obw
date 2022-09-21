@@ -69,7 +69,7 @@
     <string name="dialog_boost">Boost</string>
     <string name="dialog_open">Abrir</string>
     <string name="dialog_copy">Copiar</string>
-    <string name="dialog_scan">Scan</string>
+    <string name="dialog_scan">Ler QR</string>
     <string name="dialog_info">Info</string>
     <string name="dialog_edit">Edit</string>
     <string name="dialog_max">Máx</string>
@@ -176,7 +176,7 @@
 
     <!-- special tx/payment descriptions -->
 
-    <string name="tx_ln_label_reflexive">Payment to self</string>
+    <string name="tx_ln_label_reflexive">Drenagem de canal</string>
     <string name="tx_ln_notice_split">divisão %1$d\%%&#160;|&#160;</string>
 
     <string name="tx_description_op_return">Prova de pagamento</string>
@@ -197,7 +197,7 @@
     <string name="popup_retry">Tente novamente</string>
     <string name="popup_view_invoice">Ver fatura</string>
     <string name="popup_run_action"><![CDATA[executar&#160;ação&#160;]]></string>
-    <string name="popup_proof_stamp"><![CDATA[share&#160;prova&#160;]]></string>
+    <string name="popup_proof_stamp"><![CDATA[compartilhar&#160;prova&#160;]]></string>
     <string name="popup_to_address"><![CDATA[<b>endereço</b>&#160;%1$s]]></string>
     <string name="popup_ln_payee"><![CDATA[<b>recebedor</b>&#160;%1$s]]></string>
     <string name="popup_ln_node"><![CDATA[<b>node</b>&#160;%1$s]]></string>
@@ -205,7 +205,7 @@
 
     <string name="popup_prior_chain_balance"><![CDATA[<b>saldo&#160;anterior</b>&#160;%1$s]]></string>
     <string name="popup_ln_fee"><![CDATA[<b>taxa</b>&#160;%1$s&#160;(%2$s)]]></string>
-    <string name="popup_fiat"><![CDATA[<b>fiat&#160;value</b>&#160;%1$s&#160;(%2$s)]]></string>
+    <string name="popup_fiat"><![CDATA[<b>fiat&#160;</b>&#160;%1$s&#160;(%2$s)]]></string>
     <string name="popup_chain_fee"><![CDATA[<b>taxa&#160;chain</b>&#160;%1$s]]></string>
     <string name="popup_hash"><![CDATA[<b>hash</b>&#160;%1$s]]></string>
 
@@ -231,9 +231,9 @@
     <string name="settings_backup_where">Armazenado na pasta Download</string>
     <string name="settings_backup_how">Permissões do app -> Armazenar</string>
 
-    <string name="settings_hardware_add">Add hardware wallet</string>
-    <string name="settings_hardware_label">Set hardware wallet label</string>
-    <string name="settings_hw_zpub_tip">Hardware wallet or zpub</string>
+    <string name="settings_hardware_add">Nova carteira de hardware</string>
+    <string name="settings_hardware_label">Rótulo da carteira de hardware</string>
+    <string name="settings_hw_zpub_tip">Carteira de hardware ou zpub</string>
 
     <string name="settings_chain_wallets">Gerenciar carteiras chain</string>
     <string name="settings_chain_legacy">Carteira legacy</string>
@@ -281,9 +281,9 @@
     </array>
 
     <array name="expires_in_blocks">
-        <item><![CDATA[<b>expired</b>]]></item>
-        <item><![CDATA[<b>expires&#160;in</b>&#160;%1$d&#160;block]]></item>
-        <item><![CDATA[<b>expires&#160;in</b>&#160;%1$d&#160;blocks]]></item>
+        <item><![CDATA[<b>vencido</b>]]></item>
+        <item><![CDATA[<b>vence&#160;em</b>&#160;%1$d&#160;bloco]]></item>
+        <item><![CDATA[<b>vence&#160;em</b>&#160;%1$d&#160;blocos]]></item>
     </array>
 
     <!-- lnurl -->
@@ -355,13 +355,13 @@
     <string name="ln_info_close_coop">Fechamento cooperativo</string>
     <string name="ln_info_close_local">Fechado à força localmente</string>
     <string name="ln_info_close_remote">Fechado à força remotamente</string>
-    <string name="ln_info_await_close">Awaiting force-close&#8230;</string>
+    <string name="ln_info_await_close">Esperando fechamento&#8230;</string>
     <string name="ln_info_shutdown">Desligando&#8230;</string>
     <string name="ln_info_opening">Abrindo&#8230;</string>
 
-    <string name="ln_hosted_chan_drain_impossible_few_funds">Funds can not be drained from this hosted channel at the moment because an amount it contains is too small.</string>
-    <string name="ln_hosted_chan_drain_impossible_no_chans">Funds can not be drained from this hosted channel at the moment because there are no normal channels capable of receiving.</string>
-    <string name="ln_hosted_chan_remove_impossible">This hosted channel can not be removed right now because it contains in-flight payments, please wait until they are resolved.</string>
+    <string name="ln_hosted_chan_drain_impossible_few_funds">Não é possível drenar o saldo deste canal pois ele é muito pequeno.</string>
+    <string name="ln_hosted_chan_drain_impossible_no_chans">Não é possível drenar o saldo deste canal pois não há outros canais que o possa receber.</string>
+    <string name="ln_hosted_chan_remove_impossible">Este canal não pode ser removido agora pois há pagamentos pendentes, espere que eles sejam resolvidos.</string>
 
     <!-- DO NOT TRANSLATE --> <string name="ln_chan_details">Channel details\n\nRemote peer node ID\n%1$s\n\nLocal wallet node ID\n%2$s\n\nChannel short ID\n%3$s\n\nFunding txid\n%4$s\n\nChannel started\n%5$s</string>
     <!-- DO NOT TRANSLATE --> <string name="ln_hosted_chan_state">%1$s\n\n\nState snapshot\n%2$s\n\nRevealed preimages\n%3$s</string>
@@ -383,9 +383,9 @@
     <string name="ln_hc_override">Substituir proposta</string>
 
     <string name="ln_hc_override_warn"><![CDATA[
-        <br>Remote host wants to override your hosted channel balance from current <b>%1$s</b> to updated <b>%2$s</b>,
-        this can only happen with your signature provided.<br><br><strong>Make sure an updated balance looks correct before
-        proceeding with this!</strong> Would you like to sign a proposed hosted channel override?
+        <br>O servidor deste canal virtual está propondo substituir o seu saldo atual de <b>%1$s</b> pelo saldo atualizado de <b>%2$s</b>,
+        Sua autorização é necessária.<br><br><strong>Antes de aceitar, confira se o novo saldo parece certo!</strong> Você gostaria de aceitar
+        a proposta de substituição de saldo?
     ]]></string>
 
     <!-- /Channel page -->
@@ -402,17 +402,17 @@
 
     <!-- CPFP/RBF -->
 
-    <string name="tx_cpfp_after">After boost</string>
-    <string name="tx_cpfp_current">Current sum</string>
-    <string name="tx_cpfp_explain">Apply CPFP to this incoming transaction to increase its fee and get it confirmed faster</string>
+    <string name="tx_cpfp_after">Depois do impulsionamento</string>
+    <string name="tx_cpfp_current">Soma atual</string>
+    <string name="tx_cpfp_explain">Usar CPFP para adicionar mais taxas a esta transação e fazer com que ela chegue mais depressa</string>
 
-    <string name="tx_rbf_current">Current fee</string>
-    <string name="tx_rbf_boost_explain"><![CDATA[Apply RBF to this outgoing transaction to increase its fee and <b>get it confirmed faster</b>]]></string>
-    <string name="tx_rbf_cancel_explain"><![CDATA[Apply RBF to this outgoing transaction to increase its fee and <b>get it back to wallet</b>]]></string>
+    <string name="tx_rbf_current">Taxa atual</string>
+    <string name="tx_rbf_boost_explain"><![CDATA[Usar RBF para substituir esta transação por uma análoga com uma taxa maior para que ela <b>seja confirmada mais depressa</b>]]></string>
+    <string name="tx_rbf_cancel_explain"><![CDATA[Usar RBF para substituir esta transação por uma que <b>retorna os fundos a esta carteira</b>]]></string>
 
-    <string name="tx_rbf_err_rbf_disabled">Can not boost this transaction because its RBF flag is disabled</string>
-    <string name="tx_rbf_err_foreign_inputs">Can not boost this transaction because it contains inputs not belonging to this wallet</string>
-    <string name="tx_rbf_err_parents_missing">Can not boost this transaction because its parents are missing in this wallet</string>
+    <string name="tx_rbf_err_rbf_disabled">Impossível aplicar RBF, a transação não permite essa funcionalidade</string>
+    <string name="tx_rbf_err_foreign_inputs">Impossível aplicar RBF, ela está gastando fundos que estão fora do controle desta carteira</string>
+    <string name="tx_rbf_err_parents_missing">Impossível aplicar RBF, não foi possível encontrar os pais desta transação</string>
 
     <!-- /CPFP/RBF -->
 
