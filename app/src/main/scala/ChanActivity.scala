@@ -712,7 +712,7 @@ class ChanActivity
         _ =>
           goToWithValue(
             ClassNames.remotePeerActivityClass,
-            LNParams.syncParams.zebedee
+            LNParams.syncParams.kamenRiderBlack
           )
       )
 

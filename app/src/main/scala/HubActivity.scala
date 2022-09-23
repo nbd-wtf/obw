@@ -1266,8 +1266,8 @@ class HubActivity
             amount,
             Denomination.formatFiat
           )
-          val balanceSnapshot =
-            WalletApp.denom.parsedWithSign(info.balanceSnapshot)
+          // val balanceSnapshot =
+          //   WalletApp.denom.parsedWithSign(info.balanceSnapshot)
 
           addFlowChip(
             extraInfo,

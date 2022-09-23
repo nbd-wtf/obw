@@ -441,23 +441,18 @@ class RemotePeerActivity
   def requestHostedChannel(view: View): Unit = askHostedChannel(randomBytes32)
 
   def askHostedChannel(secret: ByteVector32): Unit = {
-    if (hasInfo.remoteInfo == LNParams.syncParams.zebedee) {
-      // open the channel directly
-      doAskHostedChannel(secret)
-    } else {
-      // show warning exit-scam warning
-      val builder = new AlertDialog.Builder(this, R.style.DialogTheme)
-        .setTitle(R.string.rpa_request_hc)
-        .setMessage(getString(R.string.rpa_hc_warn).html)
+    // show warning exit-scam warning
+    val builder = new AlertDialog.Builder(this, R.style.DialogTheme)
+      .setTitle(R.string.rpa_request_hc)
+      .setMessage(getString(R.string.rpa_hc_warn).html)
 
-      mkCheckForm(
-        confirmedAcceptAskHostedChannel,
-        none,
-        builder,
-        R.string.dialog_ok,
-        R.string.dialog_cancel
-      )
-    }
+    mkCheckForm(
+      confirmedAcceptAskHostedChannel,
+      none,
+      builder,
+      R.string.dialog_ok,
+      R.string.dialog_cancel
+    )
 
     def confirmedAcceptAskHostedChannel(alert: AlertDialog): Unit = {
       alert.dismiss
