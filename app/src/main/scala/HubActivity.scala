@@ -80,21 +80,6 @@ object HubActivity {
   var allInfos: Seq[TransactionDetails] = Nil
   var instance: HubActivity = _
 
-  def quicklyRequestHostedChannel(from: RemoteNodeInfo): Unit = {
-    new HCOpenHandler(
-      from,
-      randomBytes32,
-      LNParams
-        .makeChannelParams(isFunder = false, LNParams.minChanDustLimit)
-        .defaultFinalScriptPubKey,
-      LNParams.cm
-    ) {
-      def onEstablished(cs: Commitments, channel: ChannelHosted): Unit =
-        RemotePeerActivity.implantNewChannel(cs, channel)
-      def onFailure(reason: Throwable): Unit = none
-    }
-  }
-
   def dangerousHCRevealed(fullTag: FullPaymentTag): List[LocalFulfill] =
     ChannelMaster
       .dangerousHCRevealed(
@@ -1655,8 +1640,6 @@ class HubActivity
       .asInstanceOf[LinearLayout]
     val recoveryPhrase: TextView =
       view.findViewById(R.id.recoveryPhraseWarning).asInstanceOf[TextView]
-    val hostedChannelOffer: TextView =
-      view.findViewById(R.id.firstHostedChannelOffer).asInstanceOf[TextView]
     val defaultHeader: LinearLayout =
       view.findViewById(R.id.defaultHeader).asInstanceOf[LinearLayout]
 
@@ -1848,8 +1831,7 @@ class HubActivity
       setVisMany(
         allChannels.nonEmpty -> channelStateIndicators,
         allChannels.nonEmpty -> totalLightningBalance,
-        allChannels.isEmpty -> addChannelTip,
-        allChannels.isEmpty -> walletCards.hostedChannelOffer
+        allChannels.isEmpty -> addChannelTip
       )
       // We have updated chain wallet balances at this point because listener in WalletApp gets called first
       chainCards.update(LNParams.chainWallets.wallets)
@@ -2509,15 +2491,6 @@ class HubActivity
     // setup recovery phrase listener
     walletCards.recoveryPhrase.setOnClickListener(
       onButtonTap(viewRecoveryCode())
-    )
-
-    // setup free hosted channel offer
-    walletCards.hostedChannelOffer.setOnClickListener(
-      onButtonTap(quicklyRequestHostedChannel(LNParams.syncParams.zebedee))
-    )
-    walletCards.hostedChannelOffer.setText(
-      getString(R.string.hosted_channel_offer)
-        .format(LNParams.syncParams.zebedee.alias)
     )
 
     //

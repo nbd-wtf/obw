@@ -112,7 +112,6 @@
     <string name="btc_transfer_label"><![CDATA[legacy -> modern wallet]]></string>
     <string name="btc_transfer_message"><![CDATA[Local transfer of Bitcoin from legacy to modern chain wallet]]></string>
     <string name="recovery_phrase_warning">Tap to save wallet recovery phrase in case you ever lose or replace your device.</string>
-    <string name="hosted_channel_offer"><![CDATA[Tap here to get a free hosted channel from %1$s.]]></string>
 
     <!-- errors -->
 

@@ -705,7 +705,7 @@ class ChanActivity
 
       addFlowChip(
         hcpFooter.flow,
-        "ZEBEDEE",
+        "Black Kamen Rider",
         R.drawable.border_basic,
         _ =>
           goToWithValue(
