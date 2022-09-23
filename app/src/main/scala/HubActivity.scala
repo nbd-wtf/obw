@@ -1871,12 +1871,12 @@ class HubActivity
     }.run
 
     override def onChainSyncStarted(localTip: Long, remoteTip: Long): Unit =
-      UITask {
+      runDelayed(500) {
         setVis(
           isVisible = remoteTip > localTip,
           walletCards.chainSyncIndicator
         )
-      }.run
+      }
 
     override def onChainSyncProgress(localTip: Long, remoteTip: Long): Unit =
       UITask {
@@ -1889,9 +1889,10 @@ class HubActivity
       setVis(isVisible = false, walletCards.chainSyncIndicator)
     }.run
 
-    override def onWalletSyncStarted(): Unit = UITask {
-      setVis(true, walletCards.walletSyncIndicator)
-    }.run
+    override def onWalletSyncStarted(): Unit =
+      runDelayed(500) {
+        setVis(true, walletCards.walletSyncIndicator)
+      }
 
     override def onWalletSyncProgress(
         maxChangedScriptHashes: Int,

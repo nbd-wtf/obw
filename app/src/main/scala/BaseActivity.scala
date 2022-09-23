@@ -283,6 +283,9 @@ trait BaseActivity extends AppCompatActivity { self =>
     for (isVisible ~ view <- items) setVis(isVisible, view)
   }
 
+  def runDelayed(ms: Int)(fun: => Any): Unit =
+    timer.schedule(UITask(fun), ms)
+
   def UITask(fun: => Any): java.util.TimerTask = {
     val runnableExec = new Runnable { override def run(): Unit = fun }
     new java.util.TimerTask { def run(): Unit = runOnUiThread(runnableExec) }
