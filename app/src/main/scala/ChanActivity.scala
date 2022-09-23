@@ -320,7 +320,9 @@ class ChanActivity
       // Hide image container at start, show it later if bitmap is fine
       hcInfo.setOnClickListener(
         onButtonTap(
-          browse("https://sbw.app/posts/scaling-ln-with-hosted-channels/")
+          browse(
+            "https://github.com/fiatjaf/blips/blob/blip-hosted-channels/blip-0012.md"
+          )
         )
       )
       setVisMany(
