@@ -107,7 +107,7 @@ class RemotePeerActivity
         acceptIncomingChannel(theirMsg)
       case _: OpenChannel =>
         UITask(
-          WalletApp.app quickToast R.string.error_rejected_incoming_public
+          WalletApp.app.quickToast(R.string.error_rejected_incoming_public)
         ).run
       case _ => // Do nothing
     }

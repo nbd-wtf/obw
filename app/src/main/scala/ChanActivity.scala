@@ -682,6 +682,12 @@ class ChanActivity
     if (LNParams.isMainnet) {
       addFlowChip(
         lspFooter.flow,
+        "Zero Fee Routing",
+        R.drawable.border_basic,
+        _ => browse("https://zerofeerouting.com/mobile-wallets/")
+      )
+      addFlowChip(
+        lspFooter.flow,
         "lnbig.com",
         R.drawable.border_basic,
         _ => browse("https://lnbig.com/#/open-channel")
@@ -691,18 +697,6 @@ class ChanActivity
         "BlockTank",
         R.drawable.border_basic,
         _ => browse("https://synonym.to/blocktank/")
-      )
-      addFlowChip(
-        lspFooter.flow,
-        "Zero Fee Routing",
-        R.drawable.border_basic,
-        _ => browse("https://zerofeerouting.com/mobile-wallets/")
-      )
-      addFlowChip(
-        lspFooter.flow,
-        "Bitrefill",
-        R.drawable.border_basic,
-        _ => browse("https://www.bitrefill.com/buy/lightning-channel")
       )
 
       addFlowChip(
