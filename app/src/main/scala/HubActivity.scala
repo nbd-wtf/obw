@@ -42,7 +42,8 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
 }
 import fr.acinq.eclair.blockchain.electrum.{
   ElectrumEclairWallet,
-  ElectrumWallet
+  ElectrumWallet,
+  TxConfirmedAt
 }
 import fr.acinq.eclair.blockchain.fee.FeeratePerByte
 import fr.acinq.eclair.channel._
