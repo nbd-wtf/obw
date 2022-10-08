@@ -688,7 +688,7 @@ class ChanActivity
       )
       addFlowChip(
         lspFooter.flow,
-        "lnbig.com",
+        "LNBIG",
         R.drawable.border_basic,
         _ => browse("https://lnbig.com/#/open-channel")
       )
@@ -699,27 +699,27 @@ class ChanActivity
         _ => browse("https://synonym.to/blocktank/")
       )
 
-      addFlowChip(
-        hcpFooter.flow,
-        "Black Kamen Rider",
-        R.drawable.border_basic,
-        _ =>
-          goToWithValue(
-            ClassNames.remotePeerActivityClass,
-            LNParams.syncParams.kamenRiderBlack
-          )
-      )
+      // addFlowChip(
+      //   hcpFooter.flow,
+      //   "Black Kamen Rider",
+      //   R.drawable.border_basic,
+      //   _ =>
+      //     goToWithValue(
+      //       ClassNames.remotePeerActivityClass,
+      //       LNParams.syncParams.kamenRiderBlack
+      //     )
+      // )
 
-      addFlowChip(
-        hcpFooter.flow,
-        "Motherbase",
-        R.drawable.border_basic,
-        _ =>
-          goToWithValue(
-            ClassNames.remotePeerActivityClass,
-            LNParams.syncParams.motherbase
-          )
-      )
+      // addFlowChip(
+      //   hcpFooter.flow,
+      //   "Motherbase",
+      //   R.drawable.border_basic,
+      //   _ =>
+      //     goToWithValue(
+      //       ClassNames.remotePeerActivityClass,
+      //       LNParams.syncParams.motherbase
+      //     )
+      // )
 
       addFlowChip(
         hcpFooter.flow,

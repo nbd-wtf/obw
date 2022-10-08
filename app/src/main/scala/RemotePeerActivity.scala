@@ -90,7 +90,7 @@ class RemotePeerActivity
 
   class DisconnectListener extends ConnectionListener {
     override def onDisconnect(worker: CommsTower.Worker): Unit = {
-      UITask(WalletApp.app quickToast R.string.rpa_disconnected).run
+      UITask(WalletApp.app.quickToast(R.string.rpa_disconnected)).run
       disconnectListenersAndFinish()
     }
   }
