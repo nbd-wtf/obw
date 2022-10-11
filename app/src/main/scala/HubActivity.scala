@@ -1548,16 +1548,16 @@ class HubActivity
     def setTxMeta(info: TxInfo): Unit = {
       if (info.isDoubleSpent)
         meta.setText(getString(R.string.tx_state_double_spent).html)
+      else if (info.depth > 0 && info.depth < LNParams.minDepthBlocks)
+        meta.setText(
+          getString(R.string.tx_state_confs)
+            .format(info.depth, LNParams.minDepthBlocks)
+            .html
+        )
       else if (info.isConfirmed)
         meta.setText(
           WalletApp.app
             .when(info.date, WalletApp.app.dateFormat)
-            .html
-        )
-      else if (info.depth > 0)
-        meta.setText(
-          getString(R.string.tx_state_confs)
-            .format(info.depth, LNParams.minDepthBlocks)
             .html
         )
       else meta.setText(pctCollected.head)
