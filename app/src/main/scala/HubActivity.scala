@@ -417,8 +417,8 @@ class HubActivity
 
     def doShareItem(): Unit = currentDetails match {
       case info: TxInfo =>
-        me share getString(R.string.share_chain_tx).format(info.txString)
-      case info: LNUrlPayLink => me share info.payString
+        share(getString(R.string.share_chain_tx).format(info.txString))
+      case info: LNUrlPayLink => share(info.payString)
       case info: PaymentInfo =>
         val externalInfo = info.description.externalInfo.getOrElse("n/a")
         val report =
@@ -428,13 +428,15 @@ class HubActivity
             ChannelMaster.NO_PREIMAGE.toHex != realPreimage
           )
           .getOrElse("n/a")
-        me share getString(R.string.share_ln_payment).format(
-          info.prExt.raw,
-          info.paymentHash.toHex,
-          externalInfo,
-          info.prExt.pr.nodeId.toString,
-          preimage,
-          report
+        share(
+          getString(R.string.share_ln_payment).format(
+            info.prExt.raw,
+            info.paymentHash.toHex,
+            externalInfo,
+            info.prExt.pr.nodeId.toString,
+            preimage,
+            report
+          )
         )
       case _ =>
     }
@@ -510,7 +512,7 @@ class HubActivity
       }
 
       def shareDetails(alert: AlertDialog): Unit = {
-        me share getStallingCommits(myFulfills, info)
+        share(getStallingCommits(myFulfills, info))
         alert.dismiss
       }
 
@@ -765,7 +767,7 @@ class HubActivity
           } else {
             // We revert the whole description back since CPFP has failed
             WalletApp.txDataBag.updDescription(info.description, info.txid)
-            onFail(me getString R.string.error_btc_broadcast_fail)
+            onFail(getString(R.string.error_btc_broadcast_fail))
           }
       }
 
@@ -891,7 +893,7 @@ class HubActivity
             val parentDesc =
               info.description.withNewOrderCond(Some(parentLowestOrder))
             WalletApp.txDataBag.updDescription(parentDesc, info.txid)
-          } else onFail(me getString R.string.error_btc_broadcast_fail)
+          } else onFail(getString(R.string.error_btc_broadcast_fail))
       }
 
       lazy val alert = {
@@ -1131,10 +1133,12 @@ class HubActivity
               getString(R.string.popup_proof_stamp),
               R.drawable.border_yellow,
               _ =>
-                me share getStallingCommits(
-                  myFulfills,
-                  info
-                ) + "\n\n====\n\n" + txid
+                share(
+                  getStallingCommits(
+                    myFulfills,
+                    info
+                  ) + "\n\n====\n\n" + txid
+                )
             )
 
           if (shouldShowPayee)
@@ -2122,7 +2126,7 @@ class HubActivity
           // We have a single built-in wallet, no need to choose
           bringSendBitcoinPopup(bitcoinUri, LNParams.chainWallets.lnWallet)
         } else
-          bringChainWalletChooser(me titleViewFromUri bitcoinUri) { wallet =>
+          bringChainWalletChooser(titleViewFromUri(bitcoinUri)) { wallet =>
             // We have wallet candidates to spend from here
             bringSendBitcoinPopup(bitcoinUri, wallet)
           }
@@ -2144,7 +2148,7 @@ class HubActivity
           // We have a single built-in wallet, no need to choose one
           bringSendMultiBitcoinPopup(a2a, LNParams.chainWallets.lnWallet)
         } else
-          bringChainWalletChooser(me getString R.string.dialog_send_btc_many) {
+          bringChainWalletChooser(getString(R.string.dialog_send_btc_many)) {
             wallet =>
               // We have wallet candidates to spend from here
               bringSendMultiBitcoinPopup(a2a, wallet)
@@ -2357,7 +2361,7 @@ class HubActivity
     val resolve: PartialFunction[LNUrlData, Unit] = {
       case pay: PayRequest => bringPayPopup(pay, lnurl).run
       case withdraw: WithdrawRequest =>
-        UITask(me bringWithdrawPopup withdraw).run
+        UITask(bringWithdrawPopup(withdraw)).run
       case nc: NormalChannelRequest =>
         goToWithValue(ClassNames.remotePeerActivityClass, nc)
       case hc: HostedChannelRequest =>
@@ -2647,7 +2651,7 @@ class HubActivity
       val (container, extraInputLayout, extraInput) = singleInputPopup
       val builder = titleBodyAsViewBuilder(title = null, body = container)
       def switchToScanner(alert: AlertDialog): Unit =
-        runAnd(alert.dismiss)(me bringScanner null)
+        runAnd(alert.dismiss)(bringScanner(null))
       mkCheckFormNeutral(
         proceed,
         none,
@@ -2708,10 +2712,12 @@ class HubActivity
         R.string.dialog_legacy_send_btc
       )
         .map(getString(_))
-    val list = me selectorList new ArrayAdapter(
-      me,
-      android.R.layout.simple_expandable_list_item_1,
-      options
+    val list = selectorList(
+      new ArrayAdapter(
+        me,
+        android.R.layout.simple_expandable_list_item_1,
+        options
+      )
     )
     new sheets.ChoiceBottomSheet(list, wallet, me)
       .show(getSupportFragmentManager, "unused-legacy-tag")
@@ -2729,7 +2735,7 @@ class HubActivity
       onFail
     ) { addresses =>
       val labelAndMessage =
-        s"?label=${me getString R.string.btc_transfer_label}&message=${me getString R.string.btc_transfer_message}"
+        s"?label=${getString(R.string.btc_transfer_label)}&message=${getString(R.string.btc_transfer_message)}"
       val uri = BitcoinUri.fromRaw(
         InputParser.bitcoin + addresses.firstAccountAddress + labelAndMessage
       )
@@ -2813,7 +2819,7 @@ class HubActivity
       val title = titleViewFromUri(uri)
       val neutralRes = if (uri.amount.isDefined) -1 else R.string.dialog_max
       val builder = titleBodyAsViewBuilder(
-        title.asColoredView(me chainWalletBackground fromWallet),
+        title.asColoredView(chainWalletBackground(fromWallet)),
         sendView.body
       )
       addFlowChip(
@@ -2852,7 +2858,7 @@ class HubActivity
         notifyAndBroadcast(fromWallet, signedTx),
         atMost = 40.seconds
       )
-      if (!isSent) onFail(me getString R.string.error_btc_broadcast_fail)
+      if (!isSent) onFail(getString(R.string.error_btc_broadcast_fail))
       alert.dismiss
     }
 
@@ -2960,9 +2966,9 @@ class HubActivity
     }
 
     lazy val alert = {
-      val title = new TitleView(me getString R.string.dialog_send_btc_many)
+      val title = new TitleView(getString(R.string.dialog_send_btc_many))
       val builder = titleBodyAsViewBuilder(
-        title.asColoredView(me chainWalletBackground fromWallet),
+        title.asColoredView(chainWalletBackground(fromWallet)),
         sendView.body
       )
       addFlowChip(
@@ -2987,7 +2993,7 @@ class HubActivity
         notifyAndBroadcast(fromWallet, signedTx),
         atMost = 40.seconds
       )
-      if (!isSent) onFail(me getString R.string.error_btc_broadcast_fail)
+      if (!isSent) onFail(getString(R.string.error_btc_broadcast_fail))
       alert.dismiss
     }
 
@@ -3114,7 +3120,7 @@ class HubActivity
     ) {
       override lazy val manager: RateManager = new RateManager(
         body,
-        data.commentAllowed.map(_ => me getString R.string.dialog_add_comment),
+        data.commentAllowed.map(_ => getString(R.string.dialog_add_comment)),
         R.string.dialog_visibility_receiver,
         LNParams.fiatRates.info.rates,
         WalletApp.fiatCode
