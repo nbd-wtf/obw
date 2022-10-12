@@ -1772,11 +1772,11 @@ class HubActivity
       setVis(isVisible = true, lnSyncIndicator)
     }.run
 
-    def resetChainCards(ext1: WalletExt): Unit = {
+    def resetChainCards(wext: WalletExt): Unit = {
       // Remove all existing cards and place new ones
-      LNParams.synchronized(LNParams.chainWallets = ext1)
+      LNParams.synchronized(LNParams.chainWallets = wext)
       chainCards.holder.removeAllViewsInLayout
-      chainCards.init(ext1.wallets)
+      chainCards.init(wext.wallets)
       updateView()
     }
 
