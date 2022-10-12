@@ -2552,8 +2552,10 @@ class HubActivity
         // do this check specifically after updating txInfos with new items
         reloadTxInfos()
 
+        // reinspect all unconfirmed transactions to update their depth and so on
         for {
-          txInfo <- txInfos if !txInfo.isDoubleSpent && !txInfo.isConfirmed
+          txInfo <- txInfos
+          if !txInfo.isDoubleSpent && txInfo.depth < LNParams.minDepthBlocks
           relatedChainWallet <- LNParams.chainWallets
             .findByPubKey(pub = txInfo.pubKey)
           res <- relatedChainWallet.doubleSpent(txInfo.tx)
