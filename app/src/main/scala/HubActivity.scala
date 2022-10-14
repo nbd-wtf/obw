@@ -1886,7 +1886,7 @@ class HubActivity
     override def onChainSyncProgress(localTip: Long, remoteTip: Long): Unit =
       UITask {
         walletCards.chainSyncIndicator.setMaxProgress(remoteTip.toInt)
-        walletCards.chainSyncIndicator.setMinProgress(0)
+        walletCards.chainSyncIndicator.setMinProgress(747935)
         walletCards.chainSyncIndicator.setProgress(localTip.toInt)
       }.run
 
