@@ -1,0 +1,16 @@
+name: build dev apk
+on:
+  push:
+jobs:
+  build-gradle-project:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout project sources
+      uses: actions/checkout@v3
+    - name: setup gradle
+      uses: gradle/gradle-build-action@v2
+    - run: ./gradlew assembleDebug
+    - uses: actions/upload-artifact@v3
+      with:
+        path: app/build/outputs/apk/debug/*.apk
+        name: obw.apk
