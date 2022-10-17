@@ -15,8 +15,35 @@ import android.widget.{EditText, Toast}
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.security.crypto.{EncryptedSharedPreferences, MasterKeys}
+import com.guardanis.applock.AppLock
+import com.softwaremill.quicklens._
+import rx.lang.scala.Observable
+import scodec.bits.BitVector
+import castor.Context.Simple.global
+import scoin.{Block, ByteVector32, Satoshi, SatoshiLong}
+import scoin.CommonCodecs.{nodeaddress}
+import scoin.ln._
+import immortan.electrum._
+import immortan.electrum.ElectrumWallet.{TransactionReceived, WalletReady}
+import immortan.electrum.db.{
+  CompleteChainWalletInfo,
+  SigningWallet,
+  WatchingWallet
+}
+import immortan.blockchain.EclairWallet
+import immortan.channel.{
+  CMD_CHECK_FEERATE,
+  NormalCommits,
+  PersistentChannelData
+}
+import immortan.router.Router.RouterConf
+import immortan._
+import immortan.sqlite._
+import immortan.utils._
+
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.R
+import wtf.nbd.obw.runAnd
 import wtf.nbd.obw.sqlite._
 import wtf.nbd.obw.utils.{
   OkHttpConnectionProvider,
@@ -24,36 +51,6 @@ import wtf.nbd.obw.utils.{
   DelayedNotification,
   LocalBackup
 }
-import com.guardanis.applock.AppLock
-import com.softwaremill.quicklens._
-import fr.acinq.bitcoin.{Block, ByteVector32, Satoshi, SatoshiLong}
-import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
-  TransactionReceived,
-  WalletReady
-}
-import fr.acinq.eclair.blockchain.electrum._
-import fr.acinq.eclair.blockchain.electrum.db.{
-  CompleteChainWalletInfo,
-  SigningWallet,
-  WatchingWallet
-}
-import fr.acinq.eclair.blockchain.EclairWallet
-import fr.acinq.eclair.channel.{
-  CMD_CHECK_FEERATE,
-  NormalCommits,
-  PersistentChannelData
-}
-import fr.acinq.eclair.router.Router.RouterConf
-import fr.acinq.eclair.wire.CommonCodecs.nodeaddress
-import fr.acinq.eclair.wire.NodeAddress
-import immortan._
-import immortan.crypto.Tools._
-import immortan.sqlite._
-import immortan.utils._
-import rx.lang.scala.Observable
-import scodec.bits.BitVector
-import castor.Context.Simple.global
 
 object WalletApp {
   var chainWalletBag: SQLiteChainWallet = _

@@ -1,7 +1,8 @@
 package wtf.nbd.obw
 
 import java.util.{Date, TimerTask}
-
+import scala.concurrent.duration._
+import scala.util.Try
 import android.graphics.{Bitmap, BitmapFactory}
 import android.os.Bundle
 import android.text.Spanned
@@ -10,26 +11,23 @@ import android.widget._
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.R
 import com.chauthai.swipereveallayout.{SwipeRevealLayout, ViewBinderHelper}
 import com.google.common.cache.LoadingCache
 import com.indicator.ChannelIndicatorLine
 import com.ornach.nobobutton.NoboButton
 import com.softwaremill.quicklens._
-import fr.acinq.bitcoin._
-import fr.acinq.eclair._
-import fr.acinq.eclair.channel._
-import fr.acinq.eclair.wire.HostedChannelBranding
+import rx.lang.scala.Subscription
+import scoin._
+import scoin.ln._
+import scoin.ln.channel._
 import immortan.ChannelListener.Malfunction
 import immortan._
 import immortan.crypto.Tools._
 import immortan.utils.{BitcoinUri, InputParser, PaymentRequestExt, Rx}
 import immortan.wire.HostedState
-import rx.lang.scala.Subscription
 
-import scala.concurrent.duration._
-import scala.util.Try
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.R
 
 object ChanActivity {
   def getHcState(hc: HostedCommits): String = {

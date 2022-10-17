@@ -17,10 +17,10 @@ import android.widget._
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.HubActivity._
-import wtf.nbd.obw.R
-import wtf.nbd.obw.utils.LocalBackup
+import org.apmem.tools.layouts.FlowLayout
+import org.ndeftools.Message
+import org.ndeftools.util.activity.NfcReaderActivity
+import rx.lang.scala.{Observable, Subscription}
 import com.chauthai.swipereveallayout.{SwipeRevealLayout, ViewBinderHelper}
 import com.danilomendes.progressbar.InvertedTextProgressbar
 import com.github.mmin18.widget.RealtimeBlurView
@@ -33,39 +33,28 @@ import com.google.common.cache.LoadingCache
 import com.indicator.ChannelIndicatorLine
 import com.ornach.nobobutton.NoboButton
 import com.softwaremill.quicklens._
-import fr.acinq.bitcoin._
-import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
+import scoin._
+import scoin.ln._
+import scoin.ln.transactions.{LocalFulfill, RemoteFulfill, Scripts}
+import immortan.electrum.ElectrumWallet.{
   GenerateTxResponse,
   RBFResponse,
   WalletReady
 }
-import fr.acinq.eclair.blockchain.electrum.{
-  ElectrumEclairWallet,
-  ElectrumWallet,
-  TxConfirmedAt
-}
-import fr.acinq.eclair.blockchain.fee.FeeratePerByte
-import fr.acinq.eclair.channel._
-import fr.acinq.eclair.transactions.{LocalFulfill, RemoteFulfill, Scripts}
-import fr.acinq.eclair.wire.{
-  FullPaymentTag,
-  NodeAnnouncement,
-  PaymentTagTlv,
-  UnknownNextPeer
-}
+import immortan.electrum.{ElectrumEclairWallet, ElectrumWallet, TxConfirmedAt}
 import immortan.ChannelListener.Malfunction
 import immortan.ChannelMaster.{OutgoingAdds, RevealedLocalFulfills}
 import immortan.PathFinder.{ExpectedRouteFees, GetExpectedRouteFees}
 import immortan._
 import immortan.crypto.CanBeRepliedTo
-import immortan.crypto.Tools._
+import immortan.channel._
 import immortan.fsm._
 import immortan.utils._
-import org.apmem.tools.layouts.FlowLayout
-import org.ndeftools.Message
-import org.ndeftools.util.activity.NfcReaderActivity
-import rx.lang.scala.{Observable, Subscription}
+
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.HubActivity._
+import wtf.nbd.obw.R
+import wtf.nbd.obw.utils.LocalBackup
 
 object HubActivity {
   var txInfos: Iterable[TxInfo] = Nil

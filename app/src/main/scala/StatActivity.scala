@@ -2,14 +2,15 @@ package wtf.nbd.obw
 
 import android.os.Bundle
 import android.widget.{TextView, LinearLayout}
-import wtf.nbd.obw.R
-import fr.acinq.eclair._
+import scoin.ln._
 import immortan.LNParams
 
+import wtf.nbd.obw.R
+
 class StatActivity extends BaseCheckActivity {
-  private [this] lazy val titleText =
+  private[this] lazy val titleText =
     findViewById(R.id.titleText).asInstanceOf[TextView]
-  private [this] lazy val statContainer =
+  private[this] lazy val statContainer =
     findViewById(R.id.settingsContainer).asInstanceOf[LinearLayout]
 
   override def PROCEED(state: Bundle): Unit = {

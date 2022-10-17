@@ -1,28 +1,26 @@
 package wtf.nbd.obw
 
+import scala.util.Success
 import android.content.Intent
 import android.os.Bundle
 import android.view.{View, ViewGroup}
 import android.widget._
+import com.google.android.material.snackbar.Snackbar
+import com.guardanis.applock.AppLock
+import scoin._
+import scoin.ln.CommonCodecs.nodeaddress
+import immortan._
+import immortan.utils.{BtcDenomination, SatDenomination}
+import immortan.{ChannelMaster, LNParams}
+import immortan.electrum.EclairWallet
+import immortan.electrum.EclairWallet._
+import immortan.electrum.electrum.db.{SigningWallet, WatchingWallet}
+
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.BuildConfig.{VERSION_CODE, VERSION_NAME}
 import wtf.nbd.obw.R
 import wtf.nbd.obw.sheets.{BaseChoiceBottomSheet, PairingData}
 import wtf.nbd.obw.utils.{LocalBackup, OnListItemClickListener}
-import com.google.android.material.snackbar.Snackbar
-import com.guardanis.applock.AppLock
-import fr.acinq.bitcoin.Satoshi
-import fr.acinq.eclair.MilliSatoshi
-import fr.acinq.eclair.blockchain.EclairWallet
-import fr.acinq.eclair.blockchain.EclairWallet._
-import fr.acinq.eclair.blockchain.electrum.db.{SigningWallet, WatchingWallet}
-import fr.acinq.eclair.wire.CommonCodecs.nodeaddress
-import fr.acinq.eclair.wire.{Domain, NodeAddress}
-import immortan.crypto.Tools._
-import immortan.utils.{BtcDenomination, SatDenomination}
-import immortan.{ChannelMaster, LNParams}
-
-import scala.util.Success
 
 abstract class SettingsHolder(host: BaseActivity) {
   lazy val view: RelativeLayout = host.getLayoutInflater

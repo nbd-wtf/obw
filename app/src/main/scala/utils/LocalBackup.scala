@@ -1,18 +1,17 @@
 package wtf.nbd.obw.utils
 
+import java.io.File
+import scala.util.Try
 import android.os.Environment._
-import fr.acinq.bitcoin.{Block, ByteVector32, Crypto}
+import android.content.pm.PackageManager
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import fr.acinq.eclair.randomBytes
 import com.google.common.io.Files
-import android.content.Context
 import scodec.bits.ByteVector
+import scoin.{Block, ByteVector32, Crypto}
 import immortan.crypto.Tools
-import scala.util.Try
-import java.io.File
 
 object LocalBackup {
   final val BACKUP_NAME = "encrypted.channels"
@@ -51,7 +50,7 @@ object LocalBackup {
   def encryptBackup(backup: ByteVector, seed: ByteVector): ByteVector =
     0.toByte +: Tools.chaChaEncrypt(
       Crypto.sha256(seed),
-      randomBytes(12),
+      Crypto.randomBytes(12),
       backup
     )
   def decryptBackup(backup: ByteVector, seed: ByteVector): Try[ByteVector] =

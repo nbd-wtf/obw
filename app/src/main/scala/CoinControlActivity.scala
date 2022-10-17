@@ -6,16 +6,17 @@ import android.widget._
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.R
-import fr.acinq.bitcoin.Crypto.PublicKey
-import fr.acinq.bitcoin._
-import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.WalletReady
-import fr.acinq.eclair.blockchain.electrum.{ElectrumEclairWallet, Utxo}
+import scoin._
+import scoin.Crypto.PublicKey
+import scoin.ln._
+import scoin.electrum.ElectrumWallet.WalletReady
+import scoin.electrum.{ElectrumEclairWallet, Utxo}
 import immortan.crypto.Tools._
 import immortan.utils.{Haiku, InputParser, WalletEventsListener}
 import immortan.{LNParams, TxDescription}
+
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.R
 
 class CoinControlActivity extends BaseCheckActivity with ExternalDataChecker {
   private[this] lazy val utxoList =

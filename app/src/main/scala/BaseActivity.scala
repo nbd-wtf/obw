@@ -3,7 +3,10 @@ package wtf.nbd.obw
 import java.io.{File, FileOutputStream}
 import java.lang.{Integer => JInt}
 import java.util.concurrent.TimeUnit
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 import android.content.pm.PackageManager
 import android.content.{DialogInterface, Intent}
 import android.graphics.Bitmap.Config.ARGB_8888
@@ -21,9 +24,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.{ContextCompat, FileProvider}
 import androidx.recyclerview.widget.RecyclerView
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.R
-import wtf.nbd.obw.sheets.HasUrDecoder
 import com.chauthai.swipereveallayout.SwipeRevealLayout
 import com.cottacush.android.currencyedittext.CurrencyEditText
 import com.google.android.material.slider.Slider
@@ -39,24 +39,20 @@ import com.ornach.nobobutton.NoboButton
 import com.softwaremill.quicklens._
 import com.sparrowwallet.hummingbird.registry.CryptoPSBT
 import com.sparrowwallet.hummingbird.{UR, UREncoder}
-import fr.acinq.bitcoin._
-import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet
-import fr.acinq.eclair.blockchain.fee.{FeeratePerByte, FeeratePerKw}
-import fr.acinq.eclair.payment.Bolt11Invoice
-import fr.acinq.eclair.transactions.Transactions
-import fr.acinq.eclair.wire.ChannelReestablish
-import immortan._
-import immortan.crypto.Tools._
-import immortan.utils._
 import org.apmem.tools.layouts.FlowLayout
 import rx.lang.scala.{Observable, Subscription}
 import scodec.bits.ByteVector
+import scoin._
+import scoin.ln._
+import scoin.ln.transactions.Transactions
+import immortan.electrum.ElectrumEclairWallet
+import immortan._
+import immortan.utils._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.R
+import wtf.nbd.obw.runAnd
+import wtf.nbd.obw.sheets.HasUrDecoder
 
 object BaseActivity {
   implicit class StringOps(source: String) {
@@ -107,7 +103,8 @@ trait BaseActivity extends AppCompatActivity { self =>
 
   val exitTo: Class[_] => Any = target => {
     startActivity(new Intent(this, target))
-    runAnd(InputParser.DoNotEraseRecordedValue)(finish)
+    finish
+    InputParser.DoNotEraseRecordedValue
   }
 
   def START(state: Bundle): Unit
@@ -448,7 +445,7 @@ trait BaseActivity extends AppCompatActivity { self =>
   def showKeys(input: EditText): Unit = {
     // Popup forms can't show keyboard immediately due to animation, so delay it a bit
     def process(): Unit =
-      runAnd(input.requestFocus)(WalletApp.app showKeys input)
+      runAnd(input.requestFocus)(WalletApp.app.showKeys(input))
     timer.schedule(UITask(process()), 225)
   }
 
@@ -1272,11 +1269,12 @@ trait BaseCheckActivity extends BaseActivity {
       super.onCreate(savedActivityState)
   }
 
-  override def onResume(): Unit = runAnd(super.onResume) {
+  override def onResume(): Unit = {
     if (AppLock.isUnlockRequired(this) && WalletApp.useAuth) {
       val intent: Intent = new Intent(this, ClassNames.unlockActivityClass)
       startActivityForResult(intent, AppLock.REQUEST_CODE_UNLOCK)
     }
+    super.onResume()
   }
 
   override def START(state: Bundle): Unit = {

@@ -1,9 +1,9 @@
 package wtf.nbd.obw.sqlite
 
-import immortan.crypto.Tools.runAnd
-import immortan.sqlite.RichCursor
-import android.database.Cursor
 import scala.util.Try
+import android.database.Cursor
+import immortan.sqlite.RichCursor
+import immortan.{runAnd}
 
 case class RichCursorSQLiteAndroid(c: Cursor) extends RichCursor { me =>
   def iterable[T](transform: RichCursor => T): Iterable[T] = try map(transform)

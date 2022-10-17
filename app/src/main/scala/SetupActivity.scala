@@ -1,6 +1,5 @@
 package wtf.nbd.obw
 
-import scala.util.{Failure, Success}
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -10,15 +9,17 @@ import android.widget.{ArrayAdapter, LinearLayout}
 import androidx.appcompat.app.AlertDialog
 import androidx.documentfile.provider.DocumentFile
 import androidx.transition.TransitionManager
-import wtf.nbd.obw.R
-import wtf.nbd.obw.utils.LocalBackup
+import scala.util.{Failure, Success}
 import com.google.common.io.ByteStreams
 import com.ornach.nobobutton.NoboButton
-import fr.acinq.bitcoin.MnemonicCode
+import scodec.bits.{BitVector, ByteVector}
+import scoin.{MnemonicCode, Crypto}
 import immortan.crypto.Tools.{SEPARATOR, none}
 import immortan.wire.ExtCodecs.compressedByteVecCodec
 import immortan.LNParams
-import scodec.bits.{BitVector, ByteVector}
+
+import wtf.nbd.obw.R
+import wtf.nbd.obw.utils.LocalBackup
 
 object SetupActivity {
   def fromMnemonics(
@@ -56,7 +57,7 @@ class SetupActivity extends BaseActivity {
     findViewById(R.id.restoreOptions).asInstanceOf[LinearLayout]
   private[this] final val FILE_REQUEST_CODE = 112
 
-  private [this] lazy val enforceTor = new SettingsHolder(this) {
+  private[this] lazy val enforceTor = new SettingsHolder(this) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 
@@ -129,7 +130,7 @@ class SetupActivity extends BaseActivity {
     }
 
   def createNewWallet(view: View): Unit = {
-    val twelveWordsEntropy: ByteVector = fr.acinq.eclair.randomBytes(16)
+    val twelveWordsEntropy: ByteVector = Crypto.randomBytes(16)
     val mnemonic = MnemonicCode.toMnemonics(
       twelveWordsEntropy,
       englishWordList.toIndexedSeq

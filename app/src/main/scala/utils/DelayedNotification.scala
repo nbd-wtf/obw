@@ -1,12 +1,13 @@
 package wtf.nbd.obw.utils
 
-import androidx.work._
+import java.util.concurrent.TimeUnit
 import android.content.{Context, Intent}
 import android.app.{Notification, PendingIntent}
+import androidx.work._
 import androidx.core.app.{NotificationCompat, NotificationManagerCompat}
+import scoin.Crypto.{randomBytes}
+
 import wtf.nbd.obw.ClassNames
-import java.util.concurrent.TimeUnit
-import fr.acinq.eclair.secureRandom
 
 object DelayedNotification {
   final val WATCH_TOWER_TAG = "watchTower"
@@ -56,7 +57,7 @@ object DelayedNotification {
         new Intent(context, ClassNames.mainActivityClass),
         0
       )
-      val notificationId = secureRandom.nextInt(1000000)
+      val notificationId = randomBytes(4).toInt % 1000000
 
       val notificationBuilder =
         new NotificationCompat.Builder(context, CHANNEL_ID)

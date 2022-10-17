@@ -1,13 +1,13 @@
 package wtf.nbd.obw.sheets
 
-import java.nio.charset.StandardCharsets
-import java.nio.{ByteBuffer, ByteOrder}
-
 import android.os.Bundle
 import android.view.{LayoutInflater, View, ViewGroup}
 import android.widget.{ImageButton, TextView}
 import androidx.appcompat.view.ContextThemeWrapper
-import wtf.nbd.obw.{BaseActivity, R, WalletApp}
+import java.nio.charset.StandardCharsets
+import java.nio.{ByteBuffer, ByteOrder}
+import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success, Try}
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.journeyapps.barcodescanner.{
   BarcodeCallback,
@@ -16,16 +16,15 @@ import com.journeyapps.barcodescanner.{
 }
 import com.sparrowwallet.hummingbird.registry.{CryptoAccount, CryptoHDKey}
 import com.sparrowwallet.hummingbird.{UR, URDecoder}
-import fr.acinq.bitcoin.DeterministicWallet._
-import fr.acinq.bitcoin.{ByteVector32, Protocol}
+import scodec.bits.ByteVector
+import spray.json._
+import scoin.DeterministicWallet._
+import scoin.{ByteVector32, Protocol}
 import immortan.crypto.Tools._
 import immortan.utils.ImplicitJsonFormats._
 import immortan.utils.InputParser
-import scodec.bits.ByteVector
-import spray.json._
 
-import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Success, Try}
+import wtf.nbd.obw.{BaseActivity, R, WalletApp}
 
 trait HasBarcodeReader extends BarcodeCallback {
   var lastAttempt: Long = System.currentTimeMillis

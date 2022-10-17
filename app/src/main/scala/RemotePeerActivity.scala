@@ -1,36 +1,34 @@
 package wtf.nbd.obw
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 import android.os.Bundle
 import android.view.View
 import android.widget.{LinearLayout, TextView}
 import androidx.appcompat.app.AlertDialog
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.R
 import com.ornach.nobobutton.NoboButton
-import fr.acinq.bitcoin.Crypto.PublicKey
-import fr.acinq.bitcoin._
-import fr.acinq.eclair.Features._
-import fr.acinq.eclair._
-import fr.acinq.eclair.blockchain.electrum.ElectrumEclairWallet
-import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.GenerateTxResponse
-import fr.acinq.eclair.blockchain.fee.{FeeratePerByte, FeeratePerKw}
-import fr.acinq.eclair.channel.{
-  Commitments,
-  DATA_WAIT_FOR_FUNDING_CONFIRMED,
-  DATA_WAIT_FOR_FUNDING_INTERNAL
-}
-import fr.acinq.eclair.transactions.Scripts
-import fr.acinq.eclair.wire._
+import rx.lang.scala.Observable
+import scoin.Crypto.PublicKey
+import scoin._
+import scoin.ln.Features._
+import scoin.ln._
+import scoin.ln.transactions.Scripts
 import immortan._
 import immortan.crypto.Tools._
 import immortan.fsm.{HCOpenHandler, NCFundeeOpenHandler, NCFunderOpenHandler}
 import immortan.utils._
 import org.apmem.tools.layouts.FlowLayout
-import rx.lang.scala.Observable
+import immortan.electrum.ElectrumEclairWallet
+import immortan.electrum.ElectrumWallet.GenerateTxResponse
+import immortan.channel.{
+  Commitments,
+  DATA_WAIT_FOR_FUNDING_CONFIRMED,
+  DATA_WAIT_FOR_FUNDING_INTERNAL
+}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.R
 
 object RemotePeerActivity {
   def implantNewChannel(cs: Commitments, freshChannel: Channel): Unit = {
