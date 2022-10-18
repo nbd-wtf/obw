@@ -1,0 +1,1 @@
+app/src/main/assets/graph.snapshot-mainnet.zlib filter=lfs diff=lfs merge=lfs -text
