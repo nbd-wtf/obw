@@ -14,3 +14,4 @@ build
 Gemfile*
 fastlane/report.xml
 fastlane/Appfile
+app/src/main/assets/graph.snapshot-mainnet.zlib
