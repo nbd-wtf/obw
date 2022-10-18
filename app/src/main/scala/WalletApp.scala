@@ -56,6 +56,8 @@ import scodec.bits.BitVector
 import castor.Context.Simple.global
 
 object WalletApp {
+  LNParams.chainHash = Block.LivenetGenesisBlock.hash
+
   var chainWalletBag: SQLiteChainWallet = _
   var extDataBag: SQLiteDataExtended = _
   var lnUrlPayBag: SQLiteLNUrlPay = _
@@ -226,7 +228,6 @@ object WalletApp {
     LNParams.cm = new ChannelMaster(payBag, chanBag, extDataBag, pf)
 
     LNParams.logBag = new SQLiteLog(miscInterface)
-    LNParams.chainHash = Block.LivenetGenesisBlock.hash
     LNParams.routerConf =
       RouterConf(initRouteMaxLength = 10, LNParams.maxCltvExpiryDelta)
     LNParams.connectionProvider =

@@ -32,13 +32,20 @@ object SetupActivity {
       val compressedPlainBytes =
         ByteStreams.toByteArray(host.getAssets open snapshotName)
       val plainBytes =
-        compressedByteVecCodec.decode(BitVector.view(compressedPlainBytes))
+        compressedByteVecCodec
+          .decode(BitVector.view(compressedPlainBytes))
+          .require
+          .value
       LocalBackup.copyPlainDataToDbLocation(
         host,
         WalletApp.dbFileNameGraph,
-        plainBytes.require.value
+        plainBytes
       )
-    } catch none
+      System.err.println("[obw][info] channels graph implanted")
+    } catch {
+      case err: Throwable =>
+        System.err.println(s"[obw][warn] failed to implant graph: $err")
+    }
 
     WalletApp.putMnemonics(context, mnemonics)
     WalletApp.makeOperational(mnemonics)
@@ -56,7 +63,7 @@ class SetupActivity extends BaseActivity {
     findViewById(R.id.restoreOptions).asInstanceOf[LinearLayout]
   private[this] final val FILE_REQUEST_CODE = 112
 
-  private [this] lazy val enforceTor = new SettingsHolder(this) {
+  private[this] lazy val enforceTor = new SettingsHolder(this) {
     override def updateView(): Unit =
       settingsCheck.setChecked(WalletApp.ensureTor)
 

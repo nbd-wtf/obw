@@ -89,7 +89,6 @@ object LocalBackup {
     new File(downloadsDir, getGraphResourceName(chainHash))
 
   // Utils
-
   def atomicWrite(file: File, data: ByteVector): Unit = {
     val atomicFile = new android.util.AtomicFile(file)
     var fileOutputStream = atomicFile.startWrite

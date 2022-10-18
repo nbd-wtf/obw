@@ -12,8 +12,8 @@ android {
         targetSdkVersion 31
         minSdkVersion 26
 
-        versionName '0.1.4'
-        versionCode 5
+        versionName '0.1.5'
+        versionCode 6
     }
 
     dexOptions {
@@ -151,7 +151,7 @@ dependencies {
     implementation 'org.scala-lang:scala-library:2.13.8'
 
     // Related to Immortan
-    implementation 'com.fiatjaf:immortan_2.13:0.7.8'
+    implementation 'com.fiatjaf:immortan_2.13:0.7.9-SNAPSHOT'
     implementation 'fr.acinq.secp256k1:secp256k1-kmp-jni-android:0.6.4'
 
     // Built-in Tor
