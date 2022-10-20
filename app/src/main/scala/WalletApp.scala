@@ -56,7 +56,10 @@ import scodec.bits.BitVector
 import castor.Context.Simple.global
 
 object WalletApp {
-  LNParams.chainHash = Block.LivenetGenesisBlock.hash
+  LNParams.chainHash = BuildConfig.CHAIN match {
+    case "signet" => Block.SignetGenesisBlock.hash
+    case _        => Block.LivenetGenesisBlock.hash
+  }
 
   var chainWalletBag: SQLiteChainWallet = _
   var extDataBag: SQLiteDataExtended = _
@@ -85,7 +88,7 @@ object WalletApp {
           LNParams.secret.seed
         )
       def process(useDelay: Boolean, unitAfterDelay: Any): Unit = if (
-        LocalBackup isAllowed app
+        LocalBackup.isAllowed(app)
       )
         try doAttemptStore()
         catch none
@@ -560,11 +563,11 @@ object Vibrator {
     vibrator.vibrate(android.os.VibrationEffect.createOneShot(85, -1))
 }
 
-class WalletApp extends Application { me =>
-  WalletApp.app = me
+class WalletApp extends Application { app =>
+  WalletApp.app = app
 
   lazy val foregroundServiceIntent =
-    new Intent(me, AwaitService.awaitServiceClass)
+    new Intent(app, AwaitService.awaitServiceClass)
   lazy val prefs: SharedPreferences =
     getSharedPreferences("prefs", Context.MODE_PRIVATE)
 
@@ -577,7 +580,7 @@ class WalletApp extends Application { me =>
   lazy val tooFewSpace: Boolean =
     getFloat(getContentResolver, FONT_SCALE, 1) > 1 && scrWidth < 2.4
 
-  lazy val dateFormat: SimpleDateFormat = DateFormat.is24HourFormat(me) match {
+  lazy val dateFormat: SimpleDateFormat = DateFormat.is24HourFormat(app) match {
     case false if tooFewSpace => new SimpleDateFormat("MM/dd/yy")
     case true if tooFewSpace  => new SimpleDateFormat("dd/MM/yy")
     case false                => new SimpleDateFormat("MMM dd, yyyy")
@@ -603,7 +606,7 @@ class WalletApp extends Application { me =>
 
   override def attachBaseContext(base: Context): Unit = {
     super.attachBaseContext(base)
-    MultiDex.install(me)
+    MultiDex.install(app)
   }
 
   override def onCreate(): Unit = {
@@ -636,7 +639,7 @@ class WalletApp extends Application { me =>
         500.millis
       ).foreach { _ =>
         // This might be the last channel state update which clears all in-flight HTLCs
-        DelayedNotification.cancel(me, DelayedNotification.IN_FLIGHT_HTLC_TAG)
+        DelayedNotification.cancel(app, DelayedNotification.IN_FLIGHT_HTLC_TAG)
         if (LNParams.cm.channelsContainHtlc) WalletApp.reScheduleInFlight()
       }
     }
@@ -644,7 +647,7 @@ class WalletApp extends Application { me =>
 
   override def onTrimMemory(level: Int): Unit = {
     val shouldResetUnlock = level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
-    if (shouldResetUnlock) AppLock.getInstance(me).setAuthenticationRequired
+    if (shouldResetUnlock) AppLock.getInstance(app).setAuthenticationRequired
     super.onTrimMemory(level)
   }
 
@@ -669,7 +672,7 @@ class WalletApp extends Application { me =>
   ): Unit = {
     val withTitle = foregroundServiceIntent.putExtra(
       AwaitService.TITLE_TO_DISPLAY,
-      me getString titleRes
+      app.getString(titleRes)
     )
     val bodyText = getString(bodyRes).format(
       WalletApp.denom
@@ -680,12 +683,12 @@ class WalletApp extends Application { me =>
       .putExtra(AwaitService.BODY_TO_DISPLAY, bodyText)
       .setAction(AwaitService.ACTION_SHOW)
     androidx.core.content.ContextCompat
-      .startForegroundService(me, withBodyAction)
+      .startForegroundService(app, withBodyAction)
   }
 
   def quickToast(code: Int): Unit = quickToast(getString(code))
   def quickToast(msg: CharSequence): Unit =
-    Toast.makeText(me, msg, Toast.LENGTH_LONG).show
+    Toast.makeText(app, msg, Toast.LENGTH_LONG).show
   def plurOrZero(num: Long, opts: Array[String] = Array.empty): String =
     if (num > 0) plur(opts, num).format(num) else opts(0)
   def clipboardManager: ClipboardManager = getSystemService(

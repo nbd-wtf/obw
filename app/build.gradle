@@ -43,11 +43,20 @@ android {
             proguardFiles 'proguard-rules.pro'
             signingConfig signingConfigs.debug
             applicationIdSuffix ".dev"
+            buildConfigField "String", "CHAIN", '"mainnet"'
+        }
+        signet {
+            minifyEnabled false
+            proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            applicationIdSuffix ".signet"
+            buildConfigField "String", "CHAIN", '"signet"'
         }
         release {
             minifyEnabled false
             proguardFiles 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+            buildConfigField "String", "CHAIN", '"mainnet"'
             if (project.hasProperty('STORE_FILE')) {
                 signingConfig signingConfigs.release
             }
