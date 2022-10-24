@@ -16,7 +16,7 @@ import immortan.LNParams
 import immortan.crypto.Tools._
 import immortan.utils.{BitcoinUri, Denomination, InputParser, PaymentRequestExt}
 
-import scala.util.Success
+import scala.util.chaining._
 
 class QRChainActivity extends QRActivity with ExternalDataChecker {
   private[this] lazy val titleText =
@@ -47,13 +47,13 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
       }
 
       private def updateView(bu: BitcoinUri, holder: QRViewHolder): Unit =
-        bu.uri foreach { uri =>
+        bu.url.foreach { url =>
           val humanAmountOpt =
             for (requestedAmount <- bu.amount)
               yield WalletApp.denom.parsedWithSign(requestedAmount)
           val contentToShare =
             if (bu.amount.isDefined || bu.label.isDefined)
-              PaymentRequestExt.withoutSlashes(InputParser.bitcoin, uri)
+              PaymentRequestExt.withoutSlashes(InputParser.bitcoin, url)
             else bu.address
 
           val visibleText = (bu.label, humanAmountOpt) match {
@@ -127,28 +127,32 @@ class QRChainActivity extends QRActivity with ExternalDataChecker {
     bu.amount.foreach(manager.updateText)
 
     def proceed(alert: AlertDialog): Unit = {
-      val uriBuilder = bu.uri.get.buildUpon.clearQuery
       val resultMsat = manager.resultMsat.truncateToSatoshi.toMilliSatoshi
-      val uriBuilder1 =
-        if (resultMsat > LNParams.chainWallets.params.dustLimit)
-          uriBuilder.appendQueryParameter(
-            "amount",
-            Denomination.msat2BtcBigDecimal(resultMsat).toString
-          )
-        else uriBuilder
-      val uriBuilder2 = manager.resultExtraInput match {
-        case Some(resultExtraInput) =>
-          uriBuilder1.appendQueryParameter("label", resultExtraInput)
-        case None => uriBuilder1
-      }
+      val url = bu.url.get
+        .removeQueryString()
+        .pipe(url =>
+          if (resultMsat > LNParams.chainWallets.params.dustLimit)
+            url.addParam(
+              "amount",
+              Denomination.msat2BtcBigDecimal(resultMsat).toString
+            )
+          else url
+        )
+        .pipe(url =>
+          manager.resultExtraInput match {
+            case Some(resultExtraInput) =>
+              url.addParam("label", resultExtraInput)
+            case None => url
+          }
+        )
 
       addresses = addresses map {
-        case oldUri if oldUri.address == bu.uri.get.getHost =>
-          BitcoinUri(Success(uriBuilder2.build), oldUri.address)
-        case oldUri =>
+        case oldUrl if oldUrl.address == bu.url.get.hostOption.get.value =>
+          BitcoinUri(Some(url), oldUrl.address)
+        case oldUrl =>
           BitcoinUri(
-            oldUri.uri.map(_.buildUpon.clearQuery.build),
-            oldUri.address
+            oldUrl.url.map(_.removeQueryString()),
+            oldUrl.address
           )
       }
 

@@ -42,8 +42,7 @@ import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
 }
 import fr.acinq.eclair.blockchain.electrum.{
   ElectrumEclairWallet,
-  ElectrumWallet,
-  TxConfirmedAt
+  ElectrumWallet
 }
 import fr.acinq.eclair.blockchain.fee.FeeratePerByte
 import fr.acinq.eclair.channel._
@@ -2395,7 +2394,7 @@ class HubActivity
   }
 
   def showAuthForm(lnurl: LNUrl): Unit = lnurl.k1.foreach { k1 =>
-    val authData = LNUrlAuther.make(lnurl.uri.getHost, k1)
+    val authData = LNUrlAuther.make(lnurl.url.hostOption.get.value, k1)
     val title = titleBodyAsViewBuilder(
       s"<big>${lnurl.warnUri}</big>".asColoredView(R.color.ourPurple),
       null
@@ -2432,9 +2431,9 @@ class HubActivity
         getString(R.string.dialog_lnurl_processing).format(lnurl.warnUri).html,
         R.string.dialog_cancel
       ) foreach { snack =>
-        val uri = lnurl.uri.buildUpon
-          .appendQueryParameter("sig", authData.sig)
-          .appendQueryParameter("key", authData.key)
+        val uri = lnurl.url
+          .addParam("sig", authData.sig)
+          .addParam("key", authData.key)
         val level2Obs = LNUrl
           .level2DataResponse(uri)
           .doOnUnsubscribe(snack.dismiss)
@@ -3096,7 +3095,7 @@ class HubActivity
         )
         override def getTitleText: String =
           getString(R.string.dialog_lnurl_withdraw).format(
-            data.callbackUri.getHost,
+            data.callbackUrl.hostOption.get.value,
             data.descriptionOpt.map(desc =>
               s"<br><br>$desc"
             ) getOrElse new String
@@ -3134,7 +3133,7 @@ class HubActivity
         snack(
           contentWindow,
           getString(R.string.dialog_lnurl_splitting)
-            .format(data.callbackUri.getHost)
+            .format(data.callbackUrl.hostOption.get.value)
             .html,
           R.string.dialog_cancel
         ) foreach { snack =>
@@ -3190,7 +3189,7 @@ class HubActivity
         snack(
           contentWindow,
           getString(R.string.dialog_lnurl_sending)
-            .format(amountHuman, data.callbackUri.getHost)
+            .format(amountHuman, data.callbackUrl.hostOption.get.value)
             .html,
           R.string.dialog_cancel
         ) foreach { snack =>
@@ -3238,7 +3237,7 @@ class HubActivity
             if (!pf.isThrowAway) {
               WalletApp.lnUrlPayBag.saveLink(
                 LNUrlPayLink(
-                  domain = lnurl.uri.getHost,
+                  domain = lnurl.url.hostOption.get.value,
                   payString = lnurl.request,
                   data.metadata,
                   updatedAt = System.currentTimeMillis,
@@ -3263,7 +3262,7 @@ class HubActivity
 
       override val alert: AlertDialog = {
         val text = getString(R.string.dialog_lnurl_pay).format(
-          data.callbackUri.getHost,
+          data.callbackUrl.hostOption.get.value,
           s"<br><br>${data.meta.textShort}"
         )
         val title = titleBodyAsViewBuilder(
@@ -3286,7 +3285,8 @@ class HubActivity
         comment = Some(getComment),
         randomKey = Some(randKey.publicKey),
         authKeyHost =
-          if (manager.attachIdentity.isChecked) Some(lnurl.uri.getHost)
+          if (manager.attachIdentity.isChecked)
+            Some(lnurl.url.hostOption.get.value)
           else None
       )
 

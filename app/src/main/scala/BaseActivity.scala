@@ -284,7 +284,7 @@ trait BaseActivity extends AppCompatActivity { self =>
   }
 
   def runDelayed(ms: Int)(fun: => Any): Unit =
-    timer.schedule(UITask(fun), ms)
+    timer.schedule(UITask(fun), ms.toLong)
 
   def UITask(fun: => Any): java.util.TimerTask = {
     val runnableExec = new Runnable { override def run(): Unit = fun }
