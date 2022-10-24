@@ -429,7 +429,7 @@ class SettingsActivity
       links.flow,
       getString(R.string.sources),
       R.drawable.border_purple,
-      _ => browse("https://github.com/nbd-wft/obw")
+      _ => browse("https://github.com/nbd-wtf/obw")
     )
     addFlowChip(
       links.flow,
