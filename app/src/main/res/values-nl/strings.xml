@@ -301,16 +301,8 @@
     <string name="popup_identity">Voeg portemonnee-identiteit toe</string>
 
     <!-- lnurl-auth -->
-
-    <string name="lnurl_auth_register">Registreer</string>
     <string name="lnurl_auth_login">Login</string>
-    <string name="lnurl_auth_auth">Auth</string>
-    <string name="lnurl_auth_link">Link</string>
-
-    <string name="lnurl_auth_register_ok">Succesvol geregistreerd</string>
     <string name="lnurl_auth_login_ok">Succesvol ingelogd</string>
-    <string name="lnurl_auth_auth_ok">Succesvol geautoriseerd</string>
-    <string name="lnurl_auth_link_ok">Succesvol gelinkt</string>
 
     <string name="lnurl_auth_info"><![CDATA[
         Auth-sleutel gegenereerd door je portemonnee voor <i>%1$s</i>:<br><br><strong>%2$s</strong>.

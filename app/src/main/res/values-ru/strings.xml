@@ -305,16 +305,8 @@
     <string name="popup_identity">Attach wallet identity</string>
 
     <!-- lnurl-auth -->
-
-    <string name="lnurl_auth_register">Регистрация</string>
     <string name="lnurl_auth_login">Логин</string>
-    <string name="lnurl_auth_auth">Авторизация</string>
-    <string name="lnurl_auth_link">Привязать</string>
-
-    <string name="lnurl_auth_register_ok">Успешная регистрирация</string>
     <string name="lnurl_auth_login_ok">Успешный вход</string>
-    <string name="lnurl_auth_auth_ok">Успешная авторизация</string>
-    <string name="lnurl_auth_link_ok">Успешно привязан</string>
 
     <string name="lnurl_auth_info"><![CDATA[
         Ключ авторизации, созданный вашим кошельком для <i>%1$s</i>:<br><br><strong>%2$s</strong>.

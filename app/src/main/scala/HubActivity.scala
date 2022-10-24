@@ -2395,14 +2395,6 @@ class HubActivity
   }
 
   def showAuthForm(lnurl: LNUrl): Unit = lnurl.k1.foreach { k1 =>
-    val (successResource, actionResource) = lnurl.authAction match {
-      case "register" =>
-        (R.string.lnurl_auth_register_ok, R.string.lnurl_auth_register)
-      case "auth" => (R.string.lnurl_auth_auth_ok, R.string.lnurl_auth_auth)
-      case "link" => (R.string.lnurl_auth_link_ok, R.string.lnurl_auth_link)
-      case _      => (R.string.lnurl_auth_login_ok, R.string.lnurl_auth_login)
-    }
-
     val authData = LNUrlAuther.make(lnurl.uri.getHost, k1)
     val title = titleBodyAsViewBuilder(
       s"<big>${lnurl.warnUri}</big>".asColoredView(R.color.ourPurple),
@@ -2413,7 +2405,7 @@ class HubActivity
       none,
       displayInfo,
       title,
-      actionResource,
+      R.string.lnurl_auth_login,
       R.string.dialog_cancel,
       R.string.dialog_info
     )
@@ -2448,7 +2440,8 @@ class HubActivity
           .doOnUnsubscribe(snack.dismiss)
           .doOnTerminate(snack.dismiss)
         val level2Sub = level2Obs.subscribe(
-          _ => UITask(WalletApp.app.quickToast(successResource)).run,
+          _ =>
+            UITask(WalletApp.app.quickToast(R.string.lnurl_auth_login_ok)).run,
           onFail
         )
         val listener = onButtonTap(level2Sub.unsubscribe())
