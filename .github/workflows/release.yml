@@ -1,0 +1,28 @@
+name: build and release apk
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  make-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+  build-release-apk:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout project sources
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+    - run: ./gradlew assembleRelease
+    - uses: AButler/upload-release-assets@v2.0
+      with:
+        files: app/build/outputs/apk/release/*.apk
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ github.ref_name }}
