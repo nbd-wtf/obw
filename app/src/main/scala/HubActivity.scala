@@ -2346,10 +2346,23 @@ class HubActivity
         }
 
       case lnurl: LNUrl =>
-        lnurl.fastWithdrawAttempt.toOption match {
-          case Some(withdraw)       => bringWithdrawPopup(withdraw)
-          case None if lnurl.isAuth => showAuthForm(lnurl)
-          case None                 => resolveLnurl(lnurl)
+        (
+          lnurl.fastWithdrawAttempt.toOption,
+          Try {
+            require(lnurl.url.query.param("tag").get == "hostedChannelRequest")
+            HostedChannelRequest(
+              lnurl.url.query.param("uri").get,
+              lnurl.url.query.param("alias"),
+              lnurl.url.query.param("k1").get
+            )
+          }.toOption
+        ) match {
+          case (Some(withdraw), _) =>
+            bringWithdrawPopup(withdraw)
+          case (_, Some(hc)) =>
+            goToWithValue(ClassNames.remotePeerActivityClass, hc)
+          case _ if lnurl.isAuth => showAuthForm(lnurl)
+          case _                 => resolveLnurl(lnurl)
         }
 
       case _ =>
