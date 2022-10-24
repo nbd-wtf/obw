@@ -2348,14 +2348,7 @@ class HubActivity
       case lnurl: LNUrl =>
         (
           lnurl.fastWithdrawAttempt.toOption,
-          Try {
-            require(lnurl.url.query.param("tag").get == "hostedChannelRequest")
-            HostedChannelRequest(
-              lnurl.url.query.param("uri").get,
-              lnurl.url.query.param("alias"),
-              lnurl.url.query.param("k1").get
-            )
-          }.toOption
+          lnurl.fastHostedChannelAttempt.toOption
         ) match {
           case (Some(withdraw), _) =>
             bringWithdrawPopup(withdraw)
