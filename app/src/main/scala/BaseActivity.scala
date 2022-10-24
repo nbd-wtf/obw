@@ -1266,10 +1266,9 @@ trait BaseCheckActivity extends BaseActivity {
   def PROCEED(state: Bundle): Unit
 
   override def onCreate(savedActivityState: Bundle): Unit = {
+    super.onCreate(savedActivityState)
     if (!LNParams.isOperational)
       exitTo(ClassNames.mainActivityClass)
-    else
-      super.onCreate(savedActivityState)
   }
 
   override def onResume(): Unit = runAnd(super.onResume) {
