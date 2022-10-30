@@ -42,18 +42,18 @@ class AwaitService extends Service { me =>
       val awaitedTitleText =
         intent.getStringExtra(AwaitService.TITLE_TO_DISPLAY)
 
-      val disaplyIntent = PendingIntent.getActivity(
+      val displayIntent = PendingIntent.getActivity(
         me,
         0,
         new Intent(me, ClassNames.mainActivityClass),
-        0
+        PendingIntent.FLAG_IMMUTABLE
       )
       val cancelIntent = PendingIntent.getService(
         me,
         0,
         new Intent(me, AwaitService.awaitServiceClass)
           .setAction(AwaitService.ACTION_CANCEL),
-        0
+        PendingIntent.FLAG_IMMUTABLE
       )
 
       val notification =
@@ -66,7 +66,7 @@ class AwaitService extends Service { me =>
             cancelIntent
           )
           .setSmallIcon(R.drawable.ic_history_white_24dp)
-          .setContentIntent(disaplyIntent)
+          .setContentIntent(dispalyIntent)
           .build
 
       startForeground(AwaitService.NOTIFICATION_ID, notification)
