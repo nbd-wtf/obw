@@ -66,7 +66,7 @@ class AwaitService extends Service { me =>
             cancelIntent
           )
           .setSmallIcon(R.drawable.ic_history_white_24dp)
-          .setContentIntent(dispalyIntent)
+          .setContentIntent(displayIntent)
           .build
 
       startForeground(AwaitService.NOTIFICATION_ID, notification)
