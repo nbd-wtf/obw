@@ -1,6 +1,8 @@
 name: build dev apk
 on:
   push:
+    branches:
+      - 'master'
 jobs:
   build-debug-apk:
     runs-on: ubuntu-latest
