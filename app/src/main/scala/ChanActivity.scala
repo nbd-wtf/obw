@@ -682,12 +682,6 @@ class ChanActivity
     if (LNParams.isMainnet) {
       addFlowChip(
         lspFooter.flow,
-        "Zero Fee Routing",
-        R.drawable.border_basic,
-        _ => browse("https://zerofeerouting.com/mobile-wallets/")
-      )
-      addFlowChip(
-        lspFooter.flow,
         "LNBIG",
         R.drawable.border_basic,
         _ => browse("https://lnbig.com/#/open-channel")
@@ -698,28 +692,6 @@ class ChanActivity
         R.drawable.border_basic,
         _ => browse("https://synonym.to/blocktank/")
       )
-
-      // addFlowChip(
-      //   hcpFooter.flow,
-      //   "Black Kamen Rider",
-      //   R.drawable.border_basic,
-      //   _ =>
-      //     goToWithValue(
-      //       ClassNames.remotePeerActivityClass,
-      //       LNParams.syncParams.kamenRiderBlack
-      //     )
-      // )
-
-      // addFlowChip(
-      //   hcpFooter.flow,
-      //   "Motherbase",
-      //   R.drawable.border_basic,
-      //   _ =>
-      //     goToWithValue(
-      //       ClassNames.remotePeerActivityClass,
-      //       LNParams.syncParams.motherbase
-      //     )
-      // )
 
       addFlowChip(
         hcpFooter.flow,
