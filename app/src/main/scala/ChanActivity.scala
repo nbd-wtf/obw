@@ -321,7 +321,7 @@ class ChanActivity
       hcInfo.setOnClickListener(
         onButtonTap(
           browse(
-            "https://github.com/fiatjaf/blips/blob/blip-hosted-channels/blip-0012.md"
+            "https://github.com/lightning/blips/blob/master/blip-0017.md"
           )
         )
       )
