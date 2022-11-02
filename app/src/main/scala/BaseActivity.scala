@@ -620,7 +620,7 @@ trait BaseActivity extends AppCompatActivity { self =>
     firstItem.setText(firstText)
   }
 
-  class FeeView[T](from: FeeratePerByte, val content: View) {
+  abstract class FeeView(from: FeeratePerByte, val content: View) {
     val feeRate: TextView =
       content.findViewById(R.id.feeRate).asInstanceOf[TextView]
     val txIssues: TextView =
@@ -634,13 +634,16 @@ trait BaseActivity extends AppCompatActivity { self =>
       content.findViewById(R.id.customFeerate).asInstanceOf[Slider]
     val customFeerateOption: TextView =
       content.findViewById(R.id.customFeerateOption).asInstanceOf[TextView]
-    var worker: ThrottledWork[String, T] = _
     var rate: FeeratePerKw = _
 
+    val onChange: Unit => Unit
     def update(feeOpt: Option[MilliSatoshi], showIssue: Boolean): Unit = {
-      feeRate setText getString(R.string.dialog_fee_sat_vbyte)
-        .format(FeeratePerByte(rate).feerate.toLong)
-        .html
+      feeRate.setText(
+        getString(R.string.dialog_fee_sat_vbyte)
+          .format(FeeratePerByte(rate).feerate.toLong)
+          .html
+      )
+
       setVisMany(
         feeOpt.isDefined -> bitcoinFee,
         feeOpt.isDefined -> fiatFee,
@@ -676,7 +679,7 @@ trait BaseActivity extends AppCompatActivity { self =>
       ): Unit = {
         val feeratePerByte = FeeratePerByte(value.toLong.sat)
         rate = FeeratePerKw(feeratePerByte)
-        worker.addWork("SLIDER-CHANGE")
+        onChange(())
       }
     })
   }
@@ -1337,7 +1340,7 @@ trait ChanErrorHandlerActivity extends BaseCheckActivity {
     if (errorCount >= MAX_ERROR_COUNT_WITHIN_WINDOW) return
 
     def break(alert: AlertDialog): Unit = runAnd(alert.dismiss)(
-      worker requestRemoteForceClose reestablish.channelId
+      worker.requestRemoteForceClose(reestablish.channelId)
     )
     val msg = getString(R.string.error_channel_unknown)
       .format(

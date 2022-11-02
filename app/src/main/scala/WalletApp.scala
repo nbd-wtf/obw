@@ -15,15 +15,6 @@ import android.widget.{EditText, Toast}
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDex
 import androidx.security.crypto.{EncryptedSharedPreferences, MasterKeys}
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.R
-import wtf.nbd.obw.sqlite._
-import wtf.nbd.obw.utils.{
-  OkHttpConnectionProvider,
-  AwaitService,
-  DelayedNotification,
-  LocalBackup
-}
 import com.guardanis.applock.AppLock
 import com.softwaremill.quicklens._
 import fr.acinq.bitcoin.{Block, ByteVector32, Satoshi, SatoshiLong}
@@ -51,9 +42,20 @@ import immortan._
 import immortan.crypto.Tools._
 import immortan.sqlite._
 import immortan.utils._
-import rx.lang.scala.Observable
 import scodec.bits.BitVector
 import castor.Context.Simple.global
+
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.R
+import wtf.nbd.obw.sqlite._
+import wtf.nbd.obw.utils.{
+  OkHttpConnectionProvider,
+  AwaitService,
+  DelayedNotification,
+  LocalBackup,
+  firstLast,
+  debounce
+}
 
 object WalletApp {
   LNParams.chainHash = BuildConfig.CHAIN match {
@@ -78,23 +80,19 @@ object WalletApp {
   final val dbFileNameGraph = "graph.db"
   final val dbFileNameEssential = "essential.db"
 
-  val backupSaveWorker: ThrottledWork[Boolean, Any] =
-    new ThrottledWork[Boolean, Any] {
-      private def doAttemptStore(): Unit =
+  val immediatelySaveBackup = firstLast[Unit](_ => {
+    if (LocalBackup.isAllowed(app)) {
+      try
         LocalBackup.encryptAndWritePlainBackup(
           app,
           dbFileNameEssential,
           LNParams.chainHash,
           LNParams.secret.seed
         )
-      def process(useDelay: Boolean, unitAfterDelay: Any): Unit = if (
-        LocalBackup.isAllowed(app)
-      )
-        try doAttemptStore()
-        catch none
-      def work(useDelay: Boolean): Observable[Any] =
-        if (useDelay) Rx.ioQueue.delay(4.seconds) else Observable.just(null)
+      catch none
     }
+  })
+  val saveBackup = debounce[Unit](_ => immediatelySaveBackup(), 4.seconds)
 
   final val FIAT_CODE = "fiatCode"
   final val BTC_DENOM = "btcDenom"
@@ -199,13 +197,13 @@ object WalletApp {
           override def put(
               data: PersistentChannelData
           ): PersistentChannelData = {
-            backupSaveWorker.replaceWork(true)
+            saveBackup(())
             super.put(data)
           }
         }
     }
 
-    extDataBag.db txWrap {
+    extDataBag.db.txWrap {
       LNParams.feeRates = new FeeRates(extDataBag)
       LNParams.fiatRates = new FiatRates(extDataBag)
       payBag = new SQLitePayment(extDataBag.db, preimageDb = essentialInterface)

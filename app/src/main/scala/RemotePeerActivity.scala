@@ -1,12 +1,14 @@
 package wtf.nbd.obw
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 import android.os.Bundle
 import android.view.View
 import android.widget.{LinearLayout, TextView}
 import androidx.appcompat.app.AlertDialog
-import wtf.nbd.obw.BaseActivity.StringOps
-import wtf.nbd.obw.R
 import com.ornach.nobobutton.NoboButton
+import org.apmem.tools.layouts.FlowLayout
 import fr.acinq.bitcoin.Crypto.PublicKey
 import fr.acinq.bitcoin._
 import fr.acinq.eclair.Features._
@@ -25,18 +27,15 @@ import immortan._
 import immortan.crypto.Tools._
 import immortan.fsm.{HCOpenHandler, NCFundeeOpenHandler, NCFunderOpenHandler}
 import immortan.utils._
-import org.apmem.tools.layouts.FlowLayout
-import rx.lang.scala.Observable
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import wtf.nbd.obw.BaseActivity.StringOps
+import wtf.nbd.obw.R
+import wtf.nbd.obw.utils.{firstLast}
 
 object RemotePeerActivity {
   def implantNewChannel(cs: Commitments, freshChannel: Channel): Unit = {
     // Make an immediate channel backup if anything goes wrong next
     // At this point channel has saved itself in the database
-    WalletApp.backupSaveWorker.replaceWork(false)
+    WalletApp.immediatelySaveBackup()
 
     LNParams.cm.pf.process(PathFinder.CMDStartPeriodicResync)
     LNParams.cm.all += Tuple2(cs.channelId, freshChannel)
@@ -382,29 +381,29 @@ class RemotePeerActivity
     }
 
     lazy val feeView =
-      new FeeView[GenerateTxResponse](FeeratePerByte(1L.sat), sendView.body) {
+      new FeeView(FeeratePerByte(1L.sat), sendView.body) {
         rate =
           LNParams.feeRates.info.onChainFeeConf.feeEstimator.getFeeratePerKw(
             LNParams.feeRates.info.onChainFeeConf.feeTargets.fundingBlockTarget
           )
 
-        worker = new ThrottledWork[String, GenerateTxResponse] {
-          def process(
-              reason: String,
-              responseResult: GenerateTxResponse
-          ): Unit = update(
-            feeOpt = Some(responseResult.fee.toMilliSatoshi),
-            showIssue = false
-          )
-          def work(reason: String): Observable[GenerateTxResponse] =
-            Rx fromFutureOnIo makeFakeFunding(
-              sendView.manager.resultMsat.truncateToSatoshi,
-              rate
-            )
-          override def error(exc: Throwable): Unit = update(
-            feeOpt = None,
-            showIssue = sendView.manager.resultMsat >= LNParams.minChanDustLimit
-          )
+        val onChange = firstLast[Unit] { _ =>
+          makeFakeFunding(
+            sendView.manager.resultMsat.truncateToSatoshi,
+            rate
+          ).onComplete {
+            case Success(res) =>
+              update(
+                feeOpt = Some(res.fee.toMilliSatoshi),
+                showIssue = false
+              )
+            case Failure(exc) =>
+              update(
+                feeOpt = None,
+                showIssue =
+                  sendView.manager.resultMsat >= LNParams.minChanDustLimit
+              )
+          }
         }
 
         override def update(
@@ -417,8 +416,8 @@ class RemotePeerActivity
       }
 
     // Automatically update a candidate transaction each time user changes amount value
-    sendView.manager.inputAmount addTextChangedListener onTextChange(
-      feeView.worker.addWork
+    sendView.manager.inputAmount.addTextChangedListener(
+      onTextChange(_ => feeView.onChange(()))
     )
     feeView.update(feeOpt = None, showIssue = false)
   }

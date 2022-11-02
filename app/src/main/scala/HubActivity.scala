@@ -7,7 +7,7 @@ import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-import scala.util.{Success, Try}
+import scala.util.{Success, Failure, Try}
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.graphics.{Bitmap, BitmapFactory}
@@ -20,7 +20,7 @@ import androidx.transition.TransitionManager
 import wtf.nbd.obw.BaseActivity.StringOps
 import wtf.nbd.obw.HubActivity._
 import wtf.nbd.obw.R
-import wtf.nbd.obw.utils.LocalBackup
+import wtf.nbd.obw.utils.{LocalBackup, firstLast, debounce}
 import com.chauthai.swipereveallayout.{SwipeRevealLayout, ViewBinderHelper}
 import com.danilomendes.progressbar.InvertedTextProgressbar
 import com.github.mmin18.widget.RealtimeBlurView
@@ -37,7 +37,6 @@ import fr.acinq.bitcoin._
 import fr.acinq.eclair._
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
   GenerateTxResponse,
-  RBFResponse,
   WalletReady
 }
 import fr.acinq.eclair.blockchain.electrum.{
@@ -64,7 +63,7 @@ import immortan.utils._
 import org.apmem.tools.layouts.FlowLayout
 import org.ndeftools.Message
 import org.ndeftools.util.activity.NfcReaderActivity
-import rx.lang.scala.{Observable, Subscription}
+import rx.lang.scala.Subscription
 
 object HubActivity {
   var txInfos: Iterable[TxInfo] = Nil
@@ -226,14 +225,13 @@ class HubActivity
     updAllInfos()
   }
 
-  val searchWorker: ThrottledWork[String, Unit] =
-    new ThrottledWork[String, Unit] {
-      def work(query: String): Observable[Unit] = Rx.ioQueue.map(_ =>
-        if (query.nonEmpty) loadSearch(query) else loadRecent()
-      )
-      def process(userTypedQuery: String, searchLoadResultEffect: Unit): Unit =
-        paymentAdapterDataChanged.run
-    }
+  val search = debounce[String](
+    query => {
+      if (query.nonEmpty) loadSearch(query) else loadRecent()
+      paymentAdapterDataChanged.run
+    },
+    350.milliseconds
+  )
 
   val payLinkImageMemo: LoadingCache[Array[Byte], Bitmap] = memoize { bytes =>
     BitmapFactory.decodeByteArray(bytes, 0, bytes.length)
@@ -688,23 +686,25 @@ class HubActivity
       val target = LNParams.feeRates.info.onChainFeeConf.feeEstimator
         .getFeeratePerKw(blockTarget)
       lazy val feeView =
-        new FeeView[GenerateTxResponse](FeeratePerByte(target), body) {
+        new FeeView(FeeratePerByte(target), body) {
           rate = target
 
-          worker = new ThrottledWork[String, GenerateTxResponse] {
-            def work(reason: String): Observable[GenerateTxResponse] =
-              Rx fromFutureOnIo fromWallet.makeCPFP(
+          val onChange = firstLast[Unit] { _ =>
+            fromWallet
+              .makeCPFP(
                 fromOutPoints.toSet,
                 chainPubKeyScript,
                 rate
               )
-            def process(reason: String, response: GenerateTxResponse): Unit =
-              update(
-                feeOpt = Some(response.fee.toMilliSatoshi),
-                showIssue = false
-              )
-            override def error(exc: Throwable): Unit =
-              update(feeOpt = None, showIssue = true)
+              .onComplete {
+                case Success(res) =>
+                  update(
+                    feeOpt = Some(res.fee.toMilliSatoshi),
+                    showIssue = false
+                  )
+                case Failure(exc) =>
+                  update(feeOpt = None, showIssue = true)
+              }
           }
 
           override def update(
@@ -818,28 +818,33 @@ class HubActivity
         LNParams.feeRates.info.onChainFeeConf.feeTargets.fundingBlockTarget
       val target = LNParams.feeRates.info.onChainFeeConf.feeEstimator
         .getFeeratePerKw(blockTarget)
-      lazy val feeView: FeeView[RBFResponse] =
-        new FeeView[RBFResponse](FeeratePerByte(target), body) {
+      lazy val feeView: FeeView =
+        new FeeView(FeeratePerByte(target), body) {
           rate = target
 
-          worker = new ThrottledWork[String, RBFResponse] {
-            def process(reason: String, response: RBFResponse): Unit =
-              response.result match {
-                case Left(ElectrumWallet.PARENTS_MISSING) =>
-                  showRbfErrorDesc(R.string.tx_rbf_err_parents_missing)
-                case Left(ElectrumWallet.FOREIGN_INPUTS) =>
-                  showRbfErrorDesc(R.string.tx_rbf_err_foreign_inputs)
-                case Left(ElectrumWallet.RBF_DISABLED) =>
-                  showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
-                case Right(res) =>
-                  update(Some(res.fee.toMilliSatoshi), showIssue = false)
-                case _ => error(new RuntimeException)
+          val onChange = firstLast[Unit] { _ =>
+            fromWallet
+              .makeRBFBump(info.tx, rate)
+              .onComplete {
+                case Success(res) =>
+                  res.result match {
+                    case Left(ElectrumWallet.PARENTS_MISSING) =>
+                      showRbfErrorDesc(R.string.tx_rbf_err_parents_missing)
+                    case Left(ElectrumWallet.FOREIGN_INPUTS) =>
+                      showRbfErrorDesc(R.string.tx_rbf_err_foreign_inputs)
+                    case Left(ElectrumWallet.RBF_DISABLED) =>
+                      showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
+                    case Right(res) =>
+                      update(
+                        Some(res.fee.toMilliSatoshi),
+                        showIssue = false
+                      )
+                    case _ =>
+                      update(feeOpt = None, showIssue = true)
+                  }
+                case Failure(exc) =>
+                  update(feeOpt = None, showIssue = true)
               }
-
-            def work(reason: String): Observable[RBFResponse] =
-              Rx fromFutureOnIo fromWallet.makeRBFBump(info.tx, rate)
-            override def error(exc: Throwable): Unit =
-              update(feeOpt = None, showIssue = true)
           }
 
           private def showRbfErrorDesc(descRes: Int): Unit = UITask {
@@ -912,7 +917,7 @@ class HubActivity
       rbfCurrent.secondItem.setText(currentFee.html)
       feeView.update(feeOpt = None, showIssue = false)
       feeView.customFeerateOption.performClick
-      feeView.worker addWork "RBF-INIT-CALL"
+      feeView.onChange(())
     }
 
     def cancelRBF(info: TxInfo): Unit =
@@ -951,32 +956,37 @@ class HubActivity
         LNParams.feeRates.info.onChainFeeConf.feeTargets.fundingBlockTarget
       val target = LNParams.feeRates.info.onChainFeeConf.feeEstimator
         .getFeeratePerKw(blockTarget)
-      lazy val feeView: FeeView[RBFResponse] =
-        new FeeView[RBFResponse](FeeratePerByte(target), body) {
+      lazy val feeView: FeeView =
+        new FeeView(FeeratePerByte(target), body) {
           rate = target
 
-          worker = new ThrottledWork[String, RBFResponse] {
-            def process(reason: String, response: RBFResponse): Unit =
-              response.result match {
-                case Left(ElectrumWallet.PARENTS_MISSING) =>
-                  showRbfErrorDesc(R.string.tx_rbf_err_parents_missing)
-                case Left(ElectrumWallet.FOREIGN_INPUTS) =>
-                  showRbfErrorDesc(R.string.tx_rbf_err_foreign_inputs)
-                case Left(ElectrumWallet.RBF_DISABLED) =>
-                  showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
-                case Right(res) =>
-                  update(Some(res.fee.toMilliSatoshi), showIssue = false)
-                case _ => error(new RuntimeException)
-              }
-
-            def work(reason: String): Observable[RBFResponse] =
-              Rx fromFutureOnIo fromWallet.makeRBFReroute(
+          val onChange = firstLast[Unit] { _ =>
+            fromWallet
+              .makeRBFReroute(
                 info.tx,
                 rate,
                 changePubKeyScript
               )
-            override def error(exception: Throwable): Unit =
-              update(feeOpt = None, showIssue = true)
+              .onComplete {
+                case Success(res) =>
+                  res.result match {
+                    case Left(ElectrumWallet.PARENTS_MISSING) =>
+                      showRbfErrorDesc(R.string.tx_rbf_err_parents_missing)
+                    case Left(ElectrumWallet.FOREIGN_INPUTS) =>
+                      showRbfErrorDesc(R.string.tx_rbf_err_foreign_inputs)
+                    case Left(ElectrumWallet.RBF_DISABLED) =>
+                      showRbfErrorDesc(R.string.tx_rbf_err_rbf_disabled)
+                    case Right(res) =>
+                      update(
+                        Some(res.fee.toMilliSatoshi),
+                        showIssue = false
+                      )
+                    case _ =>
+                      update(feeOpt = None, showIssue = true)
+                  }
+                case Failure(exc) =>
+                  update(feeOpt = None, showIssue = true)
+              }
           }
 
           private def showRbfErrorDesc(descRes: Int): Unit = UITask {
@@ -1048,7 +1058,7 @@ class HubActivity
       rbfCurrent.secondItem.setText(currentFee.html)
       feeView.update(feeOpt = None, showIssue = false)
       feeView.customFeerateOption.performClick
-      feeView.worker addWork "RBF-INIT-CALL"
+      feeView.onChange(())
     }
 
     // VIEW RELATED
@@ -2532,11 +2542,7 @@ class HubActivity
         WalletApp.ensureTor -> walletCards.torIndicator,
         !WalletApp.isConnected -> walletCards.offlineIndicator
       )
-      walletCards.searchField.addTextChangedListener(
-        onTextChange(
-          searchWorker.addWork
-        )
-      )
+      walletCards.searchField.addTextChangedListener(onTextChange(search))
       runAnd(updateLnCaches())(paymentAdapterDataChanged.run)
       markAsFailedOnce
     }
@@ -2862,7 +2868,7 @@ class HubActivity
       alert.dismiss
     }
 
-    lazy val feeView = new FeeView[GenerateTxResponse](
+    lazy val feeView = new FeeView(
       FeeratePerByte(1L.sat),
       sendView.chainEditView.host
     ) {
@@ -2870,22 +2876,27 @@ class HubActivity
         LNParams.feeRates.info.onChainFeeConf.feeTargets.mutualCloseBlockTarget
       )
 
-      worker = new ThrottledWork[String, GenerateTxResponse] {
-        // This is a generic sending facility which may send to non-segwit, so always use a safer high dust threshold
-        override def error(exception: Throwable): Unit = update(
-          feeOpt = None,
-          showIssue =
-            sendView.manager.resultMsat >= LNParams.chainWallets.params.dustLimit
-        )
-        def work(reason: String): Observable[GenerateTxResponse] =
-          Rx fromFutureOnIo fromWallet.makeTx(
+      val onChange = firstLast[Unit] { _ =>
+        fromWallet
+          .makeTx(
             chainPubKeyScript,
             sendView.manager.resultMsat.truncateToSatoshi,
             Map.empty,
             rate
           )
-        def process(reason: String, response: GenerateTxResponse): Unit =
-          update(feeOpt = Some(response.fee.toMilliSatoshi), showIssue = false)
+          .onComplete {
+            case Success(res) =>
+              update(
+                feeOpt = Some(res.fee.toMilliSatoshi),
+                showIssue = false
+              )
+            case Failure(exc) =>
+              update(
+                feeOpt = None,
+                showIssue =
+                  sendView.manager.resultMsat >= LNParams.chainWallets.params.dustLimit
+              )
+          }
       }
 
       override def update(
@@ -2898,8 +2909,8 @@ class HubActivity
     }
 
     // Automatically update a candidate transaction each time user changes amount value
-    sendView.manager.inputAmount addTextChangedListener onTextChange(
-      feeView.worker.addWork
+    sendView.manager.inputAmount.addTextChangedListener(
+      onTextChange(_ => feeView.onChange(()))
     )
     alert.setOnDismissListener(sendView.onDismissListener)
     feeView.update(feeOpt = None, showIssue = false)
@@ -2997,7 +3008,7 @@ class HubActivity
       alert.dismiss
     }
 
-    lazy val feeView = new FeeView[GenerateTxResponse](
+    lazy val feeView = new FeeView(
       FeeratePerByte(1L.sat),
       sendView.chainEditView.host
     ) {
@@ -3005,13 +3016,16 @@ class HubActivity
         LNParams.feeRates.info.onChainFeeConf.feeTargets.mutualCloseBlockTarget
       )
 
-      worker = new ThrottledWork[String, GenerateTxResponse] {
-        def process(reason: String, response: GenerateTxResponse): Unit =
-          update(feeOpt = Some(response.fee.toMilliSatoshi), showIssue = false)
-        def work(reason: String): Observable[GenerateTxResponse] =
-          Rx fromFutureOnIo fromWallet.makeBatchTx(scriptToAmount, rate)
-        override def error(exception: Throwable): Unit =
-          update(feeOpt = None, showIssue = true)
+      val onChange = firstLast[Unit] { _ =>
+        fromWallet.makeBatchTx(scriptToAmount, rate).onComplete {
+          case Success(res) =>
+            update(
+              feeOpt = Some(res.fee.toMilliSatoshi),
+              showIssue = false
+            )
+          case Failure(exc) =>
+            update(feeOpt = None, showIssue = true)
+        }
       }
 
       override def update(
@@ -3035,7 +3049,7 @@ class HubActivity
     setVis(isVisible = false, sendView.chainEditView.inputChain)
     alert.setOnDismissListener(sendView.onDismissListener)
     feeView.update(feeOpt = None, showIssue = false)
-    feeView.worker.addWork("MULTI-SEND-INIT-CALL")
+    feeView.onChange(())
   }
 
   def bringReceivePopup(view: View): Unit =

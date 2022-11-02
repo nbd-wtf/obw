@@ -94,7 +94,7 @@ class SettingsActivity
     def updateView(): Unit = {
       val backupAllowed = LocalBackup.isAllowed(context = WalletApp.app)
       if (backupAllowed && LNParams.cm.all.nonEmpty)
-        WalletApp.backupSaveWorker.replaceWork(false)
+        WalletApp.immediatelySaveBackup()
       val title =
         if (backupAllowed) R.string.settings_backup_enabled
         else R.string.settings_backup_disabled
