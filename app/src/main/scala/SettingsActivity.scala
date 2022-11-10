@@ -435,7 +435,7 @@ class SettingsActivity
       links.flow,
       getString(R.string.twitter),
       R.drawable.border_purple,
-      _ => browse("https://twitter.com/nbd_wtf")
+      _ => browse("https://nitter.sethforprivacy.com/nbd_wtf")
     )
 
     for (count <- LNParams.logBag.count if count > 0) {
