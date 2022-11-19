@@ -100,6 +100,12 @@ object HubActivity {
   )
   def itemsLength: Int =
     txInfos.size + paymentInfos.size + lnUrlPayLinks.size + relayedPreimageInfos.size
+
+  def getNameFromNameDesc(text: String): Option[String] =
+    """^\w+:  """.r.findFirstIn(text).map(prefix => prefix.split(":  ")(0))
+
+  def expellNameFromNameDesc(text: String): String =
+    """^\w+:  """.r.split(text).last
 }
 
 class HubActivity
@@ -702,7 +708,7 @@ class HubActivity
                     feeOpt = Some(res.fee.toMilliSatoshi),
                     showIssue = false
                   )
-                case Failure(exc) =>
+                case Failure(_) =>
                   update(feeOpt = None, showIssue = true)
               }
           }
@@ -842,7 +848,7 @@ class HubActivity
                     case _ =>
                       update(feeOpt = None, showIssue = true)
                   }
-                case Failure(exc) =>
+                case Failure(_) =>
                   update(feeOpt = None, showIssue = true)
               }
           }
@@ -984,7 +990,7 @@ class HubActivity
                     case _ =>
                       update(feeOpt = None, showIssue = true)
                   }
-                case Failure(exc) =>
+                case Failure(_) =>
                   update(feeOpt = None, showIssue = true)
               }
           }
@@ -1066,6 +1072,11 @@ class HubActivity
       setVis(isVisible = false, extraInfo)
       extraInfo.removeAllViewsInLayout
       openListItems -= item.identity
+      currentDetails match {
+        case info: PaymentInfo =>
+          description.setText(paymentDescription(info).html)
+        case _ =>
+      }
       description.setMaxLines(1)
     }
 
@@ -1073,6 +1084,13 @@ class HubActivity
       setVis(isVisible = true, extraInfo)
       extraInfo.removeAllViewsInLayout
       openListItems += item.identity
+      currentDetails match {
+        case info: PaymentInfo =>
+          description.setText(
+            expellNameFromNameDesc(paymentDescription(info)).html
+          )
+        case _ =>
+      }
       description.setMaxLines(3)
 
       item match {
@@ -1111,9 +1129,20 @@ class HubActivity
           val shouldShowPayee =
             !info.isIncoming && info.description.toSelfPreimage.isEmpty
 
+          info.description.externalInfo
+            .flatMap(getNameFromNameDesc(_))
+            .foreach { name =>
+              addFlowChip(
+                extraInfo,
+                getString(R.string.popup_ln_namedesc).format(name),
+                R.drawable.border_white,
+                Some(name)
+              )
+            }
+
           addFlowChip(
             extraInfo,
-            getString(R.string.popup_hash) format info.paymentHash.toHex.short,
+            getString(R.string.popup_hash).format(info.paymentHash.toHex.short),
             R.drawable.border_green,
             Some(info.paymentHash.toHex)
           )
@@ -1123,7 +1152,7 @@ class HubActivity
               extraInfo,
               getString(
                 R.string.popup_preimage
-              ) format info.preimage.toHex.short,
+              ).format(info.preimage.toHex.short),
               R.drawable.border_yellow,
               Some(info.preimage.toHex)
             )
@@ -1155,7 +1184,7 @@ class HubActivity
               extraInfo,
               getString(
                 R.string.popup_ln_payee
-              ) format info.prExt.pr.nodeId.toString.short,
+              ).format(info.prExt.pr.nodeId.toString.short),
               R.drawable.border_white,
               Some(info.prExt.pr.nodeId.toString)
             )
@@ -1285,21 +1314,21 @@ class HubActivity
 
           addFlowChip(
             extraInfo,
-            getString(R.string.popup_txid) format info.txidString.short,
+            getString(R.string.popup_txid).format(info.txidString.short),
             R.drawable.border_green,
             Some(info.txidString)
           )
           for (address <- info.description.toAddress)
             addFlowChip(
               extraInfo,
-              getString(R.string.popup_to_address) format address.short,
+              getString(R.string.popup_to_address).format(address.short),
               R.drawable.border_yellow,
               Some(address)
             )
           for (nodeId <- info.description.withNodeId)
             addFlowChip(
               extraInfo,
-              getString(R.string.popup_ln_node) format nodeId.toString.short,
+              getString(R.string.popup_ln_node).format(nodeId.toString.short),
               R.drawable.border_white,
               Some(nodeId.toString)
             )
@@ -1324,7 +1353,7 @@ class HubActivity
           )
             addFlowChip(
               extraInfo,
-              getString(R.string.popup_chain_fee) format fee,
+              getString(R.string.popup_chain_fee).format(fee),
               R.drawable.border_white
             )
 
@@ -1355,12 +1384,12 @@ class HubActivity
             WalletApp.denom.parsedWithSign(info.relayed)
           addFlowChip(
             extraInfo,
-            getString(R.string.popup_hash) format info.paymentHashString.short,
+            getString(R.string.popup_hash).format(info.paymentHashString.short),
             R.drawable.border_green
           )
           addFlowChip(
             extraInfo,
-            getString(R.string.stats_item_relayed) format relayedHuman,
+            getString(R.string.stats_item_relayed).format(relayedHuman),
             R.drawable.border_white
           )
 
@@ -1406,7 +1435,7 @@ class HubActivity
             .html
         )
         description.setText(
-          info.description.label getOrElse txDescription(info).html
+          info.description.label.getOrElse(txDescription(info).html)
         )
         swipeWrap.setLockDrag(false)
         setTxTypeIcon(info)
@@ -2212,7 +2241,8 @@ class HubActivity
 
               override val alert: AlertDialog = {
                 val title = new TitleView(
-                  getString(R.string.dialog_split_ln) format prExt.brDescription
+                  getString(R.string.dialog_split_ln)
+                    .format(prExt.descriptionOpt.getOrElse(""))
                 )
                 val builder = titleBodyAsViewBuilder(
                   title.asColoredView(R.color.ourPurple),
@@ -2220,14 +2250,20 @@ class HubActivity
                 )
                 addFlowChip(
                   title.flow,
-                  getString(R.string.dialog_ln_requested) format WalletApp.denom
-                    .parsedWithSign(origAmount),
+                  getString(R.string.dialog_ln_requested)
+                    .format(
+                      WalletApp.denom
+                        .parsedWithSign(origAmount)
+                    ),
                   R.drawable.border_white
                 )
                 addFlowChip(
                   title.flow,
-                  getString(R.string.dialog_ln_left) format WalletApp.denom
-                    .parsedWithSign(prExt.splitLeftover),
+                  getString(R.string.dialog_ln_left)
+                    .format(
+                      WalletApp.denom
+                        .parsedWithSign(prExt.splitLeftover)
+                    ),
                   R.drawable.border_white
                 )
                 mkCheckFormNeutral(
@@ -2265,7 +2301,12 @@ class HubActivity
                 val totalHuman =
                   WalletApp.denom.parsedWithSign(origAmount)
                 val title = new TitleView(
-                  getString(R.string.dialog_send_ln) format prExt.brDescription
+                  getString(R.string.dialog_send_ln).format(
+                    prExt.descriptionOpt
+                      .map(expellNameFromNameDesc(_))
+                      .map(desc => s"<br><br>$desc")
+                      .getOrElse("")
+                  )
                 )
                 val builder = titleBodyAsViewBuilder(
                   title.asColoredView(R.color.ourPurple),
@@ -2283,6 +2324,16 @@ class HubActivity
 
                 def fillFlow(value: CharSequence) = UITask {
                   runAnd(title.flow.removeAllViewsInLayout) {
+                    prExt.descriptionOpt
+                      .flatMap(getNameFromNameDesc(_))
+                      .foreach { name =>
+                        addFlowChip(
+                          title.flow,
+                          getString(R.string.popup_ln_namedesc).format(name),
+                          R.drawable.border_white
+                        )
+                      }
+
                     addFlowChip(
                       title.flow,
                       getString(R.string.dialog_ln_requested)
@@ -2336,14 +2387,37 @@ class HubActivity
               override def isNeutralEnabled: Boolean = true
 
               override val alert: AlertDialog = {
-                val title = getString(R.string.dialog_send_ln)
-                  .format(prExt.brDescription)
-                  .asColoredView(R.color.ourPurple)
+                val title = new TitleView(
+                  getString(R.string.dialog_send_ln)
+                    .format(
+                      prExt.descriptionOpt
+                        .map(expellNameFromNameDesc(_))
+                        .map(desc => s"<br><br>$desc")
+                        .getOrElse("")
+                    )
+                )
+                val builder = titleBodyAsViewBuilder(
+                  title.asColoredView(R.color.ourPurple),
+                  manager.content
+                )
+
+                runAnd(title.flow.removeAllViewsInLayout) {
+                  prExt.descriptionOpt
+                    .flatMap(getNameFromNameDesc(_))
+                    .foreach { name =>
+                      addFlowChip(
+                        title.flow,
+                        getString(R.string.popup_ln_namedesc).format(name),
+                        R.drawable.border_white
+                      )
+                    }
+                }
+
                 mkCheckFormNeutral(
                   send,
                   none,
                   neutral,
-                  titleBodyAsViewBuilder(title, manager.content),
+                  builder,
                   R.string.dialog_ok,
                   R.string.dialog_cancel,
                   R.string.dialog_max
@@ -2890,7 +2964,7 @@ class HubActivity
                 feeOpt = Some(res.fee.toMilliSatoshi),
                 showIssue = false
               )
-            case Failure(exc) =>
+            case Failure(_) =>
               update(
                 feeOpt = None,
                 showIssue =
@@ -3023,7 +3097,7 @@ class HubActivity
               feeOpt = Some(res.fee.toMilliSatoshi),
               showIssue = false
             )
-          case Failure(exc) =>
+          case Failure(_) =>
             update(feeOpt = None, showIssue = true)
         }
       }
@@ -3116,9 +3190,7 @@ class HubActivity
         override def getTitleText: String =
           getString(R.string.dialog_lnurl_withdraw).format(
             data.callbackUrl.hostOption.get.value,
-            data.descriptionOpt.map(desc =>
-              s"<br><br>$desc"
-            ) getOrElse new String
+            data.descriptionOpt.map(desc => s"<br><br>$desc").getOrElse("")
           )
         override def processInvoice(prExt: PaymentRequestExt): Unit =
           data.requestWithdraw(prExt).foreach(none, onFail)
