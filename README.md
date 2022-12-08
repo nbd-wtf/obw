@@ -16,11 +16,14 @@ Some of the features it includes are:
     - open channels, close channels, force-close channels, close channels to specific address
     - route payments without the use of any third-party service, all routing done on the wallet
     - offer to retry payments with increased fee tolerance if the first attempts fail
+  - Private by default
+    - when connecting to Lightning peers, uses a different node identity for each peer
+    - uses a random node identity for each invoice
+    - full TOR support: built-in, no Orbot needed
   - Hosted Channels
     - lightweight credit-based virtual channels that use an open and interoperable protocol
-    - can open hosted channels to any node that supports the host side of the protocol and can be connected to
-  - Full TOR support
-    - built-in TOR, no Orbot needed
+    - can open hosted channels to any node that supports the host side of the protocol
+    - cannot be traced and do not require capital or chain fee costs
   - Split-payments support
     - the same invoice from A can be paid by multiple wallets (B, C, D and so on) atomically
     - perfect for splitting bills at restaurants
@@ -29,6 +32,7 @@ Some of the features it includes are:
     - lnurl-pay, lightning address, comments, message, URL and AES-encrypted `successAction`s
     - lnurl-withdraw
     - keyauth (lnurl-auth)
+  - NameDesc support
 
 ![obiwan](https://user-images.githubusercontent.com/1653275/186679611-c5c25d94-752a-4368-a0e4-7e7109fa5548.gif)
 
