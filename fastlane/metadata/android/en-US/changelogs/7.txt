@@ -1,0 +1,5 @@
+This fixes a bug with URL parsing that broke under some circumstances, notably the LUD-08 "fast-withdraw" variation of lnurl-withdraw.
+
+It does so by getting rid of the last piece of Java code inside Immortan's codebase, the URI parser.
+
+It also adds a "fast" mode to the LUD-07 parser, which means it's much easier to conjure custom hosted channel QR codes with custom secrets without running a server.

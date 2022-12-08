@@ -1,0 +1,1 @@
+This release adds support for bLIP-11: NameDesc!
