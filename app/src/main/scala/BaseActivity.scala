@@ -1108,10 +1108,10 @@ trait BaseActivity extends AppCompatActivity { self =>
       getString(R.string.dialog_up_to).format(canSendHuman).html
     )
 
-    manager.inputAmount addTextChangedListener onTextChange { _ =>
+    manager.inputAmount.addTextChangedListener(onTextChange { _ =>
       updatePopupButton(getNeutralButton(alert), isNeutralEnabled)
       updatePopupButton(getPositiveButton(alert), isPayEnabled)
-    }
+    })
 
     def neutral(alert: AlertDialog): Unit
     def send(alert: AlertDialog): Unit
@@ -1241,14 +1241,14 @@ trait BaseActivity extends AppCompatActivity { self =>
       )
     }
 
-    manager.inputAmount addTextChangedListener onTextChange { _ =>
+    manager.inputAmount.addTextChangedListener(onTextChange { _ =>
       val withinBounds =
         finalMinReceivable <= manager.resultMsat && finalMaxReceivable >= manager.resultMsat
       updatePopupButton(
         button = getPositiveButton(alert),
         isEnabled = withinBounds
       )
-    }
+    })
 
     manager.hintFiatDenom.setText(
       getString(R.string.dialog_up_to).format(canReceiveFiatHuman).html

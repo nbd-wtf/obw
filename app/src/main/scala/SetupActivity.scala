@@ -128,9 +128,9 @@ class SetupActivity extends BaseActivity {
             WalletApp.saveBackup(())
             proceedWithMnemonics(mnemonics)
 
-          case Failure(exception) =>
+          case Failure(exc) =>
             val msg = getString(R.string.error_could_not_decrypt)
-            onFail(msg format exception.getMessage)
+            onFail(msg.format(exc.getMessage))
         }
       }
     }

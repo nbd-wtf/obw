@@ -1202,6 +1202,7 @@ class HubActivity
           //     .parsedWithSign(info.balanceSnapshot),
           //   R.drawable.border_white
           // )
+
           if (info.isIncoming && info.status == PaymentStatus.PENDING)
             addFlowChip(
               extraInfo,
@@ -2746,7 +2747,7 @@ class HubActivity
 
       def proceed(alert: AlertDialog): Unit = runAnd(alert.dismiss) {
         runInFutureProcessOnUI(
-          InputParser recordValue extraInput.getText.toString,
+          InputParser.recordValue(extraInput.getText.toString),
           onFail
         ) { _ =>
           def attemptProcessInput(): Unit =
@@ -3355,7 +3356,7 @@ class HubActivity
       override val alert: AlertDialog = {
         val text = getString(R.string.dialog_lnurl_pay).format(
           data.callbackUrl.hostOption.get.value,
-          s"<br><br>${data.meta.textShort}"
+          s"<br><br>${data.meta.textShort.getOrElse("")}"
         )
         val title = titleBodyAsViewBuilder(
           text.asColoredView(R.color.ourPurple),

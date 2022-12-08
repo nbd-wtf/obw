@@ -35,7 +35,7 @@ object RemotePeerActivity {
   def implantNewChannel(cs: Commitments, freshChannel: Channel): Unit = {
     // Make an immediate channel backup if anything goes wrong next
     // At this point channel has saved itself in the database
-    WalletApp.immediatelySaveBackup()
+    WalletApp.immediatelySaveBackup
 
     LNParams.cm.pf.process(PathFinder.CMDStartPeriodicResync)
     LNParams.cm.all += Tuple2(cs.channelId, freshChannel)
@@ -397,7 +397,7 @@ class RemotePeerActivity
                 feeOpt = Some(res.fee.toMilliSatoshi),
                 showIssue = false
               )
-            case Failure(exc) =>
+            case Failure(_) =>
               update(
                 feeOpt = None,
                 showIssue =

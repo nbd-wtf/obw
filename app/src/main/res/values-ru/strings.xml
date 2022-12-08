@@ -302,7 +302,7 @@
     <string name="dialog_lnurl_from_vendor"><![CDATA[Ответ от продавца%1$s]]></string>
 
     <string name="popup_hold">Держать до %1$s минут</string>
-    <string name="popup_identity">Attach wallet identity</string>
+    <string name="popup_identity">Attach identity</string>
 
     <!-- lnurl-auth -->
     <string name="lnurl_auth_login">Логин</string>

@@ -1,5 +1,6 @@
 package wtf.nbd.obw
 
+import scala.util.Success
 import android.content.Intent
 import android.os.Bundle
 import android.view.{View, ViewGroup}
@@ -21,8 +22,6 @@ import fr.acinq.eclair.wire.{Domain, NodeAddress}
 import immortan.crypto.Tools._
 import immortan.utils.{BtcDenomination, SatDenomination}
 import immortan.{ChannelMaster, LNParams}
-
-import scala.util.Success
 
 abstract class SettingsHolder(host: BaseActivity) {
   lazy val view: RelativeLayout = host.getLayoutInflater
@@ -94,7 +93,7 @@ class SettingsActivity
     def updateView(): Unit = {
       val backupAllowed = LocalBackup.isAllowed(context = WalletApp.app)
       if (backupAllowed && LNParams.cm.all.nonEmpty)
-        WalletApp.immediatelySaveBackup()
+        WalletApp.immediatelySaveBackup
       val title =
         if (backupAllowed) R.string.settings_backup_enabled
         else R.string.settings_backup_disabled

@@ -236,20 +236,20 @@
     <string name="settings_hw_zpub_tip">Carteira de hardware ou zpub</string>
 
     <string name="settings_chain_wallets">Gerenciar carteiras chain</string>
-    <string name="settings_chain_legacy">Carteira legacy</string>
+    <string name="settings_chain_legacy">Carteira antiga</string>
     <string name="settings_chain_modern">Carteira moderna</string>
 
-    <string name="settings_use_auth">Use PIN authentication</string>
+    <string name="settings_use_auth">Bloquear com PIN</string>
     <string name="settings_ensure_tor">Aplicar conexão Tor</string>
 
     <string name="ln_fee_expensive_omitted">O pagamento falhou porque as rotas mais caras foram descartadas. Gostaria de tentar novamente pagando mais em taxas?</string>
     <string name="ln_sync_not_complete">A sincronização de canais ainda não terminou, por favor agüarde um pouco mais com o aplicativo aberto.</string>
     <string name="ln_payee_likely_offline">Parece que o recipiente deste pagamento está offline agora</string>
 
-    <string name="settings_btc_unit">Unidade de bitcoin</string>
-    <string name="settings_fiat_currency">Moeda fiduciária</string>
+    <string name="settings_btc_unit">Unidade de Bitcoin</string>
+    <string name="settings_fiat_currency">Moeda governamental</string>
     <string name="settings_custom_electrum_host_port">host:port</string>
-    <string name="settings_custom_electrum_disabled">Node Electrum personalizado</string>
+    <string name="settings_custom_electrum_disabled">Servidor Electrum personalizado</string>
     <string name="settings_custom_electrum_enabled">Usando node Electrum personalizado</string>
     <string name="settings_custom_electrum_disabled_tip">Usando nodes aleatórios no momento</string>
     <string name="settings_custom_electrum_restart_notice">Reinicie para aplicar as alterações</string>
@@ -261,23 +261,23 @@
     <!-- /Settings activity -->
 
     <array name="parts_in_flight">
-        <item>preparing</item>
-        <item>%1$d part in-flight</item>
-        <item>%1$d parts in-flight</item>
+        <item>preparando</item>
+        <item>%1$d parte pendente</item>
+        <item>%1$d partes pendentes</item>
     </array>
 
     <array name="pct_collected">
-        <item>waiting</item>
-        <item>%1$d\%% collected</item>
-        <item>%1$d\%% collected</item>
-        <item>finalizing</item>
+        <item>esperando</item>
+        <item>%1$d\%% recebido</item>
+        <item>%1$d\%% recebido</item>
+        <item>finalizando</item>
     </array>
 
     <array name="in_blocks">
-        <item>waiting</item>
-        <item>%1$d block</item>
-        <item>%1$d blocks</item>
-        <item>%1$d+ blocks</item>
+        <item>esperando</item>
+        <item>%1$d bloco</item>
+        <item>%1$d blocos</item>
+        <item>%1$d+ blocos</item>
     </array>
 
     <array name="expires_in_blocks">
@@ -297,8 +297,8 @@
     <string name="dialog_lnurl_sending"><![CDATA[Enviando %1$s<br><br><b>%2$s</b>]]></string>
     <string name="dialog_lnurl_from_vendor"><![CDATA[Resposta do fornecedor%1$s]]></string>
 
-    <string name="popup_hold">Hold up to %1$s minutes</string>
-    <string name="popup_identity">Attach wallet identity</string>
+    <string name="popup_hold">Segurar por até %1$s minutos</string>
+    <string name="popup_identity">Incluir identificação</string>
 
     <!-- lnurl-auth -->
 

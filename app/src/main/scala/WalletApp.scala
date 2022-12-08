@@ -92,7 +92,7 @@ object WalletApp {
       catch none
     }
   })
-  val saveBackup = debounce[Unit](_ => immediatelySaveBackup(), 4.seconds)
+  val saveBackup = debounce[Unit](_ => immediatelySaveBackup, 4.seconds)
 
   final val FIAT_CODE = "fiatCode"
   final val BTC_DENOM = "btcDenom"
