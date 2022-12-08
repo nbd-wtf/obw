@@ -101,11 +101,22 @@ object HubActivity {
   def itemsLength: Int =
     txInfos.size + paymentInfos.size + lnUrlPayLinks.size + relayedPreimageInfos.size
 
-  def getNameFromNameDesc(text: String): Option[String] =
-    """^\w+:  """.r.findFirstIn(text).map(prefix => prefix.split(":  ")(0))
+  def getNameFromNameDesc(text: String): Option[String] = {
+    val spl = text.split(":  ")
+    spl.size match {
+      case 1                       => None
+      case _ if spl.head.size < 30 => Some(spl.head)
+      case _                       => None
+    }
+  }
 
-  def expellNameFromNameDesc(text: String): String =
-    """^\w+:  """.r.split(text).last
+  def expellNameFromNameDesc(text: String): String = {
+    val spl = text.split(":  ")
+    spl.size match {
+      case 1 => text
+      case _ => spl.drop(1).mkString(": ")
+    }
+  }
 }
 
 class HubActivity
