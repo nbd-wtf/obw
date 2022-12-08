@@ -36,6 +36,14 @@ Some of the features it includes are:
 
 _Open Bitcoin Wallet_ is based on [IMMORTAN](https://github.com/nbd-wtf/immortan), a versatile, flexible and reasonable library for building lightweight Bitcoin and Lightning wallets.
 
+## How to install
+
+You have 3 options right now:
+
+1. Grab an APK from the [releases](https://github.com/nbd-wtf/obw/releases) page
+2. Download from [Google Play](https://play.google.com/store/apps/details?id=wtf.nbd.obw)
+3. Build from source (see instructions below)
+
 ## How to build from source
 
 Run this:
