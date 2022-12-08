@@ -1,0 +1,9 @@
+Previously v0.1.7 was called "the Signet" because it came with Signet support (on a different APK), but it was succeeded by this one because it had a horrible bug that caused the app to crash if a hosted channel ever got an error.
+
+It also fixed a bug with Electrum random server rotation that was actually a memory leak and could also double as a resource drain if the servers were faulty (it would just keep adding more and more servers to the pool without ever removing them).
+
+v0.1.8 fixes the HC error issue and also introduces
+
+* human-readable errors for HCs,
+* fixes an issue with feerate + amount calculation for onchain txs that sometimes caused the transactions to not be updated and the "proceed" button to be unclickable,
+* removes a weird Java-like class that was causing the issues above for being too complicated and replaces it with a simple function -- maybe this will break something, but it seems to be working much better now, and the code is simpler and more understandable, not that the wallet user should care about that part.

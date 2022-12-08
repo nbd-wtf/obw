@@ -1,0 +1,5 @@
+This fixes some issues related to syncing of onchain transaction history that could cause a broken state that would then break all further onchain transactions and channel openings since the wallet would try to spend outputs that were already spent.
+
+It improves handling of connections to Electrum servers such that the wallet is more resilient, specially over Tor.
+
+It updates the bundled channel graph file to make the initial channels sync process much faster.
