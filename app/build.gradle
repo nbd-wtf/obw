@@ -5,6 +5,12 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    android {
+        packagingOptions {
+            doNotStrip '**/*.so'
+        }
+    }
+
     defaultConfig {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         applicationId 'wtf.nbd.obw'
