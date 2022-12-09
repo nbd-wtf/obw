@@ -1124,6 +1124,12 @@ class HubActivity
             amount,
             Denomination.formatFiatShort
           )
+          val fiatNowDouble = WalletApp
+            .msatInFiat(
+              LNParams.fiatRates.info.rates,
+              WalletApp.fiatCode
+            )(amount)
+            .getOrElse(0.0)
 
           val liveFeePaid =
             outgoingFSMOpt.map(_.data.usedFee).getOrElse(info.fee)
@@ -1137,8 +1143,6 @@ class HubActivity
           val shouldRetry =
             info.status == PaymentStatus.ABORTED && !info.prExt.pr
               .isExpired() && info.description.split.isEmpty && info.description.toSelfPreimage.isEmpty
-          val shouldShowPayee =
-            !info.isIncoming && info.description.toSelfPreimage.isEmpty
 
           info.description.externalInfo
             .flatMap(getNameFromNameDesc(_))
@@ -1190,22 +1194,15 @@ class HubActivity
                 )
             )
 
-          if (shouldShowPayee)
+          if (fiatNowDouble > 0.09) {
             addFlowChip(
               extraInfo,
-              getString(
-                R.string.popup_ln_payee
-              ).format(info.prExt.pr.nodeId.toString.short),
-              R.drawable.border_white,
-              Some(info.prExt.pr.nodeId.toString)
+              getString(R.string.popup_fiat)
+                .format(fiatNow, fiatThen),
+              R.drawable.border_white
             )
+          }
 
-          addFlowChip(
-            extraInfo,
-            getString(R.string.popup_fiat)
-              .format(fiatNow, fiatThen),
-            R.drawable.border_white
-          )
           // remove this "prior balance" thing until we understand and fix it
           // addFlowChip(
           //   extraInfo,
@@ -1321,6 +1318,13 @@ class HubActivity
             amount,
             Denomination.formatFiat
           )
+          val fiatNowDouble = WalletApp
+            .msatInFiat(
+              LNParams.fiatRates.info.rates,
+              WalletApp.fiatCode
+            )(amount)
+            .getOrElse(0.0)
+
           // val balanceSnapshot =
           //   WalletApp.denom.parsedWithSign(info.balanceSnapshot)
 
@@ -1337,20 +1341,16 @@ class HubActivity
               R.drawable.border_yellow,
               Some(address)
             )
-          for (nodeId <- info.description.withNodeId)
+
+          if (fiatNowDouble > 0.09) {
             addFlowChip(
               extraInfo,
-              getString(R.string.popup_ln_node).format(nodeId.toString.short),
-              R.drawable.border_white,
-              Some(nodeId.toString)
+              getString(R.string.popup_fiat)
+                .format(fiatNow, fiatThen),
+              R.drawable.border_white
             )
+          }
 
-          addFlowChip(
-            extraInfo,
-            getString(R.string.popup_fiat)
-              .format(fiatNow, fiatThen),
-            R.drawable.border_white
-          )
           // remove this "prior balance" thing until we understand and fix it
           // if (info.description.cpfpOf.isEmpty && info.description.rbf.isEmpty)
           //   addFlowChip(
