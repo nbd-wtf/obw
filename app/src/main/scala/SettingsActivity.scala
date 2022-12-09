@@ -279,6 +279,11 @@ class SettingsActivity
         R.string.dialog_cancel
       )
       extraInputLayout.setHint(R.string.settings_custom_electrum_host_port)
+      WalletApp.customElectrumAddress.foreach { nodeAddress =>
+        val text = nodeAddress.toString
+        extraInput.setText(text)
+        extraInput.setSelection(0, text.size)
+      }
       showKeys(extraInput)
 
       def proceed(): Unit = {
