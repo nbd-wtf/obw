@@ -252,6 +252,8 @@
 
     <string name="settings_btc_unit">Bitcoin units</string>
     <string name="settings_fiat_currency">Fiat currency</string>
+    <string name="settings_user_name">Pseudonym</string>
+    <string name="settings_user_name_unset">Set a name to be used (optionally) in some situations</string>
     <string name="settings_custom_electrum_host_port">host:port</string>
     <string name="settings_custom_electrum_disabled">Set custom Electrum node</string>
     <string name="settings_custom_electrum_enabled">Using custom Electrum node</string>

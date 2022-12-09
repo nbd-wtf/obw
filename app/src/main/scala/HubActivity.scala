@@ -3388,6 +3388,8 @@ class HubActivity
         amount = amount,
         comment = Some(getComment),
         randomKey = Some(randKey.publicKey),
+        name =
+          if (manager.attachIdentity.isChecked) WalletApp.userName else None,
         authKeyHost =
           if (manager.attachIdentity.isChecked)
             Some(lnurl.url.hostOption.get.value)
@@ -3396,10 +3398,23 @@ class HubActivity
 
       manager.updateText(minSendable)
       data.payerData.foreach { payerDataSpec =>
-        payerDataSpec.auth.foreach { authSpec =>
-          manager.attachIdentity.setChecked(authSpec.mandatory)
-          manager.attachIdentity.setEnabled(!authSpec.mandatory)
+        val enabled =
+          List(
+            payerDataSpec.name.isDefined && WalletApp.userName.isDefined,
+            payerDataSpec.auth.isDefined,
+            payerDataSpec.pubkey.isDefined
+          ).exists(_ == true)
+        val mandatory =
+          List(
+            payerDataSpec.name.map(_.mandatory).getOrElse(false),
+            payerDataSpec.auth.map(_.mandatory).getOrElse(false),
+            payerDataSpec.pubkey.map(_.mandatory).getOrElse(false)
+          ).exists(_ == true)
+
+        if (enabled) {
           setVis(isVisible = true, manager.attachIdentity)
+          manager.attachIdentity.setChecked(mandatory)
+          manager.attachIdentity.setEnabled(!mandatory)
         }
       }
 

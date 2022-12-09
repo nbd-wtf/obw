@@ -64,6 +64,7 @@ class SettingsActivity
     electrum.updateView()
     setFiat.updateView()
     setBtc.updateView()
+    setName.updateView()
 
     useBiometric.updateView()
     enforceTor.updateView()
@@ -366,6 +367,53 @@ class SettingsActivity
     }
   }
 
+  private[this] lazy val setName: SettingsHolder = new SettingsHolder(this) {
+    settingsTitle.setText(R.string.settings_user_name)
+    setVis(isVisible = false, settingsCheck)
+
+    override def updateView(): Unit = WalletApp.userName match {
+      case Some(name) =>
+        settingsInfo.setText(name)
+      case _ =>
+        settingsInfo.setText(R.string.settings_user_name_unset)
+    }
+
+    view.setOnClickListener(onButtonTap {
+      val (container, _, extraInput) = singleInputPopup
+      val builder = titleBodyAsViewBuilder(
+        getString(R.string.settings_user_name).asDefView,
+        container
+      )
+      mkCheckForm(
+        alert => runAnd(alert.dismiss)(proceed()),
+        none,
+        builder,
+        R.string.dialog_ok,
+        R.string.dialog_cancel
+      )
+
+      showKeys(extraInput)
+
+      WalletApp.userName.foreach { name =>
+        extraInput.setText(name)
+        extraInput.setSelection(0, name.size)
+      }
+
+      def proceed(): Unit = {
+        val input = extraInput.getText.toString.trim
+        runInFutureProcessOnUI(
+          {
+            val editor = WalletApp.app.prefs.edit
+            if (input.nonEmpty) editor.putString(WalletApp.USER_NAME, input)
+            else editor.remove(WalletApp.USER_NAME)
+            editor.commit()
+          },
+          onFail
+        )(_ => updateView())
+      }
+    })
+  }
+
   private[this] lazy val useBiometric: SettingsHolder = new SettingsHolder(
     this
   ) {
@@ -457,6 +505,7 @@ class SettingsActivity
     settingsContainer.addView(electrum.view)
     settingsContainer.addView(setFiat.view)
     settingsContainer.addView(setBtc.view)
+    settingsContainer.addView(setName.view)
 
     settingsContainer.addView(useBiometric.view)
     settingsContainer.addView(enforceTor.view)

@@ -96,6 +96,7 @@ object WalletApp {
 
   final val FIAT_CODE = "fiatCode"
   final val BTC_DENOM = "btcDenom"
+  final val USER_NAME = "userName"
   final val ENSURE_TOR = "ensureTor"
   final val MAXIMIZED_VIEW = "maximizedView"
   final val LAST_TOTAL_GOSSIP_SYNC = "lastTotalGossipSync"
@@ -137,6 +138,8 @@ object WalletApp {
     val denom = app.prefs.getString(BTC_DENOM, SatDenomination.sign)
     if (denom == SatDenomination.sign) SatDenomination else BtcDenomination
   }
+
+  def userName: Option[String] = Option(app.prefs.getString(USER_NAME, null))
 
   def customElectrumAddress: Try[NodeAddress] = Try {
     val rawAddress = app.prefs.getString(CUSTOM_ELECTRUM_ADDRESS, "")

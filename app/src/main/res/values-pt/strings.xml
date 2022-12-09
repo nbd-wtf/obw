@@ -248,6 +248,8 @@
 
     <string name="settings_btc_unit">Unidade de Bitcoin</string>
     <string name="settings_fiat_currency">Moeda governamental</string>
+    <string name="settings_user_name">Pseudônimo</string>
+    <string name="settings_user_name_unset">Um nome que será usado opcionalmente em algumas circunstâncias</string>
     <string name="settings_custom_electrum_host_port">host:port</string>
     <string name="settings_custom_electrum_disabled">Servidor Electrum personalizado</string>
     <string name="settings_custom_electrum_enabled">Usando node Electrum personalizado</string>
