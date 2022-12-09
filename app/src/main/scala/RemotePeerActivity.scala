@@ -251,8 +251,11 @@ class RemotePeerActivity
     }
 
     def attempt(alert: AlertDialog): Unit = {
-      def revertInformDismiss(reason: Throwable): Unit =
-        runAnd(alert.dismiss)(revertAndInform(reason))
+      def revertInformDismiss(reason: Throwable): Unit = {
+        revertAndInform(reason)
+        alert.dismiss
+      }
+
       runFutureProcessOnUI(
         makeFakeFunding(
           sendView.manager.resultMsat.truncateToSatoshi,
@@ -489,8 +492,14 @@ class RemotePeerActivity
   def revertAndInform(reason: Throwable): Unit = UITask {
     setVis(isVisible = criticalSupportAvailable, viewYesFeatureSupport)
     CommsTower.listenNative(Set(incomingAcceptingListener), hasInfo.remoteInfo)
-    val details = Option(reason.getMessage).getOrElse(reason.stackTraceAsString)
-    WalletApp.app.quickToast(details)
+    val details = Option(reason.getMessage)
+      .orElse(reason.toString() match {
+        case null => None
+        case ""   => None
+        case str  => Some(str)
+      })
+      .getOrElse(reason.stackTraceAsString)
+    onFail(details)
   }.run
 
   def stopAcceptingIncomingOffers(): Unit = {
