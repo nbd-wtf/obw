@@ -1476,7 +1476,12 @@ class HubActivity
             )
             .html
         )
-        description.setText(paymentDescription(info).html)
+
+        val desc =
+          if (isVisible(extraInfo))
+            expellNameFromNameDesc(paymentDescription(info))
+          else paymentDescription(info)
+        description.setText(desc.html)
         swipeWrap.setLockDrag(false)
 
       case info: DelayedRefunds =>

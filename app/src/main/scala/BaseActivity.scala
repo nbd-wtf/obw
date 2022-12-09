@@ -283,6 +283,8 @@ trait BaseActivity extends AppCompatActivity { self =>
     for (isVisible ~ view <- items) setVis(isVisible, view)
   }
 
+  def isVisible(view: View): Boolean = view.getVisibility == View.VISIBLE
+
   def runDelayed(ms: Int)(fun: => Any): Unit =
     timer.schedule(UITask(fun), ms.toLong)
 
