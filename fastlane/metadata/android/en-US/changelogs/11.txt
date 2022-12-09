@@ -1,0 +1,4 @@
+- Improved NameDesc! (bLIP-0012) parsing.
+- Option to set up a pseudonym and use that when paying out to lnurlpay endpoints that use LUD-18 and also to generate invoices containing your name (NameDesc!).
+- Stop showing `payee` information for Lightning payments since that is irrelevant in most cases, that information can still be accessed through the "share" functionality.
+- Stop showing `fiat value` unless the fiat value is 10 cents or more.

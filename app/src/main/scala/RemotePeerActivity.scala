@@ -247,7 +247,7 @@ class RemotePeerActivity
     ): Runnable = UITask {
       // At this point we have a real signed funding, relay it to channel and indicate progress
       sendView.switchToSpinner(alert)
-      channel process response
+      channel.process(response)
     }
 
     def attempt(alert: AlertDialog): Unit = {

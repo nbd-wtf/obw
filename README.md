@@ -28,11 +28,21 @@ Some of the features it includes are:
     - the same invoice from A can be paid by multiple wallets (B, C, D and so on) atomically
     - perfect for splitting bills at restaurants
   - LNURL support
-    - lnurl-channel, lnurl-hosted-channel
-    - lnurl-pay, lightning address, comments, message, URL and AES-encrypted `successAction`s
-    - lnurl-withdraw
-    - keyauth (lnurl-auth)
-  - NameDesc support
+    - get channels with lnurl-channel, lnurl-hosted-channel
+    - withdraw from services with lnurl-withdraw
+    - login to websites with keyauth (lnurl-auth)
+    - pay out to services with lnurl-pay and lightning address, possibly including
+      - arbitrary comments
+      - free names for tips
+      - key and signed keyauth challenges that allow simultaneous payment and login or account referencing
+      - unique public keys that allow later payer identification
+      - reading `successAction`s that can be
+        - free messages from the service to the wallet
+        - URLs sent from the service
+        - AES-encrypted secrets decryptable only with the payment preimage
+  - NameDesc!
+    - parse NameDesc invoices
+    - optionally generate NameDesc invoices
 
 ![obiwan](https://user-images.githubusercontent.com/1653275/186679611-c5c25d94-752a-4368-a0e4-7e7109fa5548.gif)
 
