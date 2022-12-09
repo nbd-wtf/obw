@@ -1,7 +1,8 @@
 package wtf.nbd.obw
 
 import java.util.{Date, TimerTask}
-
+import scala.concurrent.duration._
+import scala.util.Try
 import android.graphics.{Bitmap, BitmapFactory}
 import android.os.Bundle
 import android.text.Spanned
@@ -17,19 +18,17 @@ import com.google.common.cache.LoadingCache
 import com.indicator.ChannelIndicatorLine
 import com.ornach.nobobutton.NoboButton
 import com.softwaremill.quicklens._
+import rx.lang.scala.Subscription
+import scodec.bits.ByteVector
 import fr.acinq.bitcoin._
 import fr.acinq.eclair._
 import fr.acinq.eclair.channel._
-import fr.acinq.eclair.wire.HostedChannelBranding
+import fr.acinq.eclair.wire.{HostedChannelBranding, NodeAddress}
 import immortan.ChannelListener.Malfunction
 import immortan._
 import immortan.crypto.Tools._
 import immortan.utils.{BitcoinUri, InputParser, PaymentRequestExt, Rx}
 import immortan.wire.HostedState
-import rx.lang.scala.Subscription
-
-import scala.concurrent.duration._
-import scala.util.Try
 
 object ChanActivity {
   def getHcState(hc: HostedCommits): String = {
@@ -664,6 +663,7 @@ class ChanActivity
     val scanFooter = new TitleView(getString(R.string.chan_open))
     val lspFooter = new TitleView(getString(R.string.chan_lsp_list_title))
     val hcpFooter = new TitleView(getString(R.string.chan_hcp_list_title))
+    val mfnFooter = new TitleView(getString(R.string.chan_mfn_list_title))
 
     addFlowChip(
       scanFooter.flow,
@@ -725,11 +725,77 @@ class ChanActivity
             LNParams.syncParams.jiraiya
           )
       )
+
+      // list taken from https://github.com/hsjoberg/blixt-wallet/issues/1033
+      List(
+        RemoteNodeInfo(
+          Crypto.PublicKey(
+            ByteVector.fromValidHex(
+              "024bfaf0cabe7f874fd33ebf7c6f4e5385971fc504ef3f492432e9e3ec77e1b5cf"
+            )
+          ),
+          NodeAddress.fromParts("52.1.72.207", 9735),
+          "deezy.io"
+        ),
+        RemoteNodeInfo(
+          Crypto.PublicKey(
+            ByteVector.fromValidHex(
+              "0242a4ae0c5bef18048fbecf995094b74bfb0f7391418d71ed394784373f41e4f3"
+            )
+          ),
+          NodeAddress.fromParts("3.124.63.44", 9735),
+          "CoinGate"
+        ),
+        RemoteNodeInfo(
+          Crypto.PublicKey(
+            ByteVector.fromValidHex(
+              "03e81689bfd18d0accb28d720ed222209b1a5f2c6825308772beac75b1fe35d491"
+            )
+          ),
+          NodeAddress.fromParts("46.105.76.211", 9735),
+          "Rust-eze"
+        ),
+        RemoteNodeInfo(
+          Crypto.PublicKey(
+            ByteVector.fromValidHex(
+              "0230a5bca558e6741460c13dd34e636da28e52afd91cf93db87ed1b0392a7466eb"
+            )
+          ),
+          NodeAddress.fromParts("176.9.17.121", 9735),
+          "Blixt"
+        ),
+        RemoteNodeInfo(
+          Crypto.PublicKey(
+            ByteVector.fromValidHex(
+              "03c72f89b660de43fc5c77ef879cbf7846601af88befb80e436242909b14fd0495"
+            )
+          ),
+          NodeAddress.fromParts("47.40.121.33", 9735),
+          "RecklessApotheosis"
+        ),
+        RemoteNodeInfo(
+          Crypto.PublicKey(
+            ByteVector.fromValidHex(
+              "03bb88ccc444534da7b5b64b4f7b15e1eccb18e102db0e400d4b9cfe93763aa26d"
+            )
+          ),
+          NodeAddress.fromParts("138.68.14.104", 9735),
+          "ln2me.com"
+        )
+      ).foreach { n =>
+        addFlowChip(
+          mfnFooter.flow,
+          n.alias,
+          R.drawable.border_basic,
+          _ => goToWithValue(ClassNames.remotePeerActivityClass, n)
+        )
+      }
     }
 
     getChanList.addFooterView(scanFooter.view)
     getChanList.addFooterView(lspFooter.view)
     getChanList.addFooterView(hcpFooter.view)
+    getChanList.addFooterView(mfnFooter.view)
     getChanList.setAdapter(chanAdapter)
     getChanList.setDividerHeight(0)
     getChanList.setDivider(null)
