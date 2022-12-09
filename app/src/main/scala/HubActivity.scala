@@ -3165,10 +3165,15 @@ class HubActivity
           getString(R.string.dialog_receive_ln)
 
         override def getDescription: PaymentDescription = {
-          val invoiceText = manager.resultExtraInput.getOrElse(new String)
           val hold =
             if (manager.holdPayment.isChecked) Some(LNParams.maxHoldSecs)
             else None
+          val namePrefix =
+            if (manager.attachIdentity.isChecked)
+              s"${WalletApp.userName.get}:  "
+            else ""
+          val invoiceText =
+            manager.resultExtraInput.map(namePrefix ++ _).getOrElse("")
           PaymentDescription(
             split = None,
             label = None,
@@ -3180,6 +3185,23 @@ class HubActivity
 
         manager.holdPayment.setText(holdPeriodInMinutes.html)
         setVis(isVisible = true, manager.holdPayment)
+
+        val commentChanged = debounce[String](
+          comment => {
+            UITask {
+              System.err.println(
+                s"VISIBLE: ${comment.trim.nonEmpty} (${comment.trim})"
+              )
+              setVis(isVisible = comment.trim.nonEmpty, manager.attachIdentity)
+            }.run
+          },
+          450.milliseconds
+        )
+        WalletApp.userName.foreach { _ =>
+          manager.extraInput.addTextChangedListener(
+            onTextChange(commentChanged)
+          )
+        }
       }
     }
 
