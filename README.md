@@ -1,10 +1,20 @@
-<a href="https://nbd.wtf"><img align="right" height="196" src="https://user-images.githubusercontent.com/1653275/194609043-0add674b-dd40-41ed-986c-ab4a2e053092.png" /></a>
+<a href="https://nbd.wtf"><img align="right" height="196" src="https://user-images.githubusercontent.com/1653275/194609043-0add674b-dd40-41ed-986c-ab4a2e053092.png" alt=" NBD logo > Open Bitcoin Wallet (OBW)"/></a>
 
-# The _Open Bitcoin Wallet_
+# OBW - The _Open Bitcoin Wallet_
 
-The _Open Bitcoin Wallet_ is an Android Bitcoin and Lightning wallet, a fork of [_Simple Bitcoin Wallet_](https://github.com/btcontract/wallet) focused on providing a pleasant and simple experience with advanced features.
+The _Open Bitcoin Wallet_ (OBW) is an Android Bitcoin and Lightning wallet, a fork of [Simple Bitcoin Wallet](https://github.com/btcontract/wallet) focused on providing a pleasant and simple experience with advanced features.
 
-Some of the features it includes are:
+## How to install OBW
+
+To install the _Open Bitcoin Wallet_ you have 3 options right now:
+
+1. Grab an APK from the [releases](https://github.com/nbd-wtf/obw/releases) page
+2. Download from [Google Play](https://play.google.com/store/apps/details?id=wtf.nbd.obw)
+3. Build from source (see [instructions below](#how-to-build-obw-from-source))
+
+## OBW features
+
+Some of the features OBW includes are:
 
   - Lightweight Bitcoin wallet that uses Electrum servers
     - can use an Electrum server specified by the user or random ones
@@ -44,23 +54,12 @@ Some of the features it includes are:
     - parse NameDesc invoices
     - optionally generate NameDesc invoices
 
-![obiwan](https://user-images.githubusercontent.com/1653275/186679611-c5c25d94-752a-4368-a0e4-7e7109fa5548.gif)
+![Obi Wan fights using the Open Bitcoin Wallet (OBW)](https://user-images.githubusercontent.com/1653275/186679611-c5c25d94-752a-4368-a0e4-7e7109fa5548.gif)
 
-## IMMORTAN
 
-_Open Bitcoin Wallet_ is based on [IMMORTAN](https://github.com/nbd-wtf/immortan), a versatile, flexible and reasonable library for building lightweight Bitcoin and Lightning wallets.
+## How to build OBW from source
 
-## How to install
-
-You have 3 options right now:
-
-1. Grab an APK from the [releases](https://github.com/nbd-wtf/obw/releases) page
-2. Download from [Google Play](https://play.google.com/store/apps/details?id=wtf.nbd.obw)
-3. Build from source (see instructions below)
-
-## How to build from source
-
-Run this:
+To build the _Open Bitcoin Wallet_ run this:
 
 ```
 git clone https://github.com/nbd-wtf/obw.git
@@ -71,6 +70,10 @@ cd obw
 The APK will be at `app/build/outputs/apk/debug`.
 
 Other commands: `./gradlew installDebug`, `./gradlew assembleRelease`, `./gradlew bundleRelease` (with Gradle options `-PSTORE_FILE=... -PSTORE_PASSWORD=... -PKEY_PASSWORD=... -PKEY_ALIAS=...` when signing to publish to Google Play Store).
+
+## Immortan
+
+_Open Bitcoin Wallet_ (OBW) is based on [Immortan](https://github.com/nbd-wtf/immortan), a versatile, flexible and reasonable library for building lightweight Bitcoin and Lightning wallets.
 
 ## License
 
