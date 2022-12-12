@@ -1,6 +1,5 @@
 package wtf.nbd.obw
 
-import scala.util.Success
 import android.content.Intent
 import android.os.Bundle
 import android.view.{View, ViewGroup}
@@ -16,6 +15,7 @@ import fr.acinq.bitcoin.Satoshi
 import fr.acinq.eclair.MilliSatoshi
 import fr.acinq.eclair.blockchain.EclairWallet
 import fr.acinq.eclair.blockchain.EclairWallet._
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient.SSL
 import fr.acinq.eclair.blockchain.electrum.db.{SigningWallet, WatchingWallet}
 import fr.acinq.eclair.wire.CommonCodecs.nodeaddress
 import fr.acinq.eclair.wire.{Domain, NodeAddress}
@@ -27,6 +27,8 @@ abstract class SettingsHolder(host: BaseActivity) {
   lazy val view: RelativeLayout = host.getLayoutInflater
     .inflate(R.layout.frag_switch, null, false)
     .asInstanceOf[RelativeLayout]
+  lazy val settingsText: LinearLayout =
+    view.findViewById(R.id.settingsText).asInstanceOf[LinearLayout]
   lazy val settingsCheck: CheckBox =
     view.findViewById(R.id.settingsCheck).asInstanceOf[CheckBox]
   lazy val settingsTitle: TextView =
@@ -250,22 +252,48 @@ class SettingsActivity
   }
 
   private[this] lazy val electrum: SettingsHolder = new SettingsHolder(this) {
-    setVis(isVisible = false, settingsCheck)
-
     override def updateView(): Unit = WalletApp.customElectrumAddress match {
-      case Success(nodeAddress) =>
-        setTexts(
-          R.string.settings_custom_electrum_enabled,
-          nodeAddress.toString
-        )
+      case Some((nodeAddress, ssl)) =>
+        settingsInfo.setText(nodeAddress.toString)
+        setVis(isVisible = true, settingsCheck)
+        ssl match {
+          case None =>
+            settingsTitle.setText(R.string.settings_custom_electrum_loose)
+            settingsCheck.setChecked(false)
+          case Some(SSL.STRICT) =>
+            settingsTitle.setText(R.string.settings_custom_electrum_enabled)
+            settingsCheck.setChecked(true)
+          case Some(SSL.LOOSE) =>
+            settingsTitle.setText(R.string.settings_custom_electrum_loose)
+            settingsCheck.setChecked(false)
+          case Some(SSL.OFF) =>
+            settingsTitle.setText(R.string.settings_custom_electrum_enabled)
+            setVis(isVisible = false, settingsCheck)
+        }
       case _ =>
-        setTexts(
-          R.string.settings_custom_electrum_disabled,
+        settingsTitle.setText(R.string.settings_custom_electrum_disabled)
+        settingsInfo.setText(
           getString(R.string.settings_custom_electrum_disabled_tip)
         )
+        setVis(isVisible = false, settingsCheck)
     }
 
-    view.setOnClickListener(onButtonTap {
+    settingsCheck.setOnClickListener(onButtonTap {
+      WalletApp.customElectrumAddress.foreach { case (_, ssl) =>
+        val nextSSLPolicy = ssl match {
+          case None             => "strict"
+          case Some(SSL.STRICT) => "loose"
+          case Some(SSL.LOOSE)  => "strict"
+          case Some(SSL.OFF)    => "off" // this shouldn't happen
+        }
+        WalletApp.app.prefs.edit
+          .putString(WalletApp.CUSTOM_ELECTRUM_SSL, nextSSLPolicy)
+          .commit
+        warnAndUpdateView()
+      }
+    })
+
+    settingsText.setOnClickListener(onButtonTap {
       val (container, extraInputLayout, extraInput) = singleInputPopup
       val builder = titleBodyAsViewBuilder(
         getString(R.string.settings_custom_electrum_disabled).asDefView,
@@ -279,7 +307,7 @@ class SettingsActivity
         R.string.dialog_cancel
       )
       extraInputLayout.setHint(R.string.settings_custom_electrum_host_port)
-      WalletApp.customElectrumAddress.foreach { nodeAddress =>
+      WalletApp.customElectrumAddress.foreach { case (nodeAddress, _) =>
         val text = nodeAddress.toString
         extraInput.setText(text)
         extraInput.setSelection(0, text.size)
@@ -288,35 +316,36 @@ class SettingsActivity
 
       def proceed(): Unit = {
         val input = extraInput.getText.toString.trim
-        def saveAddress(address: String) = WalletApp.app.prefs.edit
-          .putString(WalletApp.CUSTOM_ELECTRUM_ADDRESS, address)
-        if (input.nonEmpty)
-          runInFutureProcessOnUI(saveUnsafeElectrumAddress(), onFail)(_ =>
-            warnAndUpdateView()
-          )
-        else runAnd(saveAddress(new String).commit)(warnAndUpdateView())
-
-        def saveUnsafeElectrumAddress(): Unit = {
-          val hostOrIP ~ port = input.splitAt(input lastIndexOf ':')
+        if (input.nonEmpty) {
+          val hostOrIP ~ port = input.splitAt(input.lastIndexOf(':'))
           val nodeAddress =
             NodeAddress.fromParts(hostOrIP, port.tail.toInt, Domain)
-          saveAddress(nodeaddress.encode(nodeAddress).require.toHex).commit
-        }
 
-        def warnAndUpdateView(): Unit = {
-          def onOk(snack: Snackbar): Unit =
-            runAnd(snack.dismiss)(WalletApp.restart())
-          val message =
-            getString(R.string.settings_custom_electrum_restart_notice).html
-          snack(settingsContainer, message, R.string.dialog_ok, onOk)
-          updateView()
+          WalletApp.app.prefs.edit
+            .putString(
+              WalletApp.CUSTOM_ELECTRUM_ADDRESS,
+              nodeaddress.encode(nodeAddress).require.toHex
+            )
+            .commit
+          warnAndUpdateView()
+        } else {
+          WalletApp.app.prefs.edit
+            .remove(WalletApp.CUSTOM_ELECTRUM_ADDRESS)
+            .commit
+          warnAndUpdateView()
         }
       }
     })
 
-    def setTexts(titleRes: Int, info: String): Unit = {
-      settingsTitle.setText(titleRes)
-      settingsInfo.setText(info)
+    def warnAndUpdateView(): Unit = {
+      def onOk(snack: Snackbar): Unit = {
+        snack.dismiss
+        WalletApp.restart()
+      }
+      val message =
+        getString(R.string.settings_custom_electrum_restart_notice).html
+      snack(settingsContainer, message, R.string.dialog_ok, onOk)
+      updateView()
     }
   }
 

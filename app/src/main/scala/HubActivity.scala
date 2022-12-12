@@ -3189,9 +3189,6 @@ class HubActivity
         val commentChanged = debounce[String](
           comment => {
             UITask {
-              System.err.println(
-                s"VISIBLE: ${comment.trim.nonEmpty} (${comment.trim})"
-              )
               setVis(isVisible = comment.trim.nonEmpty, manager.attachIdentity)
             }.run
           },

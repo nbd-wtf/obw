@@ -215,7 +215,6 @@
     <!-- /special tx/payment descriptions -->
 
     <!-- Remote peer activity -->
-
     <string name="rpa_title">Remote peer connection</string>
     <string name="rpa_disconnected">Remote peer disconnected</string>
     <string name="rpa_no_feature_support">Can not open channels with this node since some important features are not supported by remote peer.</string>
@@ -255,8 +254,9 @@
     <string name="settings_user_name">Pseudonym</string>
     <string name="settings_user_name_unset">Set a name to be used (optionally) in some situations</string>
     <string name="settings_custom_electrum_host_port">host:port</string>
-    <string name="settings_custom_electrum_disabled">Set custom Electrum node</string>
-    <string name="settings_custom_electrum_enabled">Using custom Electrum node</string>
+    <string name="settings_custom_electrum_disabled">Set custom Electrum server</string>
+    <string name="settings_custom_electrum_enabled">Using custom Electrum server</string>
+    <string name="settings_custom_electrum_loose">Custom Electrum with insecure SSL</string>
     <string name="settings_custom_electrum_disabled_tip">Random nodes are used currently</string>
     <string name="settings_custom_electrum_restart_notice">Restart to apply changes</string>
 

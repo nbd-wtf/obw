@@ -19,6 +19,7 @@ import com.guardanis.applock.AppLock
 import com.softwaremill.quicklens._
 import fr.acinq.bitcoin.{Block, ByteVector32, Satoshi, SatoshiLong}
 import fr.acinq.eclair._
+import fr.acinq.eclair.blockchain.electrum.ElectrumClient.SSL
 import fr.acinq.eclair.blockchain.electrum.ElectrumWallet.{
   TransactionReceived,
   WalletReady
@@ -102,6 +103,7 @@ object WalletApp {
   final val LAST_TOTAL_GOSSIP_SYNC = "lastTotalGossipSync"
   final val LAST_NORMAL_GOSSIP_SYNC = "lastNormalGossipSync"
   final val CUSTOM_ELECTRUM_ADDRESS = "customElectrumAddress"
+  final val CUSTOM_ELECTRUM_SSL = "customElectrumSSL"
 
   def useAuth: Boolean = AppLock.isEnrolled(app)
   def fiatCode: String = app.prefs.getString(FIAT_CODE, "usd")
@@ -141,10 +143,18 @@ object WalletApp {
 
   def userName: Option[String] = Option(app.prefs.getString(USER_NAME, null))
 
-  def customElectrumAddress: Try[NodeAddress] = Try {
+  def customElectrumAddress: Option[(NodeAddress, Option[SSL])] = Try {
     val rawAddress = app.prefs.getString(CUSTOM_ELECTRUM_ADDRESS, "")
-    nodeaddress.decode(BitVector.fromValidHex(rawAddress)).require.value
-  }
+    val address =
+      nodeaddress.decode(BitVector.fromValidHex(rawAddress)).require.value
+    val ssl = app.prefs.getString(CUSTOM_ELECTRUM_SSL, "") match {
+      case "strict" => Some(SSL.STRICT)
+      case "loose"  => Some(SSL.LOOSE)
+      case "off"    => Some(SSL.OFF)
+      case _        => None
+    }
+    (address, ssl)
+  }.toOption
 
   def freePossiblyUsedRuntimeResouces(): Unit = {
     // Drop whatever network connections we still have
@@ -251,7 +261,7 @@ object WalletApp {
       LNParams.blockCount,
       LNParams.chainHash,
       ensureTor,
-      customElectrumAddress.toOption
+      customElectrumAddress
     )
     val sync = new ElectrumChainSync(
       pool,
