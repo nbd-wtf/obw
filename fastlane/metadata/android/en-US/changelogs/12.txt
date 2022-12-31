@@ -1,0 +1,3 @@
+- Dirty fix related to recent node announcements being replaced with old node announcements.
+- Fix channel backup file creation.
+- Clicking on the channel backup option on Settings now triggers a backup creation.
