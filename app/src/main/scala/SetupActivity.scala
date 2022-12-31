@@ -125,7 +125,7 @@ class SetupActivity extends BaseActivity {
             )
             // Delete user-selected backup file while we can here and make an app-owned backup shortly
             DocumentFile.fromSingleUri(this, resultData.getData).delete
-            WalletApp.saveBackup(())
+            WalletApp.immediatelySaveBackup()
             proceedWithMnemonics(mnemonics)
 
           case Failure(exc) =>
