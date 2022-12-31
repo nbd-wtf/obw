@@ -1,6 +1,6 @@
 package wtf.nbd.obw
 
-import java.util.TimerTask
+import java.util.{TimerTask, Date}
 import scala.util.chaining._
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Seq
@@ -2150,8 +2150,9 @@ class HubActivity
 
   // Getting graph sync status and our peer announcements
   override def process(reply: Any): Unit = reply match {
-    case na: NodeAnnouncement =>
-      LNParams.cm.all.values.foreach(_.process(na.toRemoteInfo))
+    case na: NodeAnnouncement
+        if na.timestamp > ((new Date().getTime() / 1000) - 60 * 60 * 24 * 30) =>
+      LNParams.cm.all.values.foreach(_.process(na))
     case PathFinder.CMDResync =>
       walletCards.updateLnSyncProgress(total = 1000, left = 1000)
     case prd: PureRoutingData =>
