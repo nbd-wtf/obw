@@ -283,7 +283,9 @@ class RemotePeerActivity
             override def onChanPersisted(
                 data: DATA_WAIT_FOR_FUNDING_CONFIRMED,
                 chan: ChannelNormal
-            ): Unit = implantAndBroadcast(data, fromWallet, chan)
+            ): Unit =
+              implantAndBroadcast(data, fromWallet, chan)
+
             override def onFailure(reason: Throwable): Unit =
               revertInformDismiss(reason)
 

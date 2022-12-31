@@ -94,29 +94,35 @@ class SettingsActivity
     setVis(isVisible = false, settingsCheck)
 
     def updateView(): Unit = {
-      val backupAllowed = LocalBackup.isAllowed(context = WalletApp.app)
-      if (backupAllowed && LNParams.cm.all.nonEmpty)
-        WalletApp.immediatelySaveBackup
-      val title =
-        if (backupAllowed) R.string.settings_backup_enabled
-        else R.string.settings_backup_disabled
-      val info =
-        if (backupAllowed) R.string.settings_backup_where
-        else R.string.settings_backup_how
+      val (title, info) =
+        if (LocalBackup.isAllowed(context = WalletApp.app))
+          (R.string.settings_backup_enabled, R.string.settings_backup_where)
+        else
+          (R.string.settings_backup_disabled, R.string.settings_backup_how)
       settingsTitle.setText(title)
       settingsInfo.setText(info)
     }
 
     view.setOnClickListener(onButtonTap {
-      val intent = (new Intent).setAction(
-        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+      if (
+        LocalBackup.isAllowed(context = WalletApp.app)
+        && LNParams.cm.all.nonEmpty
       )
-      val intent1 = intent setData android.net.Uri.fromParts(
-        "package",
-        getPackageName,
-        null
-      )
-      startActivity(intent1)
+        WalletApp.immediatelySaveBackup()
+      else
+        startActivity(
+          (new Intent)
+            .setAction(
+              android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            )
+            .setData(
+              android.net.Uri.fromParts(
+                "package",
+                getPackageName,
+                null
+              )
+            )
+        )
     })
   }
 

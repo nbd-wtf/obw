@@ -1987,7 +1987,6 @@ class HubActivity
       UITask {
         val assistedShortIds =
           data.cmd.assistedEdges.map(_.updExt.update.shortChannelId)
-        val isIncompleteGraph = LNParams.cm.pf.isIncompleteGraph
         val canIncreaseFee =
           data.cmd.split.myPart + data.cmd.totalFeeReserve * 2 <= LNParams.cm
             .maxSendable(LNParams.cm.all.values)
@@ -2016,7 +2015,7 @@ class HubActivity
             }
           }
 
-        if (isIncompleteGraph && warnNoRouteFound)
+        if (LNParams.cm.pf.isIncompleteGraph && warnNoRouteFound)
           snack(
             contentWindow,
             getString(R.string.ln_sync_not_complete),

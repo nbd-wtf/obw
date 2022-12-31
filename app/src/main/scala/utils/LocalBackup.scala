@@ -15,7 +15,7 @@ import scala.util.Try
 import java.io.File
 
 object LocalBackup {
-  final val BACKUP_NAME = "encrypted.channels"
+  final val BACKUP_NAME = "obw.encrypted.channels"
   final val GRAPH_NAME = "graph.snapshot"
   final val BACKUP_EXTENSION = ".bin"
   final val GRAPH_EXTENSION = ".zlib"
