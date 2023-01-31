@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.2'
-        classpath 'scala.android.plugin:scala-android-plugin:20210222.1057'
+        classpath 'io.github.dsvdsv:scala-android-plugin:20221029.2150'
         classpath 'ch.epfl.scala:gradle-bloop_2.12:1.5.0-22-91111c15'
     }
 }
