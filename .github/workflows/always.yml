@@ -1,5 +1,6 @@
 name: build dev apk
 on:
+  pull_request:
   push:
     branches:
       - 'master'
