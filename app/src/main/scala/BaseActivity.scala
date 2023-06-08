@@ -220,7 +220,7 @@ trait BaseActivity extends AppCompatActivity { self =>
       mnemonicWord ~ mnemonicIndex <- LNParams.secret.mnemonic.zipWithIndex
     ) {
       val item = s"${mnemonicIndex + 1} $mnemonicWord"
-      addFlowChip(content.flow, item, R.drawable.border_green)
+      addFlowChip(content.flow, item, R.drawable.border_green, _ => {})
     }
   }
 
