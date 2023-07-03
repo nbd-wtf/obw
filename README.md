@@ -6,11 +6,12 @@ The _Open Bitcoin Wallet_ (OBW) is an Android Bitcoin and Lightning wallet, a fo
 
 ## How to install OBW
 
-To install the _Open Bitcoin Wallet_ you have 3 options right now:
+To install the _Open Bitcoin Wallet_ you have 4 options right now:
 
 1. Grab an APK from the [releases](https://github.com/nbd-wtf/obw/releases) page
 2. Download from [Google Play](https://play.google.com/store/apps/details?id=wtf.nbd.obw)
-3. Build from source (see [instructions below](#how-to-build-obw-from-source))
+3. Download from [F-Droid](https://f-droid.org/packages/wtf.nbd.obw/)
+4. Build from source (see [instructions below](#how-to-build-obw-from-source))
 
 ## OBW features
 
